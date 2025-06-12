@@ -1,9 +1,15 @@
 import * as ScreenOrientation from "expo-screen-orientation";
+import { Text, StyleSheet } from "react-native";
 
 export default function NameBadge({ name }) {
   ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_LEFT);
 
-  return <Text style={styles.welcomeText}>Hello</Text>;
+  return (
+    <>
+      <Text style={styles.welcomeText}>Hello</Text>
+      <Text style={styles.nameText}>{name}</Text>
+    </>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -25,5 +31,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     letterSpacing: 1,
     lineHeight: 35,
+  },
+  nameBox: {
+    width: "100%",
+    height: "55%",
+    backgroundColor: "white",
+    borderRadius: 5,
+    justifyContent: "center",
+  },
+  nameText: {
+    fontSize: 60,
+    textAlign: "center",
+    fontWeight: "bold",
   },
 });
