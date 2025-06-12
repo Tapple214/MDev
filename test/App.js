@@ -3,8 +3,9 @@ import { StyleSheet, Text, View } from "react-native";
 import NameBadge from "./components/name-badge";
 import TicTacToe from "./components/tic-tac-toe";
 import Calculator from "./components/calculator";
+import FoodApp from "./components/food-app";
 
 export default function App() {
   // return <NameBadge name="John Doe" />;
-  return <Calculator />;
+  return <FoodApp />;
 }
