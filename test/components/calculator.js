@@ -15,7 +15,7 @@ const longButtonWidth = buttonWidth * 2 + 10;
 
 const buttonRows = [
   [
-    { label: "C", style: "buttonLightGrey" },
+    { label: "AC", style: "buttonLightGrey" },
     { label: "+/-", style: "buttonLightGrey" },
     { label: "%", style: "buttonLightGrey" },
     { label: "/", style: "buttonBlue" },
@@ -50,6 +50,7 @@ const Calculator = () => {
   const [readyToReplace, setReadyToReplace] = useState(true);
   const [memoryValue, setMemoryValue] = useState("0");
   const [operatorValue, setOperatorValue] = useState("0");
+  const [isAC, setIsAC] = useState(true);
 
   const isNumber = (val) => /[0-9]/.test(val);
   const isOperator = (val) => ["+", "-", "x", "/"].includes(val);
@@ -90,12 +91,19 @@ const Calculator = () => {
     if (isNumber(value)) {
       const newValue = handleNumber(value);
       setAnswerValue(newValue);
+      setIsAC(false);
       return;
     }
-    if (value === "C") {
-      setAnswerValue("0");
-      setMemoryValue("0");
-      setOperatorValue("0");
+    if (value === "AC" || value === "CE") {
+      if (value === "AC") {
+        setAnswerValue("0");
+        setMemoryValue("0");
+        setOperatorValue("0");
+        setIsAC(true);
+      } else {
+        setAnswerValue("0");
+        setIsAC(true);
+      }
       setReadyToReplace(true);
       return;
     }
@@ -138,6 +146,13 @@ const Calculator = () => {
     }
   };
 
+  const getButtonStyle = (btn) => {
+    if (isOperator(btn.label) && operatorValue === btn.label) {
+      return [styles.button, styles[btn.style], styles.activeOperator];
+    }
+    return [styles.button, styles[btn.style]];
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -152,8 +167,7 @@ const Calculator = () => {
             <TouchableOpacity
               key={btn.label}
               style={[
-                styles.button,
-                styles[btn.style],
+                ...getButtonStyle(btn),
                 btn.long
                   ? {
                       width: longButtonWidth,
@@ -169,9 +183,15 @@ const Calculator = () => {
                     },
               ]}
               activeOpacity={0.7}
-              onPress={() => buttonPressed(btn.label)}
+              onPress={() =>
+                buttonPressed(
+                  btn.label === "AC" ? (isAC ? "AC" : "CE") : btn.label
+                )
+              }
             >
-              <Text style={styles.buttonText}>{btn.label}</Text>
+              <Text style={styles.buttonText}>
+                {btn.label === "AC" ? (isAC ? "AC" : "CE") : btn.label}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -218,6 +238,9 @@ const styles = StyleSheet.create({
   },
   buttonBlue: {
     backgroundColor: "#2196f3",
+  },
+  activeOperator: {
+    backgroundColor: "#ff9500",
   },
   buttonText: {
     color: "white",
