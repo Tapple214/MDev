@@ -7,6 +7,7 @@ import FoodApp from "./components/food-app";
 
 export default function App() {
   // return <NameBadge name="Apple 🍎" />;
-  return <TicTacToe />;
+  // return <TicTacToe />;
+  return <Calculator />;
   // return <FoodApp />;
 }
