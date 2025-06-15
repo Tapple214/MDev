@@ -6,6 +6,7 @@ import Calculator from "./components/calculator";
 import FoodApp from "./components/food-app";
 
 export default function App() {
-  // return <NameBadge name="John Doe" />;
-  return <FoodApp />;
+  // return <NameBadge name="Apple 🍎" />;
+  return <TicTacToe />;
+  // return <FoodApp />;
 }
