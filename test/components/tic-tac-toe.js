@@ -1,9 +1,7 @@
-import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
-import * as ScreenOrientation from "expo-screen-orientation";
 
 const { width } = Dimensions.get("window");
-const GRID_SIZE = width * 0.8; // 80% of device width
+const GRID_SIZE = width * 0.8;
 const CELL_SIZE = GRID_SIZE / 3;
 const BORDER_WIDTH = 4;
 
@@ -14,25 +12,6 @@ const board = [
 ];
 
 export default function TicTacToe() {
-  //   useEffect(() => {
-  //     const lockOrientation = async () => {
-  //       try {
-  //         await ScreenOrientation.lockAsync(
-  //           ScreenOrientation.OrientationLock.PORTRAIT_UP
-  //         );
-  //       } catch (error) {
-  //         console.error("Failed to lock orientation:", error);
-  //       }
-  //     };
-
-  //     lockOrientation();
-
-  //     // Cleanup function to unlock orientation when component unmounts
-  //     return () => {
-  //       ScreenOrientation.unlockAsync();
-  //     };
-  //   }, []);
-
   return (
     <View style={styles.container}>
       <View style={styles.grid}>
@@ -68,7 +47,7 @@ const styles = StyleSheet.create({
     width: GRID_SIZE,
     height: GRID_SIZE,
     backgroundColor: "#fff",
-    marginHorizontal: width * 0.1, // 10% margin on each side
+    marginHorizontal: width * 0.1,
   },
   row: {
     flex: 1,
@@ -88,7 +67,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#000",
   },
   cellText: {
-    fontSize: CELL_SIZE * 0.6, // Responsive text size
+    fontSize: CELL_SIZE * 0.6,
     fontWeight: "bold",
     color: "#000",
   },
