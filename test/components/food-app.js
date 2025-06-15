@@ -6,9 +6,9 @@ import {
   ScrollView,
   Text,
   StyleSheet,
+  Image,
   TouchableOpacity,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 
 const Stack = createStackNavigator();
 
@@ -19,14 +19,21 @@ const restaurants = [
     title: "Joe's Gelato",
     tagline: "Desert, Ice cream, £££",
     eta: "10-30",
+    imgUri: {
+      uri: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&auto=format&fit=crop&q=60",
+    },
     menu: [
       {
         title: "Gelato",
-        items: ["Vanilla", "Chocolate", "Strawberry"],
+        contents: [
+          { title: "Vanilla" },
+          { title: "Chocolate" },
+          { title: "Strawberry" },
+        ],
       },
       {
         title: "Drinks",
-        items: ["Espresso", "Water"],
+        contents: [{ title: "Espresso" }, { title: "Water" }],
       },
     ],
   },
@@ -35,62 +42,67 @@ const restaurants = [
     title: "Joe's Diner",
     tagline: "American, burgers, ££",
     eta: "50+",
+    imgUri: {
+      uri: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&auto=format&fit=crop&q=60",
+    },
     menu: [
       {
         title: "Burgers",
-        items: ["Classic Burger", "Cheese Burger", "Veggie Burger"],
+        contents: [
+          { title: "Classic Burger" },
+          { title: "Cheese Burger" },
+          { title: "Veggie Burger" },
+        ],
       },
       {
         title: "Sides",
-        items: ["Fries", "Onion Rings"],
+        contents: [{ title: "Fries" }, { title: "Onion Rings" }],
       },
       {
         title: "Drinks",
-        items: ["Cola", "Milkshake"],
+        contents: [{ title: "Cola" }, { title: "Milkshake" }],
       },
     ],
   },
 ];
 
-const RestaurantCard = ({ restaurant, onPress }) => (
-  <TouchableOpacity onPress={onPress} style={styles.card}>
-    <View style={styles.cardContent}>
-      <View style={styles.imagePlaceholder} />
+const HomeScreenCell = ({ title, tagline, eta, imgUri, onPress }) => (
+  <TouchableOpacity onPress={onPress} style={styles.cell} activeOpacity={0.7}>
+    <View style={styles.cellContentView}>
+      <Image source={imgUri} style={styles.headerImage} />
       <View style={styles.etaBadge}>
-        <Text style={styles.etaText}>{restaurant.eta} mins</Text>
+        <Text style={styles.etaText}>{eta} mins</Text>
       </View>
       <View style={styles.cardInfo}>
-        <Text style={styles.title}>{restaurant.title}</Text>
-        <Text style={styles.tagline}>{restaurant.tagline}</Text>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.tagline}>{tagline}</Text>
       </View>
     </View>
   </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
-  card: {
+  cell: {
+    height: 290,
+    backgroundColor: "transparent",
     marginHorizontal: 16,
     marginVertical: 8,
     borderRadius: 12,
+    overflow: "hidden",
+  },
+  cellContentView: {
+    flex: 1,
     backgroundColor: "white",
+    borderRadius: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  cardContent: {
-    flex: 1,
-  },
-  cardInfo: {
-    marginTop: 10,
-    marginLeft: 10,
-    marginBottom: 10,
-  },
-  imagePlaceholder: {
+  headerImage: {
     width: "100%",
     height: 180,
-    backgroundColor: "#e0e0e0",
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
   },
@@ -112,6 +124,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 18,
   },
+  cardInfo: {
+    marginTop: 10,
+    marginLeft: 10,
+    marginBottom: 10,
+  },
   title: {
     fontWeight: "bold",
     fontSize: 22,
@@ -121,33 +138,36 @@ const styles = StyleSheet.create({
     color: "#888",
     fontSize: 16,
   },
-  menuItem: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  },
-  menuSection: {
+  section: {
     marginBottom: 16,
   },
-  menuSectionTitle: {
+  sectionHeader: {
     fontSize: 18,
     fontWeight: "bold",
     padding: 16,
     backgroundColor: "#f5f5f5",
   },
+  menuItem: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+    backgroundColor: "white",
+  },
 });
 
-function HomeScreen() {
-  const navigation = useNavigation();
+function HomeScreen({ navigation }) {
   return (
     <ScrollView style={{ backgroundColor: "#f5f5f5" }}>
-      <View style={{ paddingVertical: 8 }}>
+      <View style={styles.section}>
         {restaurants.map((restaurant) => (
-          <RestaurantCard
+          <HomeScreenCell
             key={restaurant.id}
-            restaurant={restaurant}
+            title={restaurant.title}
+            tagline={restaurant.tagline}
+            eta={restaurant.eta}
+            imgUri={restaurant.imgUri}
             onPress={() =>
-              navigation.navigate("Menu", { menu: restaurant.menu })
+              navigation.navigate("Menu", { items: restaurant.menu })
             }
           />
         ))}
@@ -157,15 +177,15 @@ function HomeScreen() {
 }
 
 function MenuScreen({ route }) {
-  const { menu = [] } = route.params || {};
+  const { items = [] } = route.params || {};
   return (
     <ScrollView style={{ backgroundColor: "white" }}>
-      {menu.map((section, idx) => (
-        <View key={idx} style={styles.menuSection}>
-          <Text style={styles.menuSectionTitle}>{section.title}</Text>
-          {section.items.map((item, i) => (
+      {items.map((section, idx) => (
+        <View key={idx} style={styles.section}>
+          <Text style={styles.sectionHeader}>{section.title}</Text>
+          {section.contents.map((item, i) => (
             <View key={i} style={styles.menuItem}>
-              <Text>{item}</Text>
+              <Text>{item.title}</Text>
             </View>
           ))}
         </View>
