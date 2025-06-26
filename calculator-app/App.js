@@ -100,10 +100,22 @@ export default function App() {
         setOperatorValue("0");
         setIsAC(true);
       } else {
-        setAnswerValue("0");
-        setIsAC(true);
+        if (readyToReplace) {
+          setAnswerValue("0");
+          setIsAC(true);
+        } else {
+          if (answerValue.length > 1) {
+            setAnswerValue(answerValue.slice(0, -1));
+          } else {
+            setAnswerValue("0");
+            setIsAC(true);
+            setReadyToReplace(false);
+          }
+        }
       }
-      setReadyToReplace(true);
+      if (value === "AC") {
+        setReadyToReplace(true);
+      }
       return;
     }
     if (isOperator(value)) {
@@ -220,12 +232,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 15,
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
   },
   button: {
     justifyContent: "center",
     alignItems: "center",
-    marginHorizontal: 5,
   },
   buttonLightGrey: {
     backgroundColor: "#d4d4d2",
