@@ -9,9 +9,11 @@ import {
   StyleSheet,
 } from "react-native";
 
+// Button dimensions based on screen width; Responsiveness
 const buttonWidth = Math.floor(Dimensions.get("window").width / 4) - 10;
 const longButtonWidth = buttonWidth * 2 + 10;
 
+// Calculator button layout and styling
 const buttonRows = [
   [
     { label: "AC", style: "buttonLightGrey" },
@@ -45,15 +47,23 @@ const buttonRows = [
 ];
 
 export default function App() {
-  const [answerValue, setAnswerValue] = useState("0");
-  const [readyToReplace, setReadyToReplace] = useState(true);
-  const [memoryValue, setMemoryValue] = useState("0");
-  const [operatorValue, setOperatorValue] = useState("0");
-  const [isAC, setIsAC] = useState(true);
+  // State management for calculator functionality
+  const [answerValue, setAnswerValue] = useState("0"); // Current display value
+  const [readyToReplace, setReadyToReplace] = useState(true); // Flag to replace or append numbers
+  const [memoryValue, setMemoryValue] = useState("0"); // Stored value for operations
+  const [operatorValue, setOperatorValue] = useState("0"); // Current operator (+, -, x, /)
+  const [isAC, setIsAC] = useState(true); // Toggle between AC and CE button
+  const [equationDisplay, setEquationDisplay] = useState(""); // Scientific calculator equation display
 
+  // Utility functions to check input types
   const isNumber = (val) => /[0-9]/.test(val);
   const isOperator = (val) => ["+", "-", "x", "/"].includes(val);
 
+  /**
+   * Handles number input logic
+   * @param {string} num - The number to be added
+   * @returns {string} - The new number value
+   */
   const handleNumber = (num) => {
     if (readyToReplace) {
       setReadyToReplace(false);
@@ -63,10 +73,15 @@ export default function App() {
     }
   };
 
+  /**
+   * Performs mathematical calculations based on stored operator and values
+   * @returns {string} - The calculated result
+   */
   const calculateEquals = () => {
     const previous = parseFloat(memoryValue);
     const current = parseFloat(answerValue);
     let result = 0;
+
     switch (operatorValue) {
       case "+":
         result = previous + current;
@@ -86,78 +101,149 @@ export default function App() {
     return result.toString();
   };
 
+  /**
+   * Main button press handler - processes all calculator inputs
+   * @param {string} value - The button value pressed
+   */
   const buttonPressed = (value) => {
     if (isNumber(value)) {
       const newValue = handleNumber(value);
       setAnswerValue(newValue);
-      setIsAC(false);
+      setIsAC(false); // Switch from AC to CE mode
+
+      // Update equation display for scientific calculator
+      if (operatorValue !== "0") {
+        setEquationDisplay(`${memoryValue} ${operatorValue} ${newValue}`);
+      } else {
+        setEquationDisplay(newValue);
+      }
       return;
     }
+
+    // Handle clear functions (AC/CE)
     if (value === "AC" || value === "CE") {
       if (value === "AC") {
+        // AC: Reset entire calculator state to initial values
         setAnswerValue("0");
         setMemoryValue("0");
         setOperatorValue("0");
+        setEquationDisplay("");
         setIsAC(true);
       } else {
+        // CE: Clear only current input, preserve operation context
         if (readyToReplace) {
+          // If ready to replace, just reset to 0
           setAnswerValue("0");
           setIsAC(true);
+          setEquationDisplay("");
         } else {
           if (answerValue.length > 1) {
-            setAnswerValue(answerValue.slice(0, -1));
+            // Remove last digit from current number
+            const newValue = answerValue.slice(0, -1);
+            setAnswerValue(newValue);
+            // Update equation display to reflect the change
+            if (operatorValue !== "0") {
+              setEquationDisplay(`${memoryValue} ${operatorValue} ${newValue}`);
+            } else {
+              setEquationDisplay(newValue);
+            }
           } else {
+            // If only one digit remains, reset to 0
             setAnswerValue("0");
             setIsAC(true);
             setReadyToReplace(false);
+            setEquationDisplay("");
           }
         }
       }
+      // Ensure readyToReplace is set for AC operations
       if (value === "AC") {
         setReadyToReplace(true);
       }
       return;
     }
+
+    // Handle mathematical operators (+, -, x, /)
     if (isOperator(value)) {
       if (operatorValue !== "0") {
+        // Chain operations: calculate previous operation first
         const chained = calculateEquals();
         setMemoryValue(chained);
         setAnswerValue(chained);
+        setEquationDisplay(`${chained} ${value}`);
       } else {
+        // First operation: store current value and operator
         setMemoryValue(answerValue);
+        setEquationDisplay(`${answerValue} ${value}`);
       }
       setReadyToReplace(true);
       setOperatorValue(value);
       return;
     }
+
+    // Handle equals button (=)
     if (value === "=") {
       const result = calculateEquals();
+      const finalEquation = `${memoryValue} ${operatorValue} ${answerValue} = ${result}`;
       setAnswerValue(result);
       setMemoryValue("0");
       setReadyToReplace(true);
       setOperatorValue("0");
+      setEquationDisplay(finalEquation);
       return;
     }
+
+    // Handle sign change (+/-)
     if (value === "+/-") {
       if (answerValue !== "0") {
-        setAnswerValue((parseFloat(answerValue) * -1).toString());
+        const newValue = (parseFloat(answerValue) * -1).toString();
+        setAnswerValue(newValue);
+        // Update equation display to show sign change
+        if (operatorValue !== "0") {
+          setEquationDisplay(`${memoryValue} ${operatorValue} ${newValue}`);
+        } else {
+          setEquationDisplay(newValue);
+        }
       }
       return;
     }
+
+    // Handle percentage (%)
     if (value === "%") {
-      setAnswerValue((parseFloat(answerValue) * 0.01).toString());
+      const newValue = (parseFloat(answerValue) * 0.01).toString();
+      setAnswerValue(newValue);
+      if (operatorValue !== "0") {
+        setEquationDisplay(`${memoryValue} ${operatorValue} ${newValue}`);
+      } else {
+        setEquationDisplay(newValue);
+      }
       return;
     }
+
+    // Handle decimal point (.)
     if (value === ".") {
       if (!answerValue.includes(".")) {
-        setAnswerValue(answerValue + ".");
-        setReadyToReplace(false);
+        const newValue = answerValue + ".";
+        setAnswerValue(newValue);
+        setReadyToReplace(false); // Allow further decimal input
+        // Update equation display to show decimal addition
+        if (operatorValue !== "0") {
+          setEquationDisplay(`${memoryValue} ${operatorValue} ${newValue}`);
+        } else {
+          setEquationDisplay(newValue);
+        }
       }
       return;
     }
   };
 
+  /**
+   * Determines button styling based on current state
+   * @param {Object} btn - Button configuration object
+   * @returns {Array} - Array of style objects
+   */
   const getButtonStyle = (btn) => {
+    // Highlight active operator button
     if (isOperator(btn.label) && operatorValue === btn.label) {
       return [styles.button, styles[btn.style], styles.activeOperator];
     }
@@ -167,11 +253,18 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-      {/* Results field */}
+
+      {/* Scientific calculator equation display */}
+      <View style={styles.equationContainer}>
+        <Text style={styles.equationText}>{equationDisplay}</Text>
+      </View>
+
+      {/* Main calculator result display */}
       <View style={styles.resultContainer}>
         <Text style={styles.resultText}>{answerValue}</Text>
       </View>
-      {/* Button rows */}
+
+      {/* Calculator button grid */}
       {buttonRows.map((row, rowIndex) => (
         <View style={styles.row} key={rowIndex}>
           {row.map((btn, btnIndex) => (
@@ -179,6 +272,7 @@ export default function App() {
               key={btn.label}
               style={[
                 ...getButtonStyle(btn),
+                // Handle long button (zero button) styling
                 btn.long
                   ? {
                       width: longButtonWidth,
@@ -211,11 +305,23 @@ export default function App() {
   );
 }
 
+// Component styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "black",
     justifyContent: "flex-end",
+  },
+  equationContainer: {
+    marginBottom: 10,
+    alignItems: "flex-end",
+    paddingRight: 20,
+    minHeight: 40,
+  },
+  equationText: {
+    color: "#888888",
+    fontSize: 24,
+    textAlign: "right",
   },
   resultContainer: {
     marginBottom: 20,
