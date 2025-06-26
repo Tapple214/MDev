@@ -14,10 +14,11 @@ import {
   StatusBar,
 } from "react-native";
 
+// Set up navigation stack
 const Stack = createStackNavigator();
 const { width } = Dimensions.get("window");
 
-// Enhanced restaurant data with more restaurants and menu images
+// Resaurant and menu data that will be mapped through
 const restaurants = [
   {
     id: 1,
@@ -381,7 +382,7 @@ const restaurants = [
   },
 ];
 
-// Enhanced cell content view component
+// Card component for each restaurant on the home screen
 const HomeScreenCell = ({
   title,
   tagline,
@@ -403,13 +404,17 @@ const HomeScreenCell = ({
       {...props}
     >
       <View style={styles.cellContentView}>
+        {/* Restaurant header image */}
         <Image source={imgUri} style={styles.headerImage} resizeMode="cover" />
+        {/* Delivery time badge */}
         <View style={styles.etaBadge}>
           <Text style={styles.etaText}>{eta} mins</Text>
         </View>
+        {/* Rating badge */}
         <View style={styles.ratingBadge}>
           <Text style={styles.ratingText}>★ {rating}</Text>
         </View>
+        {/* Restaurant name and tagline */}
         <View style={styles.cardInfo}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.tagline}>{tagline}</Text>
@@ -421,6 +426,7 @@ const HomeScreenCell = ({
 
 // Menu item component
 const MenuItem = ({ item, onPress }) => {
+  // Handle press: show alert if out of stock, otherwise call onPress
   const handlePress = () => {
     if (!item.inStock) {
       Alert.alert("Out of Stock", "This item is currently unavailable.");
@@ -435,9 +441,11 @@ const MenuItem = ({ item, onPress }) => {
       onPress={handlePress}
       disabled={!item.inStock}
     >
+      {/* Menu item image */}
       <Image source={item.image} style={styles.menuItemImage} />
       <View style={styles.menuItemContent}>
         <View style={styles.menuItemHeader}>
+          {/* Menu item name */}
           <Text
             style={[
               styles.menuItemTitle,
@@ -446,6 +454,7 @@ const MenuItem = ({ item, onPress }) => {
           >
             {item.title}
           </Text>
+          {/* Menu item price */}
           <Text
             style={[
               styles.menuItemPrice,
@@ -455,6 +464,7 @@ const MenuItem = ({ item, onPress }) => {
             {item.price}
           </Text>
         </View>
+        {/* Menu item description */}
         <Text
           style={[
             styles.menuItemDescription,
@@ -463,6 +473,7 @@ const MenuItem = ({ item, onPress }) => {
         >
           {item.description}
         </Text>
+        {/* Out of stock badge */}
         {!item.inStock && (
           <View style={styles.outOfStockBadge}>
             <Text style={styles.outOfStockText}>Out of Stock</Text>
@@ -628,12 +639,15 @@ const styles = StyleSheet.create({
   },
 });
 
+// Shows restaurants available
 function HomeScreen({ navigation }) {
   return (
     <View style={{ flex: 1, backgroundColor: "#f5f5f5" }}>
+      {/* Status bar styling */}
       <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
       <ScrollView style={{ paddingHorizontal: 16 }}>
         <View style={{ paddingTop: 20, paddingBottom: 20 }}>
+          {/* App title and subtitle */}
           <Text
             style={{
               fontSize: 28,
@@ -647,6 +661,7 @@ function HomeScreen({ navigation }) {
           <Text style={{ fontSize: 16, color: "#666", marginBottom: 20 }}>
             Discover amazing restaurants near you
           </Text>
+          {/* Render all restaurants */}
           {restaurants.map((restaurant) => (
             <HomeScreenCell
               key={restaurant.id}
@@ -669,9 +684,12 @@ function HomeScreen({ navigation }) {
   );
 }
 
+// Shows the menu for a selected restaurant
 function MenuScreen({ route, navigation }) {
+  // Get menu items and restaurant name from navigation params
   const { items = [], restaurantName = "Restaurant" } = route.params || {};
 
+  // Handle menu item press: show add-to-cart dialog
   const handleMenuItemPress = (item) => {
     Alert.alert(
       "Add to Cart",
@@ -696,8 +714,10 @@ function MenuScreen({ route, navigation }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f5f5f5" }}>
+      {/* Status bar styling */}
       <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
       <ScrollView>
+        {/* Render each menu section and its items */}
         {items.map((section, idx) => (
           <View key={idx}>
             <View style={styles.sectionHeader}>
@@ -713,6 +733,7 @@ function MenuScreen({ route, navigation }) {
   );
 }
 
+// Main app component with navigation setup
 export default function App() {
   return (
     <NavigationContainer>
@@ -727,11 +748,13 @@ export default function App() {
           },
         }}
       >
+        {/* Home screen: list of restaurants */}
         <Stack.Screen
           name="Restaurants"
           component={HomeScreen}
           options={{ title: "Food Delivery" }}
         />
+        {/* Menu screen: menu for selected restaurant */}
         <Stack.Screen
           name="Menu"
           component={MenuScreen}
