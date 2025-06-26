@@ -5,13 +5,16 @@ import { useEffect } from "react";
 export default function App() {
   ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_LEFT);
 
+  // START
   const name = "Apple 🍎 (She/Her)";
-
+  // END
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
+        {/* START */}
         <Text style={styles.welcomeText}>Kumusta</Text>
         <Text style={styles.subtitleText}>ako ay si</Text>
+        {/* END */}
         <View style={styles.nameBox}>
           <Text style={styles.nameText}>{name}</Text>
         </View>
