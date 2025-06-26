@@ -1,5 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { Cell, Section, TableView } from "react-native-tableview-simple";
 import React from "react";
 import {
   View,
@@ -66,10 +67,15 @@ const restaurants = [
   },
 ];
 
-const HomeScreenCell = ({ title, tagline, eta, imgUri, onPress }) => (
-  <TouchableOpacity onPress={onPress} style={styles.cell} activeOpacity={0.7}>
+const HomeScreenCell = ({ title, tagline, eta, imgUri, action, ...props }) => (
+  <TouchableOpacity onPress={action} style={styles.cell} activeOpacity={0.7}>
     <View style={styles.cellContentView}>
-      <Image source={imgUri} style={styles.headerImage} />
+      <Image
+        source={imgUri}
+        style={styles.headerImage}
+        onError={(error) => console.log("Image loading error:", error)}
+        resizeMode="cover"
+      />
       <View style={styles.etaBadge}>
         <Text style={styles.etaText}>{eta} mins</Text>
       </View>
@@ -84,11 +90,7 @@ const HomeScreenCell = ({ title, tagline, eta, imgUri, onPress }) => (
 const styles = StyleSheet.create({
   cell: {
     height: 290,
-    backgroundColor: "transparent",
-    marginHorizontal: 16,
-    marginVertical: 8,
-    borderRadius: 12,
-    overflow: "hidden",
+    marginBottom: 16,
   },
   cellContentView: {
     flex: 1,
@@ -138,27 +140,12 @@ const styles = StyleSheet.create({
     color: "#888",
     fontSize: 16,
   },
-  section: {
-    marginBottom: 16,
-  },
-  sectionHeader: {
-    fontSize: 18,
-    fontWeight: "bold",
-    padding: 16,
-    backgroundColor: "#f5f5f5",
-  },
-  menuItem: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-    backgroundColor: "white",
-  },
 });
 
 function HomeScreen({ navigation }) {
   return (
-    <ScrollView style={{ backgroundColor: "#f5f5f5" }}>
-      <View style={styles.section}>
+    <ScrollView style={{ paddingHorizontal: 16 }}>
+      <View style={{ paddingTop: 16 }}>
         {restaurants.map((restaurant) => (
           <HomeScreenCell
             key={restaurant.id}
@@ -166,7 +153,7 @@ function HomeScreen({ navigation }) {
             tagline={restaurant.tagline}
             eta={restaurant.eta}
             imgUri={restaurant.imgUri}
-            onPress={() =>
+            action={() =>
               navigation.navigate("Menu", { items: restaurant.menu })
             }
           />
@@ -178,18 +165,18 @@ function HomeScreen({ navigation }) {
 
 function MenuScreen({ route }) {
   const { items = [] } = route.params || {};
+
   return (
-    <ScrollView style={{ backgroundColor: "white" }}>
-      {items.map((section, idx) => (
-        <View key={idx} style={styles.section}>
-          <Text style={styles.sectionHeader}>{section.title}</Text>
-          {section.contents.map((item, i) => (
-            <View key={i} style={styles.menuItem}>
-              <Text>{item.title}</Text>
-            </View>
-          ))}
-        </View>
-      ))}
+    <ScrollView>
+      <TableView>
+        {items.map((section, idx) => (
+          <Section key={idx} header={section.title}>
+            {section.contents.map((item, i) => (
+              <Cell key={i} title={item.title} />
+            ))}
+          </Section>
+        ))}
+      </TableView>
     </ScrollView>
   );
 }
