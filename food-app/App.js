@@ -20,9 +20,7 @@ const restaurants = [
     title: "Joe's Gelato",
     tagline: "Desert, Ice cream, £££",
     eta: "10-30",
-    imgUri: {
-      uri: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&auto=format&fit=crop&q=60",
-    },
+    imgUri: require("./assets/ice-cream-header.jpg"),
     menu: [
       {
         title: "Gelato",
@@ -43,9 +41,7 @@ const restaurants = [
     title: "Joe's Diner",
     tagline: "American, burgers, ££",
     eta: "50+",
-    imgUri: {
-      uri: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&auto=format&fit=crop&q=60",
-    },
+    imgUri: require("./assets/burger-header.jpg"),
     menu: [
       {
         title: "Burgers",
@@ -67,25 +63,29 @@ const restaurants = [
   },
 ];
 
-const HomeScreenCell = ({ title, tagline, eta, imgUri, action, ...props }) => (
-  <TouchableOpacity onPress={action} style={styles.cell} activeOpacity={0.7}>
-    <View style={styles.cellContentView}>
-      <Image
-        source={imgUri}
-        style={styles.headerImage}
-        onError={(error) => console.log("Image loading error:", error)}
-        resizeMode="cover"
-      />
-      <View style={styles.etaBadge}>
-        <Text style={styles.etaText}>{eta} mins</Text>
+const HomeScreenCell = ({ title, tagline, eta, imgUri, action, ...props }) => {
+  console.log("Image URI:", imgUri);
+  return (
+    <TouchableOpacity onPress={action} style={styles.cell} activeOpacity={0.7}>
+      <View style={styles.cellContentView}>
+        <Image
+          source={imgUri}
+          style={styles.headerImage}
+          onError={(error) => console.log("Image loading error:", error)}
+          onLoad={() => console.log("Image loaded successfully")}
+          resizeMode="cover"
+        />
+        <View style={styles.etaBadge}>
+          <Text style={styles.etaText}>{eta} mins</Text>
+        </View>
+        <View style={styles.cardInfo}>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.tagline}>{tagline}</Text>
+        </View>
       </View>
-      <View style={styles.cardInfo}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.tagline}>{tagline}</Text>
-      </View>
-    </View>
-  </TouchableOpacity>
-);
+    </TouchableOpacity>
+  );
+};
 
 const styles = StyleSheet.create({
   cell: {
