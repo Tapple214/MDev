@@ -1,3 +1,5 @@
+// START
+
 import {
   View,
   Text,
@@ -192,3 +194,5 @@ export default function App() {
     </SafeAreaView>
   );
 }
+
+// END

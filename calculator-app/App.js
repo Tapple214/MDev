@@ -1,3 +1,5 @@
+// START
+
 import React, { useState } from "react";
 import {
   Dimensions,
@@ -362,3 +364,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
+
+// END
