@@ -61,12 +61,71 @@ const restaurants = [
       },
     ],
   },
+  {
+    id: 3,
+    title: "Tita's Kitchen",
+    tagline: "Filipino, Traditional, ££",
+    eta: "25-45",
+    imgUri: require("./assets/lechon-header.jpg"),
+    menu: [
+      {
+        title: "Main Dishes",
+        contents: [
+          { title: "Adobo" },
+          { title: "Sinigang" },
+          { title: "Kare-kare" },
+          { title: "Lechon Kawali" },
+        ],
+      },
+      {
+        title: "Rice & Noodles",
+        contents: [
+          { title: "Garlic Rice" },
+          { title: "Pancit Canton" },
+          { title: "Chicken Arroz Caldo" },
+        ],
+      },
+      {
+        title: "Desserts",
+        contents: [
+          { title: "Halo-halo" },
+          { title: "Leche Flan" },
+          { title: "Bibingka" },
+        ],
+      },
+      {
+        title: "Drinks",
+        contents: [
+          { title: "Calamansi Juice" },
+          { title: "Buko Juice" },
+          { title: "Sago't Gulaman" },
+        ],
+      },
+    ],
+  },
 ];
 
-const HomeScreenCell = ({ title, tagline, eta, imgUri, action, ...props }) => {
+// Cell content view component
+const HomeScreenCell = ({
+  title,
+  tagline,
+  eta,
+  imgUri,
+  action,
+  height = 290,
+  backgroundColor = "transparent",
+  highlightColor = "#ccc",
+  ...props
+}) => {
   console.log("Image URI:", imgUri);
   return (
-    <TouchableOpacity onPress={action} style={styles.cell} activeOpacity={0.7}>
+    <TouchableOpacity
+      onPress={action}
+      style={[styles.cell, { height, backgroundColor }]}
+      activeOpacity={0.7}
+      underlayColor={highlightColor}
+      {...props}
+    >
       <View style={styles.cellContentView}>
         <Image
           source={imgUri}
