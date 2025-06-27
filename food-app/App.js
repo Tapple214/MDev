@@ -12,12 +12,116 @@ import {
   Alert,
   Dimensions,
   StatusBar,
+  Animated,
 } from "react-native";
 
 // START
 // Set up navigation stack
 const Stack = createStackNavigator();
 const { width } = Dimensions.get("window");
+
+// Helper function to safely load images
+const safeRequireImage = (imagePath) => {
+  try {
+    return require(imagePath);
+  } catch (error) {
+    console.warn(`Failed to load image: ${imagePath}`, error);
+    return null;
+  }
+};
+
+// Skeleton loading component
+const SkeletonLoader = ({ width, height, style }) => {
+  const animatedValue = new Animated.Value(0);
+
+  React.useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(animatedValue, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedValue, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: false,
+        }),
+      ])
+    );
+    animation.start();
+    return () => animation.stop();
+  }, []);
+
+  const opacity = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.3, 0.7],
+  });
+
+  return (
+    <Animated.View
+      style={[
+        {
+          width,
+          height,
+          backgroundColor: "#E1E9EE",
+          opacity,
+        },
+        style,
+      ]}
+    />
+  );
+};
+
+// Image component with skeleton loading
+const ImageWithSkeleton = ({ source, style, resizeMode = "cover" }) => {
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
+    setImageError(false);
+  };
+
+  const handleImageError = () => {
+    setImageLoading(false);
+    setImageError(true);
+  };
+
+  // Handle cases where source might be invalid or undefined
+  if (!source || imageError) {
+    return (
+      <SkeletonLoader
+        width={style?.width || "100%"}
+        height={style?.height || 200}
+        style={style}
+      />
+    );
+  }
+
+  return (
+    <View style={style}>
+      {imageLoading && (
+        <SkeletonLoader
+          width="100%"
+          height="100%"
+          style={[
+            StyleSheet.absoluteFillObject,
+            { borderRadius: style?.borderRadius || 0 },
+          ]}
+        />
+      )}
+      <Image
+        source={source}
+        style={[style, imageLoading && { opacity: 0 }]}
+        resizeMode={resizeMode}
+        onLoad={handleImageLoad}
+        onError={handleImageError}
+        defaultSource={null}
+      />
+    </View>
+  );
+};
 
 // Resaurant and menu data that will be mapped through
 const restaurants = [
@@ -28,7 +132,7 @@ const restaurants = [
     tagline: "Dessert, Ice cream, £££",
     eta: "10-30",
     rating: 4.8,
-    imgUri: require("./assets/ice-cream-header.jpg"),
+    imgUri: safeRequireImage("./assets/ice-cream-header.jpg"),
     menu: [
       {
         title: "Gelato",
@@ -36,21 +140,21 @@ const restaurants = [
           {
             title: "Vanilla Bean",
             price: "£4.50",
-            image: require("./assets/ice-cream-header.jpg"),
+            image: safeRequireImage("./assets/ice-cream-header.jpg"),
             inStock: true,
             description: "Classic vanilla with real vanilla beans",
           },
           {
             title: "Chocolate Fudge",
             price: "£4.50",
-            image: require("./assets/ice-cream-header.jpg"),
+            image: safeRequireImage("./assets/ice-cream-header.jpg"),
             inStock: true,
             description: "Rich chocolate with fudge pieces",
           },
           {
             title: "Strawberry",
             price: "£4.50",
-            image: require("./assets/ice-cream-header.jpg"),
+            image: safeRequireImage("./assets/ice-cream-header.jpg"),
             inStock: false,
             description: "Fresh strawberry gelato",
           },
@@ -62,14 +166,14 @@ const restaurants = [
           {
             title: "Espresso",
             price: "£2.50",
-            image: require("./assets/ice-cream-header.jpg"),
+            image: safeRequireImage("./assets/ice-cream-header.jpg"),
             inStock: true,
             description: "Single shot of premium coffee",
           },
           {
             title: "Sparkling Water",
             price: "£1.50",
-            image: require("./assets/ice-cream-header.jpg"),
+            image: safeRequireImage("./assets/ice-cream-header.jpg"),
             inStock: true,
             description: "Refreshing sparkling water",
           },
@@ -83,7 +187,7 @@ const restaurants = [
     tagline: "American, Burgers, ££",
     eta: "25-45",
     rating: 4.6,
-    imgUri: require("./assets/burger-header.jpg"),
+    imgUri: safeRequireImage("./assets/burger-header.jpg"),
     menu: [
       {
         title: "Burgers",
@@ -91,21 +195,21 @@ const restaurants = [
           {
             title: "Classic Burger",
             price: "£12.99",
-            image: require("./assets/burger-header.jpg"),
+            image: safeRequireImage("./assets/burger-header.jpg"),
             inStock: true,
             description: "Beef patty with lettuce, tomato, and special sauce",
           },
           {
             title: "Cheese Burger",
             price: "£14.99",
-            image: require("./assets/burger-header.jpg"),
+            image: safeRequireImage("./assets/burger-header.jpg"),
             inStock: true,
             description: "Classic burger with melted cheddar cheese",
           },
           {
             title: "Veggie Burger",
             price: "£13.99",
-            image: require("./assets/burger-header.jpg"),
+            image: safeRequireImage("./assets/burger-header.jpg"),
             inStock: false,
             description: "Plant-based patty with fresh vegetables",
           },
@@ -117,14 +221,14 @@ const restaurants = [
           {
             title: "Crispy Fries",
             price: "£4.99",
-            image: require("./assets/burger-header.jpg"),
+            image: safeRequireImage("./assets/burger-header.jpg"),
             inStock: true,
             description: "Golden crispy french fries",
           },
           {
             title: "Onion Rings",
             price: "£5.99",
-            image: require("./assets/burger-header.jpg"),
+            image: safeRequireImage("./assets/burger-header.jpg"),
             inStock: true,
             description: "Beer-battered onion rings",
           },
@@ -136,14 +240,14 @@ const restaurants = [
           {
             title: "Classic Cola",
             price: "£2.99",
-            image: require("./assets/burger-header.jpg"),
+            image: safeRequireImage("./assets/burger-header.jpg"),
             inStock: true,
             description: "Refreshing cola drink",
           },
           {
             title: "Chocolate Milkshake",
             price: "£4.99",
-            image: require("./assets/burger-header.jpg"),
+            image: safeRequireImage("./assets/burger-header.jpg"),
             inStock: true,
             description: "Thick and creamy chocolate milkshake",
           },
@@ -158,7 +262,7 @@ const restaurants = [
     tagline: "Filipino, Traditional, ££",
     eta: "25-45",
     rating: 4.9,
-    imgUri: require("./assets/lechon-header.jpg"),
+    imgUri: safeRequireImage("./assets/lechon-header.jpg"),
     menu: [
       {
         title: "Main Dishes",
@@ -166,28 +270,28 @@ const restaurants = [
           {
             title: "Chicken Adobo",
             price: "£15.99",
-            image: require("./assets/lechon-header.jpg"),
+            image: safeRequireImage("./assets/lechon-header.jpg"),
             inStock: true,
             description: "Tender chicken braised in soy sauce and vinegar",
           },
           {
             title: "Sinigang na Baboy",
             price: "£16.99",
-            image: require("./assets/lechon-header.jpg"),
+            image: safeRequireImage("./assets/lechon-header.jpg"),
             inStock: true,
             description: "Sour tamarind soup with pork and vegetables",
           },
           {
             title: "Kare-kare",
             price: "£17.99",
-            image: require("./assets/lechon-header.jpg"),
+            image: safeRequireImage("./assets/lechon-header.jpg"),
             inStock: false,
             description: "Peanut stew with oxtail and vegetables",
           },
           {
             title: "Lechon Kawali",
             price: "£18.99",
-            image: require("./assets/lechon-header.jpg"),
+            image: safeRequireImage("./assets/lechon-header.jpg"),
             inStock: true,
             description: "Crispy fried pork belly",
           },
@@ -199,21 +303,21 @@ const restaurants = [
           {
             title: "Garlic Rice",
             price: "£3.99",
-            image: require("./assets/lechon-header.jpg"),
+            image: safeRequireImage("./assets/lechon-header.jpg"),
             inStock: true,
             description: "Fragrant rice cooked with garlic",
           },
           {
             title: "Pancit Canton",
             price: "£12.99",
-            image: require("./assets/lechon-header.jpg"),
+            image: safeRequireImage("./assets/lechon-header.jpg"),
             inStock: true,
             description: "Stir-fried noodles with vegetables and meat",
           },
           {
             title: "Chicken Arroz Caldo",
             price: "£11.99",
-            image: require("./assets/lechon-header.jpg"),
+            image: safeRequireImage("./assets/lechon-header.jpg"),
             inStock: true,
             description: "Chicken rice porridge with ginger",
           },
@@ -225,21 +329,21 @@ const restaurants = [
           {
             title: "Halo-halo",
             price: "£6.99",
-            image: require("./assets/lechon-header.jpg"),
+            image: safeRequireImage("./assets/lechon-header.jpg"),
             inStock: true,
             description: "Mixed dessert with shaved ice and sweet beans",
           },
           {
             title: "Leche Flan",
             price: "£5.99",
-            image: require("./assets/lechon-header.jpg"),
+            image: safeRequireImage("./assets/lechon-header.jpg"),
             inStock: true,
             description: "Creamy caramel custard",
           },
           {
             title: "Bibingka",
             price: "£4.99",
-            image: require("./assets/lechon-header.jpg"),
+            image: safeRequireImage("./assets/lechon-header.jpg"),
             inStock: false,
             description: "Traditional rice cake with coconut",
           },
@@ -251,21 +355,21 @@ const restaurants = [
           {
             title: "Calamansi Juice",
             price: "£3.99",
-            image: require("./assets/lechon-header.jpg"),
+            image: safeRequireImage("./assets/lechon-header.jpg"),
             inStock: true,
             description: "Refreshing citrus juice",
           },
           {
             title: "Buko Juice",
             price: "£4.99",
-            image: require("./assets/lechon-header.jpg"),
+            image: safeRequireImage("./assets/lechon-header.jpg"),
             inStock: true,
             description: "Fresh young coconut juice",
           },
           {
             title: "Sago't Gulaman",
             price: "£3.99",
-            image: require("./assets/lechon-header.jpg"),
+            image: safeRequireImage("./assets/lechon-header.jpg"),
             inStock: true,
             description: "Sweet drink with tapioca pearls and jelly",
           },
@@ -279,7 +383,7 @@ const restaurants = [
     tagline: "Japanese, Sushi, £££",
     eta: "20-35",
     rating: 4.7,
-    imgUri: require("./assets/sushi-header.jpg"),
+    imgUri: safeRequireImage("./assets/sushi-header.jpg"),
     menu: [
       {
         title: "Sushi Rolls",
@@ -287,21 +391,21 @@ const restaurants = [
           {
             title: "California Roll",
             price: "£8.99",
-            image: require("./assets/sushi-header.jpg"),
+            image: safeRequireImage("./assets/sushi-header.jpg"),
             inStock: true,
             description: "Crab, avocado, and cucumber roll",
           },
           {
             title: "Spicy Tuna Roll",
             price: "£9.99",
-            image: require("./assets/sushi-header.jpg"),
+            image: safeRequireImage("./assets/sushi-header.jpg"),
             inStock: true,
             description: "Spicy tuna with cucumber",
           },
           {
             title: "Dragon Roll",
             price: "£12.99",
-            image: require("./assets/sushi-header.jpg"),
+            image: safeRequireImage("./assets/sushi-header.jpg"),
             inStock: false,
             description: "Eel and avocado topped with tempura shrimp",
           },
@@ -313,14 +417,14 @@ const restaurants = [
           {
             title: "Salmon Nigiri",
             price: "£3.50",
-            image: require("./assets/sushi-header.jpg"),
+            image: safeRequireImage("./assets/sushi-header.jpg"),
             inStock: true,
             description: "Fresh salmon over seasoned rice",
           },
           {
             title: "Tuna Nigiri",
             price: "£3.50",
-            image: require("./assets/sushi-header.jpg"),
+            image: safeRequireImage("./assets/sushi-header.jpg"),
             inStock: true,
             description: "Premium tuna over seasoned rice",
           },
@@ -334,7 +438,7 @@ const restaurants = [
     tagline: "Italian, Pizza, ££",
     eta: "30-50",
     rating: 4.5,
-    imgUri: require("./assets/pizza-header.jpg"),
+    imgUri: safeRequireImage("./assets/pizza-header.jpg"),
     menu: [
       {
         title: "Pizzas",
@@ -342,21 +446,21 @@ const restaurants = [
           {
             title: "Margherita",
             price: "£14.99",
-            image: require("./assets/pizza-header.jpg"),
+            image: safeRequireImage("./assets/pizza-header.jpg"),
             inStock: true,
             description: "Classic tomato sauce, mozzarella, and basil",
           },
           {
             title: "Pepperoni",
             price: "£16.99",
-            image: require("./assets/pizza-header.jpg"),
+            image: safeRequireImage("./assets/pizza-header.jpg"),
             inStock: true,
             description: "Spicy pepperoni with melted cheese",
           },
           {
             title: "Quattro Formaggi",
             price: "£18.99",
-            image: require("./assets/pizza-header.jpg"),
+            image: safeRequireImage("./assets/pizza-header.jpg"),
             inStock: false,
             description: "Four cheese blend pizza",
           },
@@ -368,14 +472,14 @@ const restaurants = [
           {
             title: "Spaghetti Carbonara",
             price: "£12.99",
-            image: require("./assets/pizza-header.jpg"),
+            image: safeRequireImage("./assets/pizza-header.jpg"),
             inStock: true,
             description: "Creamy pasta with pancetta and parmesan",
           },
           {
             title: "Penne Arrabbiata",
             price: "£11.99",
-            image: require("./assets/pizza-header.jpg"),
+            image: safeRequireImage("./assets/pizza-header.jpg"),
             inStock: true,
             description: "Spicy tomato sauce with garlic and chili",
           },
@@ -408,7 +512,11 @@ const HomeScreenCell = ({
     >
       <View style={styles.cellContentView}>
         {/* Restaurant header image */}
-        <Image source={imgUri} style={styles.headerImage} resizeMode="cover" />
+        <ImageWithSkeleton
+          source={imgUri}
+          style={styles.headerImage}
+          resizeMode="cover"
+        />
         {/* Delivery time badge */}
         <View style={styles.etaBadge}>
           <Text style={styles.etaText}>{eta} mins</Text>
@@ -445,7 +553,11 @@ const MenuItem = ({ item, onPress }) => {
       disabled={!item.inStock}
     >
       {/* Menu item image */}
-      <Image source={item.image} style={styles.menuItemImage} />
+      <ImageWithSkeleton
+        source={item.image}
+        style={styles.menuItemImage}
+        resizeMode="cover"
+      />
       <View style={styles.menuItemContent}>
         <View style={styles.menuItemHeader}>
           {/* Menu item name */}
@@ -506,6 +618,7 @@ const styles = StyleSheet.create({
   headerImage: {
     width: "100%",
     height: 200,
+    borderRadius: 0,
   },
   etaBadge: {
     position: "absolute",
@@ -520,6 +633,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
+    zIndex: 1,
   },
   etaText: {
     fontWeight: "bold",
@@ -539,6 +653,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
+    zIndex: 1,
   },
   ratingText: {
     fontWeight: "bold",
