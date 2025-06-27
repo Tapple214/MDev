@@ -1,1 +1,3 @@
-Expo Link : exp://exp.host/@your-username/calculator-app
+Expo Link: exp://exp.host/@your-username/calculator-app
+
+Expo Snacks Link: https://snack.expo.dev/@anonymous/calculator-app

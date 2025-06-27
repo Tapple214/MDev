@@ -1,2 +1,4 @@
-Expo Link : exp://nyrufbm-anonymous-8082.exp.direct
+Expo Link: exp://nyrufbm-anonymous-8082.exp.direct
+
+Expo Snacks Link: https://snack.expo.dev/@anonymous/tic-tac-toe-app
 
