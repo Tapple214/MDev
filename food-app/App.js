@@ -14,12 +14,14 @@ import {
   StatusBar,
 } from "react-native";
 
+// START
 // Set up navigation stack
 const Stack = createStackNavigator();
 const { width } = Dimensions.get("window");
 
 // Resaurant and menu data that will be mapped through
 const restaurants = [
+  // END
   {
     id: 1,
     title: "Joe's Gelato",
@@ -149,6 +151,7 @@ const restaurants = [
       },
     ],
   },
+  // START
   {
     id: 3,
     title: "Tita's Kitchen",
@@ -272,7 +275,7 @@ const restaurants = [
   },
   {
     id: 4,
-    title: "Sakura Sushi",
+    title: "Fuji Sushi",
     tagline: "Japanese, Sushi, £££",
     eta: "20-35",
     rating: 4.7,
@@ -766,3 +769,5 @@ export default function App() {
     </NavigationContainer>
   );
 }
+
+// END
