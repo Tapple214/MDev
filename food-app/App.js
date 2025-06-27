@@ -1,6 +1,5 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { Cell, Section, TableView } from "react-native-tableview-simple";
 import React, { useState } from "react";
 import {
   View,
