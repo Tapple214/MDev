@@ -66,21 +66,6 @@ const restaurants = [
   },
 ];
 
-const HomeScreenCell = ({ title, tagline, eta, imgUri, onPress }) => (
-  <TouchableOpacity onPress={onPress} style={styles.cell} activeOpacity={0.7}>
-    <View style={styles.cellContentView}>
-      <Image source={imgUri} style={styles.headerImage} />
-      <View style={styles.etaBadge}>
-        <Text style={styles.etaText}>{eta} mins</Text>
-      </View>
-      <View style={styles.cardInfo}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.tagline}>{tagline}</Text>
-      </View>
-    </View>
-  </TouchableOpacity>
-);
-
 const styles = StyleSheet.create({
   cell: {
     height: 290,
@@ -154,6 +139,22 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
 });
+
+// Cards on home screen
+const HomeScreenCell = ({ title, tagline, eta, imgUri, onPress }) => (
+  <TouchableOpacity onPress={onPress} style={styles.cell} activeOpacity={0.7}>
+    <View style={styles.cellContentView}>
+      <Image source={imgUri} style={styles.headerImage} />
+      <View style={styles.etaBadge}>
+        <Text style={styles.etaText}>{eta} mins</Text>
+      </View>
+      <View style={styles.cardInfo}>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.tagline}>{tagline}</Text>
+      </View>
+    </View>
+  </TouchableOpacity>
+);
 
 function HomeScreen({ navigation }) {
   return (
