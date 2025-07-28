@@ -1,29 +1,30 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
+import { Feather } from "@expo/vector-icons";
 
-export default function BubbleItem() {
+const tags = [
+  { id: 1, name: "tag 1" },
+  { id: 2, name: "tag 2" },
+];
+
+export default function BubbleItem({ cardTitle, cardText }) {
   return (
-    <TouchableOpacity
-      // onPress={action}
-      // style={[styles.cell, { height, backgroundColor }]}
-      activeOpacity={0.7}
-      // underlayColor={highlightColor}
-      // {...props}
-    >
-      <View style={styles.itemContainer}>
-        {/* Restaurant header image */}
-        {/* <Image source={imgUri} style={styles.headerImage} resizeMode="cover" /> */}
-        {/* Delivery time badge */}
-        <View style={styles.etaBadge}>
-          <Text style={styles.etaText}> mins</Text>
+    <TouchableOpacity activeOpacity={0.7}>
+      <View style={styles.bubbleCard}>
+        <View style={styles.bubbleIcon}>
+          <Feather name="heart" size={20} color="#EEDCAD" />
         </View>
-        {/* Rating badge */}
-        <View style={styles.ratingBadge}>
-          <Text style={styles.ratingText}>★ </Text>
-        </View>
-        {/* Restaurant name and tagline */}
-        <View style={styles.cardInfo}>
-          <Text style={styles.title}></Text>
-          <Text style={styles.tagline}></Text>
+        <View>
+          <Text style={cardTitle}>Bubble Name</Text>
+          <Text style={cardText}>By who</Text>
+          {tags.map((tag) => (
+            <Text>{tag.name}</Text>
+          ))}
         </View>
       </View>
     </TouchableOpacity>
@@ -31,56 +32,20 @@ export default function BubbleItem() {
 }
 
 const styles = StyleSheet.create({
-  itemContainer: {
-    flex: 1,
-    backgroundColor: "white",
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 8,
-    overflow: "hidden",
+  bubbleCard: {
+    backgroundColor: "#FEFADF",
+    borderRadius: 10,
+    height: 120,
+    paddingVertical: 15,
+    paddingLeft: 30,
   },
-  etaBadge: {
+  bubbleIcon: {
+    backgroundColor: "#E89349",
+    alignSelf: "flex-start",
+    padding: 10,
+    borderRadius: 50,
     position: "absolute",
-    right: 16,
-    top: 160,
-    backgroundColor: "#4CAF50",
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
-  etaText: {
-    fontWeight: "bold",
-    fontSize: 14,
-    color: "white",
-  },
-  ratingBadge: {
-    position: "absolute",
-    left: 16,
-    top: 160,
-    backgroundColor: "#FFD700",
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
-  ratingText: {
-    fontWeight: "bold",
-    fontSize: 14,
-    color: "#333",
-  },
-  cardInfo: {
-    padding: 16,
+    left: -20,
+    top: 15,
   },
 });

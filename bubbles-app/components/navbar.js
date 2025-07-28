@@ -8,7 +8,7 @@ export default function NavBar() {
   return (
     <View style={styles.navbar}>
       <TouchableOpacity>
-        <Feather name="heart" size={60} color="red" />
+        <Feather name="heart" size={40} color="red" />
       </TouchableOpacity>
     </View>
   );
@@ -16,12 +16,13 @@ export default function NavBar() {
 
 const styles = StyleSheet.create({
   navbar: {
+    backgroundColor: "blue",
     justifyContent: "center",
     alignItems: "center",
     position: "absolute",
     left: 0,
     right: 0,
-    top: 0,
     bottom: 0,
+    height: 80,
   },
 });
