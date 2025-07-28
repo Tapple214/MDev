@@ -168,11 +168,12 @@ const styles = StyleSheet.create({
   },
   button: { padding: 10, backgroundColor: "#452A17", borderRadius: 5 },
   categoriesContainer: {
-    paddingHorizontal: 15,
+    paddingLeft: 15,
     paddingTop: 5,
     paddingBottom: 15,
     flex: 0,
     flexGrow: 0,
+    backgroundColor: "#EEDCAD",
   },
   categoryBtn: {
     paddingVertical: 10,
@@ -225,43 +226,44 @@ const styles = StyleSheet.create({
 
 function Home({ navigation }) {
   return (
-    <View style={styles.generalContainer}>
-      <Text style={styles.title}>Welcome to Bubbles!</Text>
+    <View style={[styles.generalContainer, { paddingBottom: 80 }]}>
+      <ScrollView vertical stickyHeaderIndices={[2]}>
+        <Text style={styles.title}>Welcome to Bubbles!</Text>
 
-      <ScrollView
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={true}
-        style={styles.quickActionsScrollView}
-      >
-        {quickActions.map((quickAction) => (
-          <View style={styles.quickActionsContainer}>
-            <View style={styles.quickActionsCard}>
-              <TouchableOpacity
-                key={quickAction.id}
-                onPress={() => navigation.navigate(quickAction.goTo)}
-              >
-                <View style={styles.quickActionsCard}>
-                  <Text style={styles.cardTitle}>{quickAction.title}</Text>
-                </View>
-              </TouchableOpacity>
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={true}
+          style={styles.quickActionsScrollView}
+        >
+          {quickActions.map((quickAction) => (
+            <View style={styles.quickActionsContainer}>
+              <View style={styles.quickActionsCard}>
+                <TouchableOpacity
+                  key={quickAction.id}
+                  onPress={() => navigation.navigate(quickAction.goTo)}
+                >
+                  <View style={styles.quickActionsCard}>
+                    <Text style={styles.cardTitle}>{quickAction.title}</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        ))}
+          ))}
+        </ScrollView>
+
+        <ScrollView horizontal style={styles.categoriesContainer}>
+          {categories.map((category) => (
+            <TouchableOpacity key={category.id} style={styles.categoryBtn}>
+              <Text style={styles.categoryText}>{category.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        <View style={styles.bubblesContainer}>
+          <BubbleItem cardTitle={styles.cardTitle} cardText={styles.cardText} />
+        </View>
       </ScrollView>
-
-      <ScrollView horizontal style={styles.categoriesContainer}>
-        {categories.map((category) => (
-          <TouchableOpacity key={category.id} style={styles.categoryBtn}>
-            <Text style={styles.categoryText}>{category.name}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      <View style={styles.bubblesContainer}>
-        <BubbleItem cardTitle={styles.cardTitle} cardText={styles.cardText} />
-      </View>
-
       <NavBar />
     </View>
   );

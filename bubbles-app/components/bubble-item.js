@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
     height: 120,
     paddingVertical: 15,
     paddingLeft: 30,
+    marginBottom: 15,
   },
   bubbleIcon: {
     backgroundColor: "#E89349",

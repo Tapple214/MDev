@@ -9,7 +9,7 @@ export default function NavBar() {
   return (
     <View style={styles.navbar}>
       <TouchableOpacity onPress={() => navigation.navigate("Home")}>
-        <Feather name="home" size={30} />
+        <Feather name="home" size={30} color="#452A17" />
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.centerIcon}>
@@ -17,7 +17,7 @@ export default function NavBar() {
       </TouchableOpacity>
 
       <TouchableOpacity>
-        <Feather name="users" size={30} />
+        <Feather name="users" size={30} color="#452A17" />
       </TouchableOpacity>
     </View>
   );
@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
   navbar: {
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: "white",
+    backgroundColor: "#EEDCAD",
     alignItems: "center",
     position: "absolute",
     paddingBottom: 20,
