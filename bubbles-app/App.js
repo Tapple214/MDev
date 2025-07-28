@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   button: {
     padding: 10,
     backgroundColor: "#FEFADF",
-    borderRadius: 5,
+    borderRadius: 10,
     alignItems: "center",
     marginBottom: 15,
   },
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     height: 150,
     marginBottom: 15,
-    gap: 10,
+    gap: 15,
     paddingHorizontal: 15,
   },
   cell: {
@@ -319,7 +319,7 @@ function BubbleView() {
 
         <View style={styles.quickActionsContainer}>
           <TouchableOpacity style={styles.button}>
-            <Feather name="camera" size={30} />
+            <Feather name="camera" size={30} style={{ paddingBottom: 10 }} />
             <Text>Add to BubbleBook</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button}>
