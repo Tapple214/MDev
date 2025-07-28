@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   },
   cardText: {
     fontSize: 12,
-    paddingBottom: 5,
+    paddingBottom: 10,
   },
   button: { padding: 10, backgroundColor: "#452A17", borderRadius: 5 },
   categoriesContainer: {

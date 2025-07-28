@@ -22,9 +22,11 @@ export default function BubbleItem({ cardTitle, cardText }) {
         <View>
           <Text style={cardTitle}>Bubble Name</Text>
           <Text style={cardText}>By who</Text>
-          {tags.map((tag) => (
-            <Text>{tag.name}</Text>
-          ))}
+          <View style={styles.tagContainer}>
+            {tags.map((tag) => (
+              <Text>{tag.name}</Text>
+            ))}
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -32,6 +34,7 @@ export default function BubbleItem({ cardTitle, cardText }) {
 }
 
 const styles = StyleSheet.create({
+  tagContainer: { flexDirection: "row", gap: 5 },
   bubbleCard: {
     backgroundColor: "#FEFADF",
     borderRadius: 10,
