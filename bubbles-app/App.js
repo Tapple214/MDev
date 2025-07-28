@@ -34,7 +34,7 @@ export default function BubblesApp() {
 function Login() {
   return (
     <SafeAreaView style={styles.generalContainer}>
-      <Image source={require("./assets/login.png")} style={styles.image} />
+      <Image source={require("./assets/login.jpeg")} style={styles.image} />
       <TouchableOpacity>
         <Text>Sign in with Google</Text>
       </TouchableOpacity>
@@ -169,8 +169,8 @@ const styles = StyleSheet.create({
   },
   text: { color: "#452A17" },
   image: {
-    width: 200,
-    height: 200,
+    width: 300,
+    height: 300,
     resizeMode: "contain",
     alignSelf: "center",
     marginVertical: 20,
