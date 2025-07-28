@@ -34,7 +34,7 @@ export default function BubblesApp() {
 function Login() {
   return (
     <SafeAreaView style={styles.generalContainer}>
-      {/* <Image source={require("./assets/login.PNG")} /> */}
+      <Image source={require("./assets/login.png")} style={styles.image} />
       <TouchableOpacity>
         <Text>Sign in with Google</Text>
       </TouchableOpacity>
@@ -158,7 +158,7 @@ function CreateBubble() {
 }
 
 const styles = StyleSheet.create({
-  generalContainer: { backgroundColor: "#EEDCAD" },
+  generalContainer: { backgroundColor: "#EEDCAD", height: "100%" },
   // Sections that houses quick actions
   quickActionsContainer: { paddingVertical: 10 },
   // All buttons use this
@@ -168,4 +168,11 @@ const styles = StyleSheet.create({
     backgroundColor: "blue",
   },
   text: { color: "#452A17" },
+  image: {
+    width: 200,
+    height: 200,
+    resizeMode: "contain",
+    alignSelf: "center",
+    marginVertical: 20,
+  },
 });
