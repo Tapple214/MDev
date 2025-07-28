@@ -12,8 +12,9 @@ export default function CreateBubble() {
 
   return (
     <View style={styles.generalContainer}>
+      <Text style={styles.title}>Fill the deets to get your bubble set!</Text>
       <NavBar />
-      <Text>What is your bubble's name?</Text>
+      <Text style={styles.inputTitle}>What is your bubble's name?</Text>
       <TextInput
         value={bubbleName}
         onChangeText={setBubbleName}
@@ -30,12 +31,17 @@ const styles = StyleSheet.create({
     height: "100%",
     paddingVertical: 15,
   },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    paddingHorizontal: 15,
+    paddingBottom: 15,
+  },
+  inputTitle: { paddingHorizontal: 15, paddingBottom: 10 },
   input: {
-    borderWidth: 1,
-    borderColor: "#452A17",
     borderRadius: 5,
     padding: 10,
-    margin: 10,
+    marginHorizontal: 15,
     backgroundColor: "#FEFADF",
   },
 });
