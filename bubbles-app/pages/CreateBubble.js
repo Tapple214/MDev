@@ -21,6 +21,38 @@ export default function CreateBubble() {
         placeholder="Enter bubble name"
         style={styles.input}
       />
+
+      <Text style={styles.inputTitle}>
+        Describe your bubble. what is the dresscode, etc?
+      </Text>
+      <TextInput
+        value={bubbleDescription}
+        onChangeText={setBubbleDescription}
+        placeholder="Enter bubble description"
+        style={styles.input}
+      />
+
+      <Text style={styles.inputTitle}>Where will your bubble be held?</Text>
+      <TextInput
+        value={bubbleLocation}
+        onChangeText={setBubbleLocation}
+        placeholder="Enter bubble location"
+        style={styles.input}
+      />
+
+      <Text style={styles.inputTitle}>When is your bubble?</Text>
+      <TextInput
+        value={bubbleDate}
+        onChangeText={setBubbleDate}
+        placeholder="Enter bubble date"
+        style={styles.input}
+      />
+      <TextInput
+        value={bubbleName}
+        onChangeText={setBubbleName}
+        placeholder="Enter bubble time"
+        style={styles.input}
+      />
     </View>
   );
 }
@@ -42,6 +74,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginHorizontal: 15,
+    marginBottom: 15,
     backgroundColor: "#FEFADF",
   },
 });
