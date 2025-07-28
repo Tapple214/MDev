@@ -31,11 +31,11 @@ export default function BubblesApp() {
   );
 }
 
-function Login() {
+function Login({ navigation }) {
   return (
     <SafeAreaView style={styles.generalContainer}>
       <Image source={require("./assets/login.jpeg")} style={styles.image} />
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate("Home")}>
         <Text>Sign in with Google</Text>
       </TouchableOpacity>
     </SafeAreaView>

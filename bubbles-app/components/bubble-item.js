@@ -3,27 +3,27 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 export default function BubbleItem() {
   return (
     <TouchableOpacity
-    // onPress={action}
-    // style={[styles.cell, { height, backgroundColor }]}
-    activeOpacity={0.7}
-    // underlayColor={highlightColor}
-    // {...props}
+      // onPress={action}
+      // style={[styles.cell, { height, backgroundColor }]}
+      activeOpacity={0.7}
+      // underlayColor={highlightColor}
+      // {...props}
     >
       <View style={styles.itemContainer}>
         {/* Restaurant header image */}
-        <Image source={imgUri} style={styles.headerImage} resizeMode="cover" />
+        {/* <Image source={imgUri} style={styles.headerImage} resizeMode="cover" /> */}
         {/* Delivery time badge */}
         <View style={styles.etaBadge}>
-          <Text style={styles.etaText}>{eta} mins</Text>
+          <Text style={styles.etaText}> mins</Text>
         </View>
         {/* Rating badge */}
         <View style={styles.ratingBadge}>
-          <Text style={styles.ratingText}>★ {rating}</Text>
+          <Text style={styles.ratingText}>★ </Text>
         </View>
         {/* Restaurant name and tagline */}
         <View style={styles.cardInfo}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.tagline}>{tagline}</Text>
+          <Text style={styles.title}></Text>
+          <Text style={styles.tagline}></Text>
         </View>
       </View>
     </TouchableOpacity>
