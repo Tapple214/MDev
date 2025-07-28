@@ -1,6 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   ScrollView,
@@ -8,11 +8,11 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
+  TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
 import NavBar from "./components/navbar";
+import BubbleItem from "./components/bubble-item";
 
 const Stack = createStackNavigator();
 
@@ -21,11 +21,11 @@ export default function BubblesApp() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Login" component={Login} />
-        <Stack.Sreen name="Home" component={Home} />
-        <Stack.Sreen name="BubbleDetails" component={BubbleDetails} />
-        <Stack.Sreen name="BubbleBook" component={BubbleBook} />
-        <Stack.Sreen name="BubbleBuddies" component={BubbleBudies} />
-        <Stack.Sreen name="CreateBubble" component={CreateBubble} />
+        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="BubbleDetails" component={BubbleDetails} />
+        <Stack.Screen name="BubbleBook" component={BubbleBook} />
+        <Stack.Screen name="BubbleBuddies" component={BubbleBuddies} />
+        <Stack.Screen name="CreateBubble" component={CreateBubble} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -33,8 +33,8 @@ export default function BubblesApp() {
 
 function Login() {
   return (
-    <SafeAreaView>
-      <Image source={require("./assets/login.png")} />
+    <SafeAreaView style={styles.generalContainer}>
+      {/* <Image source={require("./assets/login.PNG")} /> */}
       <TouchableOpacity>
         <Text>Sign in with Google</Text>
       </TouchableOpacity>
@@ -58,7 +58,7 @@ const quickActions = [
 
 function Home({ navigation }) {
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.generalContainer}>
       <NavBar />
       <View>
         <Text>Welcome to Bubbles!</Text>
@@ -75,13 +75,16 @@ function Home({ navigation }) {
           })}
         </ScrollView>
       </View>
+      <View>
+        <BubbleItem />
+      </View>
     </SafeAreaView>
   );
 }
 
 function BubbleDetails() {
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.generalContainer}>
       <NavBar />
       {/* Row 1 */}
       <View style={styles.row}>
@@ -118,16 +121,16 @@ function BubbleDetails() {
 
 function BubbleBook() {
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.generalContainer}>
       <NavBar />
       <View></View>
     </SafeAreaView>
   );
 }
 
-function BubbleBudies() {
+function BubbleBuddies() {
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.generalContainer}>
       <NavBar />
       <View></View>
     </SafeAreaView>
@@ -135,21 +138,34 @@ function BubbleBudies() {
 }
 
 function CreateBubble() {
+  const [bubbleName, setBubbleName] = useState("");
+  const [bubbleDescription, setBubbleDescription] = useState("");
+  const [bubbleLocation, setBubbleLocation] = useState("");
+  const [bubbleDate, setBubbleDate] = useState("");
+  const [bubbleTime, setBubbleTime] = useState("");
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.generalContainer}>
       <NavBar />
-      <View></View>
+      <Text>What is your bubble's name?</Text>
+      <TextInput
+        value={bubbleName}
+        onChangeText={setBubbleName}
+        placeholder="Enter bubble name"
+        style={styles.input}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  generalContainer: { backgroundColor: "#EEDCAD" },
   // Sections that houses quick actions
-  quickActionsContainer: {},
+  quickActionsContainer: { paddingVertical: 10 },
   // All buttons use this
-  button: {},
-  row: { flexDirection: row },
+  button: { padding: 10, backgroundColor: "#452A17", borderRadius: 5 },
+  row: { flexDirection: "row" },
   rowCell: {
     backgroundColor: "blue",
   },
+  text: { color: "#452A17" },
 });
