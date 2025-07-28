@@ -23,7 +23,7 @@ export default function BubblesApp() {
       <Stack.Navigator>
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Home" component={Home} />
-        <Stack.Screen name="BubbleDetails" component={BubbleDetails} />
+        <Stack.Screen name="BubbleView" component={BubbleView} />
         <Stack.Screen name="BubbleBook" component={BubbleBook} />
         <Stack.Screen name="BubbleBuddies" component={BubbleBuddies} />
         <Stack.Screen name="CreateBubble" component={CreateBubble} />
@@ -66,41 +66,52 @@ const categories = [
 ];
 
 // Home
-
-function BubbleDetails() {
+function Home({ navigation }) {
   return (
-    <SafeAreaView style={styles.generalContainer}>
+    <View style={[styles.generalContainer, { paddingBottom: 80 }]}>
+      <ScrollView vertical stickyHeaderIndices={[2]}>
+        <Text style={styles.title}>Welcome to Bubbles!</Text>
+
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={true}
+          style={styles.quickActionsScrollView}
+        >
+          {quickActions.map((quickAction) => (
+            <View style={styles.quickActionsContainer}>
+              <View style={styles.quickActionsCard}>
+                <TouchableOpacity
+                  key={quickAction.id}
+                  onPress={() => navigation.navigate(quickAction.goTo)}
+                >
+                  <View style={styles.quickActionsCard}>
+                    <Text style={styles.cardTitle}>{quickAction.title}</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+        </ScrollView>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.categoriesContainer}
+        >
+          {categories.map((category) => (
+            <TouchableOpacity key={category.id} style={styles.categoryBtn}>
+              <Text style={styles.categoryText}>{category.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        <View style={styles.bubblesContainer}>
+          <BubbleItem cardTitle={styles.cardTitle} cardText={styles.cardText} />
+        </View>
+      </ScrollView>
       <NavBar />
-      {/* Row 1 */}
-      <View style={styles.row}>
-        <View style={[styles.cell, { width: "60%" }]}>
-          <Text>1</Text>
-        </View>
-        <View>
-          <Text>2</Text>
-        </View>
-      </View>
-
-      {/* Row 2 */}
-      <View>
-        <View>
-          <Text>3</Text>
-        </View>
-        <View>
-          <Text>4</Text>
-        </View>
-      </View>
-
-      {/* Row 3 */}
-      <View>
-        <View>
-          <Text>5</Text>
-        </View>
-        <View>
-          <Text>6</Text>
-        </View>
-      </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -118,6 +129,7 @@ function BubbleBuddies() {
     <SafeAreaView style={styles.generalContainer}>
       <NavBar />
       <View></View>
+      <NavBar />
     </SafeAreaView>
   );
 }
@@ -166,6 +178,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     paddingBottom: 10,
   },
+  text: { color: "#452A17" },
   button: { padding: 10, backgroundColor: "#452A17", borderRadius: 5 },
   categoriesContainer: {
     paddingLeft: 15,
@@ -186,6 +199,10 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     color: "#EEDCAD",
+  },
+  cell: {
+    backgroundColor: "rgba(254, 250, 223, 0.5)",
+    borderRadius: 10,
   },
 
   // Home Page
@@ -210,11 +227,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
 
-  row: { flexDirection: "row" },
-  rowCell: {
-    backgroundColor: "blue",
+  bubbleViewScrollView: {
+    flex: 1,
   },
-  text: { color: "#452A17" },
+  bubbleDetailsRow: {
+    flexDirection: "row",
+    height: 80,
+    marginBottom: 10,
+    gap: 10,
+    paddingHorizontal: 15,
+  },
+
   image: {
     width: 300,
     height: 300,
@@ -224,44 +247,39 @@ const styles = StyleSheet.create({
   },
 });
 
-function Home({ navigation }) {
+function BubbleView() {
   return (
-    <View style={[styles.generalContainer, { paddingBottom: 80 }]}>
-      <ScrollView vertical stickyHeaderIndices={[2]}>
-        <Text style={styles.title}>Welcome to Bubbles!</Text>
+    <View style={styles.generalContainer}>
+      <ScrollView vertical style={styles.bubbleViewScrollView}>
+        <Text style={styles.title}>More info on the Bubble!</Text>
+        {/* Row 1 */}
+        <View style={styles.bubbleDetailsRow}>
+          <View style={[styles.cell, { flexBasis: "55%" }]}>
+            <Text stlye={styles.cellText}>1</Text>
+          </View>
+          <View style={[styles.cell, { flex: 1 }]}>
+            <Text>2</Text>
+          </View>
+        </View>
 
-        <ScrollView
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={true}
-          style={styles.quickActionsScrollView}
-        >
-          {quickActions.map((quickAction) => (
-            <View style={styles.quickActionsContainer}>
-              <View style={styles.quickActionsCard}>
-                <TouchableOpacity
-                  key={quickAction.id}
-                  onPress={() => navigation.navigate(quickAction.goTo)}
-                >
-                  <View style={styles.quickActionsCard}>
-                    <Text style={styles.cardTitle}>{quickAction.title}</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
-        </ScrollView>
+        {/* Row 2 */}
+        <View style={styles.bubbleDetailsRow}>
+          <View style={[styles.cell, { flexBasis: "40%" }]}>
+            <Text>3</Text>
+          </View>
+          <View style={[styles.cell, { flex: 1 }]}>
+            <Text>4</Text>
+          </View>
+        </View>
 
-        <ScrollView horizontal style={styles.categoriesContainer}>
-          {categories.map((category) => (
-            <TouchableOpacity key={category.id} style={styles.categoryBtn}>
-              <Text style={styles.categoryText}>{category.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        <View style={styles.bubblesContainer}>
-          <BubbleItem cardTitle={styles.cardTitle} cardText={styles.cardText} />
+        {/* Row 3 */}
+        <View style={styles.bubbleDetailsRow}>
+          <View style={[styles.cell, { flexBasis: "70%" }]}>
+            <Text>5</Text>
+          </View>
+          <View style={[styles.cell, { flex: 1 }]}>
+            <Text>6</Text>
+          </View>
         </View>
       </ScrollView>
       <NavBar />
