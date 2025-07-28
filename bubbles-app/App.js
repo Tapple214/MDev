@@ -16,7 +16,21 @@ const Stack = createStackNavigator();
 export default function BubblesApp() {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: "#EEDCAD",
+            borderBottomWidth: 0,
+            elevation: 0,
+            shadowOpacity: 0,
+          },
+          headerTintColor: "#452A17",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            color: "#",
+          },
+        }}
+      >
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="BubbleView" component={BubbleView} />
