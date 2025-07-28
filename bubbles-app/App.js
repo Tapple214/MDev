@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import NavBar from "./components/navbar";
 import BubbleItem from "./components/bubble-item";
+import { Feather } from "@expo/vector-icons";
 
 const Stack = createStackNavigator();
 
@@ -179,7 +180,13 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   text: { color: "#452A17" },
-  button: { padding: 10, backgroundColor: "#452A17", borderRadius: 5 },
+  button: {
+    padding: 10,
+    backgroundColor: "#FEFADF",
+    borderRadius: 5,
+    alignItems: "center",
+    marginBottom: 15,
+  },
   categoriesContainer: {
     paddingLeft: 15,
     paddingTop: 5,
@@ -199,10 +206,6 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     color: "#EEDCAD",
-  },
-  cell: {
-    backgroundColor: "rgba(254, 250, 223, 0.5)",
-    borderRadius: 10,
   },
 
   // Home Page
@@ -232,10 +235,15 @@ const styles = StyleSheet.create({
   },
   bubbleDetailsRow: {
     flexDirection: "row",
-    height: 80,
-    marginBottom: 10,
+    height: 150,
+    marginBottom: 15,
     gap: 10,
     paddingHorizontal: 15,
+  },
+  cell: {
+    backgroundColor: "rgba(254, 250, 223, 0.5)",
+    borderRadius: 10,
+    padding: 15,
   },
 
   image: {
@@ -254,32 +262,69 @@ function BubbleView() {
         <Text style={styles.title}>More info on the Bubble!</Text>
         {/* Row 1 */}
         <View style={styles.bubbleDetailsRow}>
-          <View style={[styles.cell, { flexBasis: "55%" }]}>
-            <Text stlye={styles.cellText}>1</Text>
-          </View>
-          <View style={[styles.cell, { flex: 1 }]}>
-            <Text>2</Text>
+          <View style={[styles.cell, { width: "95%" }]}>
+            <Text style={styles.cardTitle}>ewfdhb</Text>
+            <Feather
+              name="bookmark"
+              size={45}
+              style={{ position: "absolute", right: -25, top: 15 }}
+              color="#778A31"
+            />
           </View>
         </View>
 
         {/* Row 2 */}
         <View style={styles.bubbleDetailsRow}>
-          <View style={[styles.cell, { flexBasis: "40%" }]}>
+          <View style={[styles.cell, { width: "40%", marginLeft: 20 }]}>
             <Text>3</Text>
+            <Feather
+              name="check-square"
+              size={45}
+              style={{ position: "absolute", left: -25, bottom: 15 }}
+              color="#949D72"
+            />
           </View>
           <View style={[styles.cell, { flex: 1 }]}>
             <Text>4</Text>
+            <Feather
+              name="user"
+              size={45}
+              style={{ position: "absolute", left: 15, top: 15 }}
+              color="#E89349"
+            />
           </View>
         </View>
 
         {/* Row 3 */}
         <View style={styles.bubbleDetailsRow}>
-          <View style={[styles.cell, { flexBasis: "70%" }]}>
+          <View style={[styles.cell, { width: "55%" }]}>
             <Text>5</Text>
+            <Feather
+              name="map-pin"
+              size={45}
+              style={{ position: "absolute", right: 15, top: 15 }}
+              color="#BD3526"
+            />
           </View>
-          <View style={[styles.cell, { flex: 1 }]}>
+          <View style={[styles.cell, { flex: 1, marginRight: 20 }]}>
             <Text>6</Text>
+            <Feather
+              name="clock"
+              size={45}
+              style={{ position: "absolute", right: -25, bottom: 15 }}
+              color="#46462B"
+            />
           </View>
+        </View>
+
+        <View style={styles.quickActionsContainer}>
+          <TouchableOpacity style={styles.button}>
+            <Feather name="camera" size={30} />
+            <Text>Add to BubbleBook</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button}>
+            <Text>Show/Scan QR Code</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
       <NavBar />
