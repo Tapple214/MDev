@@ -51,7 +51,8 @@ export default function Login({ navigation }) {
       <Image source={require("../assets/login.jpeg")} style={styles.image} />
       <TouchableOpacity
         style={styles.button}
-        onPress={() => promptAsync()}
+        // onPress={() => promptAsync()}
+        onPress={() => navigation.navigate("Home")}
         disabled={!request}
       >
         <Text>Sign in with Google</Text>
