@@ -60,7 +60,6 @@ const styles = StyleSheet.create({
     height: 300,
     resizeMode: "contain",
     alignSelf: "center",
-    marginTop: 25,
-    marginBottom: 35,
+    marginVertical: 20,
   },
 });
