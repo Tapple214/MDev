@@ -17,6 +17,7 @@ export default function BubblesApp() {
   return (
     <NavigationContainer>
       <Stack.Navigator
+        initialRouteName="Home"
         screenOptions={{
           headerStyle: {
             backgroundColor: "#EEDCAD",
