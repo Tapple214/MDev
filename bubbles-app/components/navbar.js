@@ -7,16 +7,23 @@ import { Feather } from "@expo/vector-icons";
 // TODO: add a page prop to change the middle icon
 export default function NavBar() {
   const navigation = useNavigation();
+  const state = navigation.getState();
+  const currentRoute = state.routes[state.index];
 
   return (
     <View style={styles.navbar}>
-      <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+      <TouchableOpacity
+        onPress={() => {
+          if (currentRoute.name !== "Home") {
+          }
+        }}
+      >
         <Feather name="home" size={30} color="#452A17" />
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.centerIcon}
-        onPress={() => navigation.navigate("BubbleView")}
+        onPress={() => navigation.replace("BubbleView")}
       >
         <Feather name="heart" size={25} color="#EEDCAD" />
       </TouchableOpacity>
@@ -26,7 +33,11 @@ export default function NavBar() {
           name="users"
           size={30}
           color="#452A17"
-          onPress={() => navigation.navigate("BubbleBuddies")}
+          onPress={() => {
+            if (currentRoute.name !== "BubbleBuddies") {
+              navigation.navigate("BubbleBuddies");
+            }
+          }}
         />
       </TouchableOpacity>
     </View>

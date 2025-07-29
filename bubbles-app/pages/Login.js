@@ -6,7 +6,10 @@ export default function Login({ navigation }) {
   return (
     <SafeAreaView style={styles.generalContainer}>
       <Image source={require("../assets/login.jpeg")} style={styles.image} />
-      <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("Home")}
+      >
         <Text>Sign in with Google</Text>
       </TouchableOpacity>
     </SafeAreaView>
@@ -18,6 +21,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#EEDCAD",
     height: "100%",
     paddingVertical: 15,
+  },
+  button: {
+    padding: 10,
+    backgroundColor: "#FEFADF",
+    borderRadius: 10,
+    alignItems: "center",
+    marginHorizontal: 15,
   },
   image: {
     width: 300,

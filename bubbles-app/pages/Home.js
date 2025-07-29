@@ -32,6 +32,13 @@ const categories = [
   { id: 5, name: "Completed" },
 ];
 
+const sampleBubbles = [
+  { id: 1, bubbleName: "My Birthday", host: "Apple" },
+  { id: 2, bubbleName: "Graddd", host: "Krish" },
+  { id: 3, bubbleName: "Study Date", host: "Khai" },
+  { id: 4, bubbleName: "Bake Day", host: "Mal" },
+];
+
 export default function Home({ navigation }) {
   return (
     <View style={[styles.generalContainer, { paddingBottom: 80 }]}>
@@ -45,7 +52,7 @@ export default function Home({ navigation }) {
           style={styles.quickActionsScrollView}
         >
           {quickActions.map((quickAction) => (
-            <View style={styles.quickActionsContainer}>
+            <View key={quickAction.id} style={styles.quickActionsContainer}>
               <View style={styles.quickActionsCard}>
                 <TouchableOpacity
                   key={quickAction.id}
@@ -73,7 +80,24 @@ export default function Home({ navigation }) {
         </ScrollView>
 
         <View style={styles.bubblesContainer}>
-          <BubbleItem cardTitle={styles.cardTitle} cardText={styles.cardText} />
+          {sampleBubbles.map((sampleBubble) => (
+            <BubbleItem
+              cardTitle={styles.cardTitle}
+              cardText={styles.cardText}
+              key={sampleBubble.id}
+              bubbleName={sampleBubble.bubbleName}
+              host={sampleBubble.host}
+              // send as params
+              action={() =>
+                navigation.navigate("BubbleView", {
+                  bubbleDetails: {
+                    bubbleName: sampleBubble.bubbleName,
+                    host: sampleBubble.host,
+                  },
+                })
+              }
+            />
+          ))}
         </View>
       </ScrollView>
       <NavBar />
@@ -84,7 +108,6 @@ export default function Home({ navigation }) {
 const screenwidth = Dimensions.get("window").width;
 
 const styles = StyleSheet.create({
-  // General properties
   generalContainer: {
     backgroundColor: "#EEDCAD",
     height: "100%",
@@ -106,7 +129,6 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   categoriesContainer: {
-    paddingLeft: 15,
     paddingTop: 5,
     paddingBottom: 15,
     flex: 0,
@@ -116,7 +138,8 @@ const styles = StyleSheet.create({
   categoryBtn: {
     paddingVertical: 10,
     paddingHorizontal: 15,
-    marginRight: 10,
+    marginLeft: 15,
+
     borderRadius: 50,
     backgroundColor: "#452A17",
     width: "auto",
@@ -125,8 +148,6 @@ const styles = StyleSheet.create({
   categoryText: {
     color: "#EEDCAD",
   },
-
-  // Home Page
   bubblesContainer: {
     width: screenwidth,
     paddingRight: 15,

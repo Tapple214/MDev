@@ -12,19 +12,26 @@ const tags = [
   { id: 2, name: "tag 2" },
 ];
 
-export default function BubbleItem({ cardTitle, cardText }) {
+export default function BubbleItem({
+  cardTitle,
+  cardText,
+  bubbleName,
+  bubbleHost,
+  action,
+  ...props
+}) {
   return (
-    <TouchableOpacity activeOpacity={0.7}>
+    <TouchableOpacity activeOpacity={0.7} onPress={action} {...props}>
       <View style={styles.bubbleCard}>
         <View style={styles.bubbleIcon}>
           <Feather name="heart" size={20} color="#EEDCAD" />
         </View>
         <View>
-          <Text style={cardTitle}>Bubble Name</Text>
-          <Text style={cardText}>By who</Text>
+          <Text style={cardTitle}>{bubbleName}</Text>
+          <Text style={cardText}>{bubbleHost}</Text>
           <View style={styles.tagContainer}>
             {tags.map((tag) => (
-              <Text>{tag.name}</Text>
+              <Text key={tag.id}>{tag.name}</Text>
             ))}
           </View>
         </View>

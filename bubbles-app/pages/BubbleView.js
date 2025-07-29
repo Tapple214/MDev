@@ -9,8 +9,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import NavBar from "../components/navbar";
 import { Feather } from "@expo/vector-icons";
+import { useRoute } from "@react-navigation/native";
 
 export default function BubbleView() {
+  const route = useRoute();
+  const { bubbleDetails } = route.params;
+
   return (
     <View style={styles.generalContainer}>
       <ScrollView vertical style={styles.bubbleViewScrollView}>
@@ -18,7 +22,7 @@ export default function BubbleView() {
         {/* Row 1 */}
         <View style={styles.bubbleDetailsRow}>
           <View style={[styles.cell, { width: "95%" }]}>
-            <Text style={styles.cardTitle}>ewfdhb</Text>
+            <Text style={styles.cardTitle}>{bubbleDetails.bubbleName}</Text>
             <Feather
               name="bookmark"
               size={45}
@@ -47,6 +51,7 @@ export default function BubbleView() {
               style={{ position: "absolute", left: 15, top: 15 }}
               color="#E89349"
             />
+            <Text>{bubbleDetails.host}</Text>
           </View>
         </View>
 
