@@ -2,6 +2,7 @@
   "expo": {
     "name": "bubbles-app",
     "slug": "bubbles-app",
+    "scheme": "bubblesapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

@@ -15,25 +15,15 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import * as AuthSession from "expo-auth-session";
 
 export default function Login({ navigation }) {
-  // const redirectUri = AuthSession.makeRedirectUri({
-  //   // native: "bubbles://redirect",
-  //   useProxy: true,
-  // });
-
-  // const redirectUri = "https://auth.expo.io/@tapple/bubbles-app";
-
-  const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
-
-  console.log("hi");
-  console.log("Redirect URI:", redirectUri);
+  const redirectUri = "https://auth.expo.io/@tapple/bubbles-app";
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     expoClientId:
       "355374652560-bv8a0b9eh4joa9oo32lefa4ci403tkdp.apps.googleusercontent.com",
     iosClientId:
-      "355374652560-7074thqjtjf55j2h1050hvq0n3a4tohu.apps.googleusercontent.com",
+      "355374652560-bv8a0b9eh4joa9oo32lefa4ci403tkdp.apps.googleusercontent.com",
     androidClientId:
-      "355374652560-f1cah0s5bc6f9cb9i4d543hdnjril21u.apps.googleusercontent.com",
+      "355374652560-bv8a0b9eh4joa9oo32lefa4ci403tkdp.apps.googleusercontent.com",
     webClientId:
       "355374652560-bv8a0b9eh4joa9oo32lefa4ci403tkdp.apps.googleusercontent.com",
     redirectUri,
@@ -76,7 +66,6 @@ export default function Login({ navigation }) {
       <TouchableOpacity
         style={styles.button}
         onPress={() => promptAsync()}
-        // onPress={() => navigation.navigate("Home")}
         disabled={!request}
       >
         <Text>Sign in with Google</Text>
