@@ -1,3 +1,14 @@
+// Client ids
+
+// expoClientId:
+// "355374652560-bv8a0b9eh4joa9oo32lefa4ci403tkdp.apps.googleusercontent.com",
+// iosClientId:
+// "355374652560-bv8a0b9eh4joa9oo32lefa4ci403tkdp.apps.googleusercontent.com",
+// androidClientId:
+// "355374652560-bv8a0b9eh4joa9oo32lefa4ci403tkdp.apps.googleusercontent.com",
+// webClientId:
+// "355374652560-bv8a0b9eh4joa9oo32lefa4ci403tkdp.apps.googleusercontent.com",
+
 import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
