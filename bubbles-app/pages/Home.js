@@ -37,6 +37,7 @@ const sampleBubbles = [
   { id: 2, bubbleName: "Graddd", host: "Krish" },
   { id: 3, bubbleName: "Study Date", host: "Khai" },
   { id: 4, bubbleName: "Bake Day", host: "Mal" },
+  { id: 5, bubbleName: "Valentines", host: "Mac" },
 ];
 
 export default function Home({ navigation }) {

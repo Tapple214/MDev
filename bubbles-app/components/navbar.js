@@ -23,7 +23,7 @@ export default function NavBar() {
 
       <TouchableOpacity
         style={styles.centerIcon}
-        onPress={() => navigation.replace("BubbleView")}
+        // onPress={() => navigation.replace("BubbleView")}
       >
         <Feather name="heart" size={25} color="#EEDCAD" />
       </TouchableOpacity>

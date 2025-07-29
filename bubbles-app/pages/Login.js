@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
     height: 300,
     resizeMode: "contain",
     alignSelf: "center",
-    marginVertical: 20,
+    marginTop: 25,
+    marginBottom: 35,
   },
 });
