@@ -6,9 +6,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  Alert,
 } from "react-native";
 import NavBar from "../components/navbar";
 import BubbleItem from "../components/bubble-item";
+import { useAuth } from "../contexts/AuthContext";
 
 // Quick actions that are displayed on the home screen
 const quickActions = [
@@ -41,10 +43,41 @@ const sampleBubbles = [
 ];
 
 export default function Home({ navigation }) {
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Logout",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await logout();
+            } catch (error) {
+              Alert.alert("Error", "Failed to logout");
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={[styles.generalContainer, { paddingBottom: 80 }]}>
       <ScrollView vertical stickyHeaderIndices={[2]}>
-        <Text style={styles.title}>Welcome to Bubbles!</Text>
+        <View style={styles.headerContainer}>
+          <Text style={styles.title}>Welcome to Bubbles!</Text>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
 
         <ScrollView
           horizontal
@@ -114,11 +147,27 @@ const styles = StyleSheet.create({
     height: "100%",
     paddingVertical: 15,
   },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 15,
+    paddingBottom: 15,
+  },
   title: {
     fontSize: 20,
     fontWeight: "bold",
+  },
+  logoutButton: {
+    backgroundColor: "#452A17",
     paddingHorizontal: 15,
-    paddingBottom: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  logoutText: {
+    color: "#EEDCAD",
+    fontSize: 14,
+    fontWeight: "600",
   },
   cardTitle: {
     fontSize: 15,
