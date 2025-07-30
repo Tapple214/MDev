@@ -15,6 +15,7 @@ export default function NavBar() {
       <TouchableOpacity
         onPress={() => {
           if (currentRoute.name !== "Home") {
+            navigation.replace("Home");
           }
         }}
       >

@@ -78,21 +78,6 @@ export default function Home({ navigation }) {
     ]);
   };
 
-  // Debug function to print all users from Firestore
-  const printAllUsers = async () => {
-    try {
-      const { getAllUsers } = await import("../utils/firestore");
-      const users = await getAllUsers();
-      console.log("=== ALL USERS IN FIRESTORE ===");
-      users.forEach((user, index) => {
-        console.log(`User ${index + 1}:`, user);
-      });
-      console.log("=== END USERS ===");
-    } catch (error) {
-      console.error("Error fetching all users:", error);
-    }
-  };
-
   return (
     <View style={[styles.generalContainer, { paddingBottom: 80 }]}>
       <ScrollView vertical stickyHeaderIndices={[2]}>
