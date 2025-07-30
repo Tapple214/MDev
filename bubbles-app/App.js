@@ -37,11 +37,7 @@ function NavigationContent() {
       {user ? (
         // User is signed in
         <>
-          <Stack.Screen
-            name="Home"
-            component={Home}
-            options={{ title: "Bubbles" }}
-          />
+          <Stack.Screen name="Home" component={Home} />
           <Stack.Screen name="BubbleView" component={BubbleView} />
           <Stack.Screen name="BubbleBook" component={BubbleBook} />
           <Stack.Screen name="BubbleBuddies" component={BubbleBuddies} />
