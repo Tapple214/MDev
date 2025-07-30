@@ -35,16 +35,8 @@ const categories = [
   { id: 5, name: "Completed" },
 ];
 
-// const sampleBubbles = [
-//   { id: 1, bubbleName: "My Birthday", host: "Apple" },
-//   { id: 2, bubbleName: "Graddd", host: "Krish" },
-//   { id: 3, bubbleName: "Study Date", host: "Khai" },
-//   { id: 4, bubbleName: "Bake Day", host: "Mal" },
-//   { id: 5, bubbleName: "Valentines", host: "Mac" },
-// ];
-
 export default function Home({ navigation }) {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [userData, setUserData] = useState(null);
   const [bubblesData, setBubblesData] = useState(null);
 
@@ -65,39 +57,12 @@ export default function Home({ navigation }) {
 
   console.log(userData);
 
-  const handleLogout = async () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Logout",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await logout();
-          } catch (error) {
-            Alert.alert("Error", "Failed to logout");
-          }
-        },
-      },
-    ]);
-  };
-
   return (
     <View style={[styles.generalContainer, { paddingBottom: 80 }]}>
       <ScrollView vertical stickyHeaderIndices={[2]}>
         <View style={styles.headerContainer}>
           <Text style={styles.title}>Hi {userData?.name}!</Text>
-          <View style={styles.headerButtons}>
-            <TouchableOpacity
-              style={styles.logoutButton}
-              onPress={handleLogout}
-            >
-              <Text style={styles.logoutText}>Logout</Text>
-            </TouchableOpacity>
-          </View>
+          <View style={styles.headerButtons}></View>
         </View>
 
         <ScrollView
@@ -135,24 +100,6 @@ export default function Home({ navigation }) {
         </ScrollView>
 
         <View style={styles.bubblesContainer}>
-          {/* {sampleBubbles.map((sampleBubble) => (
-            <BubbleItem
-              cardTitle={styles.cardTitle}
-              cardText={styles.cardText}
-              key={sampleBubble.id}
-              bubbleName={sampleBubble.bubbleName}
-              host={sampleBubble.host}
-              // send as params
-              action={() =>
-                navigation.navigate("BubbleView", {
-                  bubbleDetails: {
-                    bubbleName: sampleBubble.bubbleName,
-                    host: sampleBubble.host,
-                  },
-                })
-              }
-            />
-          ))} */}
           {bubblesData && bubblesData.length > 0 ? (
             bubblesData.map((bubbleData) => (
               <BubbleItem
@@ -160,7 +107,7 @@ export default function Home({ navigation }) {
                 cardText={styles.cardText}
                 key={bubbleData.id}
                 bubbleName={bubbleData.name}
-                host={bubbleData.hostName}
+                bubbleHost={bubbleData.hostName}
                 // send as params
                 action={() =>
                   navigation.navigate("BubbleView", {
