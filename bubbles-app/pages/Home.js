@@ -45,38 +45,18 @@ const sampleBubbles = [
 
 export default function Home({ navigation }) {
   const { user, logout } = useAuth();
-  const [userName, setUserName] = useState("");
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
-    const fetchUserName = async () => {
-      if (user) {
-        console.log("Current user UID:", user.uid);
-        console.log("Expected Firestore document ID: aV7ugcuUgyjbFc5xnWG1");
-        console.log("UIDs match?", user.uid === "aV7ugcuUgyjbFc5xnWG1");
-
-        try {
-          const userData = await getUser(user.uid);
-          console.log("User data from Firestore:", userData);
-          if (userData && userData.name) {
-            console.log("Setting userName to:", userData.name);
-            setUserName(userData.name);
-            // Set the header title with the user's name
-            navigation.setOptions({
-              title: `Welcome, ${userData.name}!`,
-            });
-          } else {
-            console.log("No userData or no name found:", userData);
-          }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        }
-      } else {
-        console.log("No user found");
+    const fetchUserData = async () => {
+      if (user && user.uid) {
+        const userData = await getUser(user.uid);
+        console.log("User data from Firestore:", userData);
+        setUserData(userData);
       }
     };
-
-    fetchUserName();
-  }, [user, navigation]);
+    fetchUserData();
+  }, [user]);
 
   const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -113,97 +93,12 @@ export default function Home({ navigation }) {
     }
   };
 
-  // Debug function to print current user's data
-  const printCurrentUserData = async () => {
-    if (user) {
-      console.log("=== CURRENT USER DATA ===");
-      console.log("Firebase Auth User:", user);
-      console.log("User UID:", user.uid);
-      console.log("User Email:", user.email);
-
-      try {
-        const userData = await getUser(user.uid);
-        console.log("Firestore User Data:", userData);
-
-        // Also try to fetch the specific document you mentioned
-        const { doc, getDoc } = await import("firebase/firestore");
-        const { db } = await import("../firebase");
-        const specificDoc = await getDoc(
-          doc(db, "users", "aV7ugcuUgyjbFc5xnWG1")
-        );
-        console.log("Specific document data:", specificDoc.data());
-      } catch (error) {
-        console.error("Error fetching current user data:", error);
-      }
-      console.log("=== END CURRENT USER DATA ===");
-    }
-  };
-
-  // Function to migrate user data to the correct UID
-  const migrateUserData = async () => {
-    try {
-      const { doc, getDoc, setDoc, deleteDoc } = await import(
-        "firebase/firestore"
-      );
-      const { db } = await import("../firebase");
-
-      // Get the old document data
-      const oldDocRef = doc(db, "users", "aV7ugcuUgyjbFc5xnWG1");
-      const oldDocSnap = await getDoc(oldDocRef);
-
-      if (oldDocSnap.exists()) {
-        const oldData = oldDocSnap.data();
-        console.log("Old document data:", oldData);
-
-        // Create new document with current UID
-        const newDocRef = doc(db, "users", user.uid);
-        await setDoc(newDocRef, oldData);
-        console.log("Created new document with UID:", user.uid);
-
-        // Delete the old document
-        await deleteDoc(oldDocRef);
-        console.log("Deleted old document");
-
-        // Refresh the user data
-        const newUserData = await getUser(user.uid);
-        if (newUserData && newUserData.name) {
-          setUserName(newUserData.name);
-          navigation.setOptions({
-            title: `Welcome, ${newUserData.name}!`,
-          });
-        }
-
-        Alert.alert("Success", "User data migrated successfully!");
-      } else {
-        console.log("Old document doesn't exist");
-      }
-    } catch (error) {
-      console.error("Error migrating user data:", error);
-      Alert.alert("Error", "Failed to migrate user data");
-    }
-  };
-
   return (
     <View style={[styles.generalContainer, { paddingBottom: 80 }]}>
       <ScrollView vertical stickyHeaderIndices={[2]}>
         <View style={styles.headerContainer}>
-          <Text style={styles.title}>Hi {userName}!</Text>
+          <Text style={styles.title}>Hi {userData?.name || "User"}!</Text>
           <View style={styles.headerButtons}>
-            <TouchableOpacity
-              style={styles.debugButton}
-              onPress={() => {
-                printAllUsers();
-                printCurrentUserData();
-              }}
-            >
-              <Text style={styles.debugButtonText}>Debug</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.migrateButton}
-              onPress={migrateUserData}
-            >
-              <Text style={styles.migrateButtonText}>Migrate</Text>
-            </TouchableOpacity>
             <TouchableOpacity
               style={styles.logoutButton}
               onPress={handleLogout}
