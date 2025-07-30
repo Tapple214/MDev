@@ -50,6 +50,28 @@ export const getUser = async (userId) => {
   }
 };
 
+// Get bubbles where the user is the host
+export const getBubbles = async (userId) => {
+  try {
+    const bubblesRef = collection(db, "bubbles");
+    const q = query(bubblesRef, where("host", "==", userId));
+    const querySnapshot = await getDocs(q);
+    const bubbles = [];
+
+    querySnapshot.forEach((doc) => {
+      bubbles.push({
+        id: doc.id,
+        ...doc.data(),
+      });
+    });
+
+    return bubbles;
+  } catch (error) {
+    console.error("Error getting bubbles from Firestore:", error);
+    throw error;
+  }
+};
+
 // Update user data in Firestore
 export const updateUser = async (userId, userData) => {
   try {
