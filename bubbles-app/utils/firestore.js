@@ -8,6 +8,8 @@ import {
   query,
   where,
   getDocs,
+  deleteDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 
 // Add a new user to the users collection
@@ -17,8 +19,12 @@ export const addUser = async (userId, userData) => {
     await setDoc(userRef, {
       name: userData.name,
       email: userData.email,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      // Add any additional user fields here
+      profilePicture: userData.profilePicture || null,
+      bio: userData.bio || "",
+      preferences: userData.preferences || {},
     });
     return true;
   } catch (error) {
@@ -50,11 +56,23 @@ export const updateUser = async (userId, userData) => {
     const userRef = doc(db, "users", userId);
     await updateDoc(userRef, {
       ...userData,
-      updatedAt: new Date(),
+      updatedAt: serverTimestamp(),
     });
     return true;
   } catch (error) {
     console.error("Error updating user in Firestore:", error);
+    throw error;
+  }
+};
+
+// Delete user data from Firestore
+export const deleteUser = async (userId) => {
+  try {
+    const userRef = doc(db, "users", userId);
+    await deleteDoc(userRef);
+    return true;
+  } catch (error) {
+    console.error("Error deleting user from Firestore:", error);
     throw error;
   }
 };
@@ -102,6 +120,51 @@ export const searchUsersByName = async (name) => {
     return users;
   } catch (error) {
     console.error("Error searching users by name:", error);
+    throw error;
+  }
+};
+
+// Update user profile picture
+export const updateUserProfilePicture = async (userId, profilePictureUrl) => {
+  try {
+    const userRef = doc(db, "users", userId);
+    await updateDoc(userRef, {
+      profilePicture: profilePictureUrl,
+      updatedAt: serverTimestamp(),
+    });
+    return true;
+  } catch (error) {
+    console.error("Error updating profile picture:", error);
+    throw error;
+  }
+};
+
+// Update user bio
+export const updateUserBio = async (userId, bio) => {
+  try {
+    const userRef = doc(db, "users", userId);
+    await updateDoc(userRef, {
+      bio: bio,
+      updatedAt: serverTimestamp(),
+    });
+    return true;
+  } catch (error) {
+    console.error("Error updating user bio:", error);
+    throw error;
+  }
+};
+
+// Update user preferences
+export const updateUserPreferences = async (userId, preferences) => {
+  try {
+    const userRef = doc(db, "users", userId);
+    await updateDoc(userRef, {
+      preferences: preferences,
+      updatedAt: serverTimestamp(),
+    });
+    return true;
+  } catch (error) {
+    console.error("Error updating user preferences:", error);
     throw error;
   }
 };

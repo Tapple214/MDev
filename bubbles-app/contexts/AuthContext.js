@@ -7,8 +7,15 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithCredential,
+  deleteUser as deleteAuthUser,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
 } from "firebase/auth";
-import { addUser, getUser } from "../utils/firestore";
+import {
+  addUser,
+  getUser,
+  deleteUser as deleteFirestoreUser,
+} from "../utils/firestore";
 
 const AuthContext = createContext({});
 
@@ -19,10 +26,25 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
+
+      // If user is authenticated, fetch their data from Firestore
+      if (user) {
+        try {
+          const data = await getUser(user.uid);
+          setUserData(data);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          setUserData(null);
+        }
+      } else {
+        setUserData(null);
+      }
+
       setLoading(false);
     });
 
@@ -96,14 +118,40 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const deleteAccount = async (password) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error("No user is currently signed in");
+      }
+
+      // Re-authenticate user before deletion
+      const credential = EmailAuthProvider.credential(user.email, password);
+      await reauthenticateWithCredential(user, credential);
+
+      // Delete user data from Firestore first
+      await deleteFirestoreUser(user.uid);
+
+      // Delete the user account from Firebase Auth
+      await deleteAuthUser(user);
+
+      return true;
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      throw error;
+    }
+  };
+
   const value = {
     user,
+    userData,
     signup,
     login,
     logout,
     signInWithGoogle,
     addUserToFirestore,
     getUserFromFirestore,
+    deleteAccount,
     loading,
   };
 

@@ -139,12 +139,55 @@ export default function Home({ navigation }) {
     }
   };
 
+  // Function to migrate user data to the correct UID
+  const migrateUserData = async () => {
+    try {
+      const { doc, getDoc, setDoc, deleteDoc } = await import(
+        "firebase/firestore"
+      );
+      const { db } = await import("../firebase");
+
+      // Get the old document data
+      const oldDocRef = doc(db, "users", "aV7ugcuUgyjbFc5xnWG1");
+      const oldDocSnap = await getDoc(oldDocRef);
+
+      if (oldDocSnap.exists()) {
+        const oldData = oldDocSnap.data();
+        console.log("Old document data:", oldData);
+
+        // Create new document with current UID
+        const newDocRef = doc(db, "users", user.uid);
+        await setDoc(newDocRef, oldData);
+        console.log("Created new document with UID:", user.uid);
+
+        // Delete the old document
+        await deleteDoc(oldDocRef);
+        console.log("Deleted old document");
+
+        // Refresh the user data
+        const newUserData = await getUser(user.uid);
+        if (newUserData && newUserData.name) {
+          setUserName(newUserData.name);
+          navigation.setOptions({
+            title: `Welcome, ${newUserData.name}!`,
+          });
+        }
+
+        Alert.alert("Success", "User data migrated successfully!");
+      } else {
+        console.log("Old document doesn't exist");
+      }
+    } catch (error) {
+      console.error("Error migrating user data:", error);
+      Alert.alert("Error", "Failed to migrate user data");
+    }
+  };
+
   return (
     <View style={[styles.generalContainer, { paddingBottom: 80 }]}>
       <ScrollView vertical stickyHeaderIndices={[2]}>
         <View style={styles.headerContainer}>
-          <Text style={styles.title}>Hi {userName || user.email}!</Text>
-          <Text style={styles.subtitle}>{user.email}</Text>
+          <Text style={styles.title}>Hi {userName}!</Text>
           <View style={styles.headerButtons}>
             <TouchableOpacity
               style={styles.debugButton}
@@ -154,6 +197,12 @@ export default function Home({ navigation }) {
               }}
             >
               <Text style={styles.debugButtonText}>Debug</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.migrateButton}
+              onPress={migrateUserData}
+            >
+              <Text style={styles.migrateButtonText}>Migrate</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.logoutButton}
@@ -265,6 +314,17 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   debugButtonText: {
+    color: "#EEDCAD",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  migrateButton: {
+    backgroundColor: "#778A31",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+  },
+  migrateButtonText: {
     color: "#EEDCAD",
     fontSize: 12,
     fontWeight: "600",
