@@ -51,12 +51,12 @@ export default function Home({ navigation }) {
   useEffect(() => {
     const fetchUserData = async () => {
       if (user && user.uid) {
-        const userData = await getUser(user.uid);
-        console.log("User data from Firestore:", userData);
-        setUserData(userData);
-        const bubblesData = await getBubbles(user.uid);
-        console.log("Bubbles data from Firestore:", bubblesData);
-        setBubblesData(bubblesData);
+        const fetchedUserData = await getUser(user.uid);
+        console.log("User data from Firestore:", fetchedUserData);
+        setUserData(fetchedUserData);
+        const fetchedBubblesData = await getBubbles(user.uid);
+        console.log("Bubbles data from Firestore:", fetchedBubblesData);
+        setBubblesData(fetchedBubblesData);
       }
     };
     fetchUserData();
