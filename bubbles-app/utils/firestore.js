@@ -54,7 +54,7 @@ export const getUser = async (userId) => {
 export const getBubbles = async (userId) => {
   try {
     const bubblesRef = collection(db, "bubbles");
-    const q = query(bubblesRef, where("host", "==", userId));
+    const q = query(bubblesRef, where("hostUid", "==", userId));
     const querySnapshot = await getDocs(q);
     const bubbles = [];
 

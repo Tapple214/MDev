@@ -35,13 +35,13 @@ const categories = [
   { id: 5, name: "Completed" },
 ];
 
-const sampleBubbles = [
-  { id: 1, bubbleName: "My Birthday", host: "Apple" },
-  { id: 2, bubbleName: "Graddd", host: "Krish" },
-  { id: 3, bubbleName: "Study Date", host: "Khai" },
-  { id: 4, bubbleName: "Bake Day", host: "Mal" },
-  { id: 5, bubbleName: "Valentines", host: "Mac" },
-];
+// const sampleBubbles = [
+//   { id: 1, bubbleName: "My Birthday", host: "Apple" },
+//   { id: 2, bubbleName: "Graddd", host: "Krish" },
+//   { id: 3, bubbleName: "Study Date", host: "Khai" },
+//   { id: 4, bubbleName: "Bake Day", host: "Mal" },
+//   { id: 5, bubbleName: "Valentines", host: "Mac" },
+// ];
 
 export default function Home({ navigation }) {
   const { user, logout } = useAuth();
@@ -54,6 +54,7 @@ export default function Home({ navigation }) {
         const fetchedUserData = await getUser(user.uid);
         console.log("User data from Firestore:", fetchedUserData);
         setUserData(fetchedUserData);
+
         const fetchedBubblesData = await getBubbles(user.uid);
         console.log("Bubbles data from Firestore:", fetchedBubblesData);
         setBubblesData(fetchedBubblesData);
@@ -134,7 +135,7 @@ export default function Home({ navigation }) {
         </ScrollView>
 
         <View style={styles.bubblesContainer}>
-          {sampleBubbles.map((sampleBubble) => (
+          {/* {sampleBubbles.map((sampleBubble) => (
             <BubbleItem
               cardTitle={styles.cardTitle}
               cardText={styles.cardText}
@@ -151,7 +152,29 @@ export default function Home({ navigation }) {
                 })
               }
             />
-          ))}
+          ))} */}
+          {bubblesData && bubblesData.length > 0 ? (
+            bubblesData.map((bubbleData) => (
+              <BubbleItem
+                cardTitle={styles.cardTitle}
+                cardText={styles.cardText}
+                key={bubbleData.id}
+                bubbleName={bubbleData.name}
+                host={bubbleData.hostName}
+                // send as params
+                action={() =>
+                  navigation.navigate("BubbleView", {
+                    bubbleDetails: {
+                      bubbleName: bubbleData.name,
+                      host: bubbleData.hostName,
+                    },
+                  })
+                }
+              />
+            ))
+          ) : (
+            <Text style={styles.noBubblesText}>No bubbles found</Text>
+          )}
         </View>
       </ScrollView>
       <NavBar />
@@ -262,5 +285,11 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "center",
     borderRadius: 10,
+  },
+  noBubblesText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "#452A17",
+    marginTop: 20,
   },
 });

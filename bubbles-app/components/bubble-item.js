@@ -16,7 +16,7 @@ export default function BubbleItem({
   cardTitle,
   cardText,
   bubbleName,
-  bubbleHost,
+  host,
   action,
   ...props
 }) {
@@ -28,7 +28,7 @@ export default function BubbleItem({
         </View>
         <View>
           <Text style={cardTitle}>{bubbleName}</Text>
-          <Text style={cardText}>{bubbleHost}</Text>
+          <Text style={cardText}>{host}</Text>
           <View style={styles.tagContainer}>
             {tags.map((tag) => (
               <Text key={tag.id}>{tag.name}</Text>
