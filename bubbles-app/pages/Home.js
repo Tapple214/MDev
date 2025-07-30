@@ -11,7 +11,7 @@ import {
 import NavBar from "../components/navbar";
 import BubbleItem from "../components/bubble-item";
 import { useAuth } from "../contexts/AuthContext";
-import { getUser } from "../utils/firestore";
+import { getBubbles, getUser } from "../utils/firestore";
 
 // Quick actions that are displayed on the home screen
 const quickActions = [
@@ -46,6 +46,7 @@ const sampleBubbles = [
 export default function Home({ navigation }) {
   const { user, logout } = useAuth();
   const [userData, setUserData] = useState(null);
+  const [bubblesData, setBubblesData] = useState(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -53,6 +54,9 @@ export default function Home({ navigation }) {
         const userData = await getUser(user.uid);
         console.log("User data from Firestore:", userData);
         setUserData(userData);
+        const bubblesData = await getBubbles(user.uid);
+        console.log("Bubbles data from Firestore:", bubblesData);
+        setBubblesData(bubblesData);
       }
     };
     fetchUserData();
