@@ -11,7 +11,6 @@ import {
 import NavBar from "../components/navbar";
 import BubbleItem from "../components/bubble-item";
 import { useAuth } from "../contexts/AuthContext";
-import { getUser } from "../utils/firestore";
 
 // Quick actions that are displayed on the home screen
 const quickActions = [
@@ -51,7 +50,7 @@ export default function Home({ navigation }) {
     const fetchUserData = async () => {
       if (user && user.uid) {
         const userData = await getUser(user.uid);
-        console.log("User data from Firestore:", userData);
+        console.log("User data from Firestore:", userData.name);
         setUserData(userData);
       }
     };
@@ -82,7 +81,7 @@ export default function Home({ navigation }) {
     <View style={[styles.generalContainer, { paddingBottom: 80 }]}>
       <ScrollView vertical stickyHeaderIndices={[2]}>
         <View style={styles.headerContainer}>
-          <Text style={styles.title}>Hi {userData?.name || "User"}!</Text>
+          <Text style={styles.title}>Hi {userData?.name}!</Text>
           <View style={styles.headerButtons}>
             <TouchableOpacity
               style={styles.logoutButton}
