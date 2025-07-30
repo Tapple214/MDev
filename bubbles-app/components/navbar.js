@@ -35,7 +35,7 @@ export default function NavBar() {
   return (
     <View style={styles.navbar}>
       <TouchableOpacity onPress={handleLogout}>
-        <Feather name="logout" size={30} color="#452A17" />
+        <Feather name="log-out" size={30} color="#452A17" />
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#EEDCAD",
     alignItems: "center",
     position: "absolute",
-    paddingBottom: 20,
+    paddingBottom: 30,
     left: 0,
     right: 0,
     bottom: 0,
