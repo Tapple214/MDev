@@ -57,10 +57,12 @@ export default function Login({ navigation }) {
         ]);
       }
     } catch (error) {
+      console.log("Auth error:", error.code, error.message);
       let errorMessage = "An error occurred";
       switch (error.code) {
         case "auth/user-not-found":
-          errorMessage = "No account found with this email";
+          errorMessage =
+            "No account found with this email. Please sign up first.";
           break;
         case "auth/wrong-password":
           errorMessage = "Incorrect password";
@@ -74,6 +76,14 @@ export default function Login({ navigation }) {
         case "auth/invalid-email":
           errorMessage = "Invalid email address";
           break;
+        case "auth/network-request-failed":
+          errorMessage = "Network error. Please check your connection.";
+          break;
+        case "auth/too-many-requests":
+          errorMessage = "Too many failed attempts. Please try again later.";
+          break;
+        default:
+          errorMessage = `Authentication error: ${error.message}`;
       }
       Alert.alert("Error", errorMessage);
     } finally {
