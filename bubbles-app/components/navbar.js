@@ -3,30 +3,49 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { useNavigation } from "@react-navigation/native";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { useAuth } from "../contexts/AuthContext";
 
 // TODO: add a page prop to change the middle icon
 export default function NavBar() {
+  const { logout } = useAuth();
   const navigation = useNavigation();
   const state = navigation.getState();
   const currentRoute = state.routes[state.index];
 
+  const handleLogout = async () => {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await logout();
+          } catch (error) {
+            Alert.alert("Error", "Failed to logout");
+          }
+        },
+      },
+    ]);
+  };
+
   return (
     <View style={styles.navbar}>
+      <TouchableOpacity onPress={handleLogout}>
+        <Feather name="logout" size={30} color="#452A17" />
+      </TouchableOpacity>
+
       <TouchableOpacity
         onPress={() => {
           if (currentRoute.name !== "Home") {
-            navigation.replace("Home");
+            navigation.popToTop("Home");
           }
         }}
       >
         <Feather name="home" size={30} color="#452A17" />
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.centerIcon}
-        // onPress={() => navigation.replace("BubbleView")}
-      >
-        <Feather name="heart" size={25} color="#EEDCAD" />
       </TouchableOpacity>
 
       <TouchableOpacity>
@@ -41,6 +60,15 @@ export default function NavBar() {
           }}
         />
       </TouchableOpacity>
+
+      <View style={styles.highlightIconContainer}>
+        <TouchableOpacity
+          style={styles.highlightIcon}
+          onPress={() => navigation.navigate("CreateBubble")}
+        >
+          <Feather name="plus" size={25} color="#EEDCAD" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -58,11 +86,17 @@ const styles = StyleSheet.create({
     bottom: 0,
     height: 80,
   },
-  centerIcon: {
-    position: "absolute",
+  highlightIcon: {
+    position: "relative",
     backgroundColor: "#452A17",
     padding: 13,
     borderRadius: 50,
-    marginBottom: 35,
+    alignSelf: "flex-start",
+    bottom: 10,
+  },
+  highlightIconContainer: {
+    // Remove the red background for testing
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
