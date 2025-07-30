@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   ScrollView,
@@ -11,6 +11,7 @@ import {
 import NavBar from "../components/navbar";
 import BubbleItem from "../components/bubble-item";
 import { useAuth } from "../contexts/AuthContext";
+import { getUser } from "../utils/firestore";
 
 // Quick actions that are displayed on the home screen
 const quickActions = [
@@ -44,39 +45,123 @@ const sampleBubbles = [
 
 export default function Home({ navigation }) {
   const { user, logout } = useAuth();
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      if (user) {
+        console.log("Current user UID:", user.uid);
+        console.log("Expected Firestore document ID: aV7ugcuUgyjbFc5xnWG1");
+        console.log("UIDs match?", user.uid === "aV7ugcuUgyjbFc5xnWG1");
+
+        try {
+          const userData = await getUser(user.uid);
+          console.log("User data from Firestore:", userData);
+          if (userData && userData.name) {
+            console.log("Setting userName to:", userData.name);
+            setUserName(userData.name);
+            // Set the header title with the user's name
+            navigation.setOptions({
+              title: `Welcome, ${userData.name}!`,
+            });
+          } else {
+            console.log("No userData or no name found:", userData);
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      } else {
+        console.log("No user found");
+      }
+    };
+
+    fetchUserName();
+  }, [user, navigation]);
 
   const handleLogout = async () => {
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to logout?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await logout();
+          } catch (error) {
+            Alert.alert("Error", "Failed to logout");
+          }
         },
-        {
-          text: "Logout",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await logout();
-            } catch (error) {
-              Alert.alert("Error", "Failed to logout");
-            }
-          },
-        },
-      ]
-    );
+      },
+    ]);
+  };
+
+  // Debug function to print all users from Firestore
+  const printAllUsers = async () => {
+    try {
+      const { getAllUsers } = await import("../utils/firestore");
+      const users = await getAllUsers();
+      console.log("=== ALL USERS IN FIRESTORE ===");
+      users.forEach((user, index) => {
+        console.log(`User ${index + 1}:`, user);
+      });
+      console.log("=== END USERS ===");
+    } catch (error) {
+      console.error("Error fetching all users:", error);
+    }
+  };
+
+  // Debug function to print current user's data
+  const printCurrentUserData = async () => {
+    if (user) {
+      console.log("=== CURRENT USER DATA ===");
+      console.log("Firebase Auth User:", user);
+      console.log("User UID:", user.uid);
+      console.log("User Email:", user.email);
+
+      try {
+        const userData = await getUser(user.uid);
+        console.log("Firestore User Data:", userData);
+
+        // Also try to fetch the specific document you mentioned
+        const { doc, getDoc } = await import("firebase/firestore");
+        const { db } = await import("../firebase");
+        const specificDoc = await getDoc(
+          doc(db, "users", "aV7ugcuUgyjbFc5xnWG1")
+        );
+        console.log("Specific document data:", specificDoc.data());
+      } catch (error) {
+        console.error("Error fetching current user data:", error);
+      }
+      console.log("=== END CURRENT USER DATA ===");
+    }
   };
 
   return (
     <View style={[styles.generalContainer, { paddingBottom: 80 }]}>
       <ScrollView vertical stickyHeaderIndices={[2]}>
         <View style={styles.headerContainer}>
-          <Text style={styles.title}>Welcome to Bubbles!</Text>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.logoutText}>Logout</Text>
-          </TouchableOpacity>
+          <Text style={styles.title}>Hi {userName || user.email}!</Text>
+          <Text style={styles.subtitle}>{user.email}</Text>
+          <View style={styles.headerButtons}>
+            <TouchableOpacity
+              style={styles.debugButton}
+              onPress={() => {
+                printAllUsers();
+                printCurrentUserData();
+              }}
+            >
+              <Text style={styles.debugButtonText}>Debug</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={handleLogout}
+            >
+              <Text style={styles.logoutText}>Logout</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <ScrollView
@@ -154,6 +239,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingBottom: 15,
   },
+  headerButtons: {
+    flexDirection: "row",
+    gap: 10,
+  },
   title: {
     fontSize: 20,
     fontWeight: "bold",
@@ -167,6 +256,17 @@ const styles = StyleSheet.create({
   logoutText: {
     color: "#EEDCAD",
     fontSize: 14,
+    fontWeight: "600",
+  },
+  debugButton: {
+    backgroundColor: "#4A90E2",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+  },
+  debugButtonText: {
+    color: "#EEDCAD",
+    fontSize: 12,
     fontWeight: "600",
   },
   cardTitle: {

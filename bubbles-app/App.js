@@ -2,6 +2,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Text } from "react-native";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
 // Import page components
@@ -39,7 +40,7 @@ function NavigationContent() {
           <Stack.Screen
             name="Home"
             component={Home}
-            options={{ headerShown: false }}
+            options={{ title: "Bubbles" }}
           />
           <Stack.Screen name="BubbleView" component={BubbleView} />
           <Stack.Screen name="BubbleBook" component={BubbleBook} />
@@ -47,9 +48,9 @@ function NavigationContent() {
           <Stack.Screen name="CreateBubble" component={CreateBubble} />
         </>
       ) : (
-                // User is not signed in
-        <Stack.Screen 
-          name="Login" 
+        // User is not signed in
+        <Stack.Screen
+          name="Login"
           component={Login}
           options={{ headerShown: false }}
         />
