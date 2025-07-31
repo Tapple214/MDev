@@ -32,8 +32,8 @@ export default function BubbleBuddies() {
       <View style={styles.bubbleBuddiesContainer}>
         {userData?.bubbleBuddies && userData.bubbleBuddies.length > 0 ? (
           userData.bubbleBuddies.map((buddy, index) => (
-            <View style={styles.bubbleBuddyNameContainer}>
-              <Text key={index}>{buddy}</Text>
+            <View key={index} style={styles.bubbleBuddyNameContainer}>
+              <Text>{buddy}</Text>
             </View>
           ))
         ) : (
