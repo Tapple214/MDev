@@ -244,6 +244,7 @@ export default function Home({ navigation }) {
                 userRole={bubbleData.userRole}
                 icon={bubbleData.icon || "heart"}
                 backgroundColor={bubbleData.backgroundColor || "#E89349"}
+                tags={bubbleData.tags || []}
                 onAccept={() => handleAcceptBubble(bubbleData.id)}
                 onDecline={() => handleDeclineBubble(bubbleData.id)}
                 // send as params

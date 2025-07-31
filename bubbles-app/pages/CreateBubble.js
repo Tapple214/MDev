@@ -46,6 +46,9 @@ export default function CreateBubble() {
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
 
+  // Tag selection
+  const [selectedTags, setSelectedTags] = useState([]);
+
   // Available options
   const iconOptions = [
     { name: "heart", icon: "heart" },
@@ -59,6 +62,17 @@ export default function CreateBubble() {
     { name: "Green", value: "#778A31" },
     { name: "Brown", value: "#5D5820" },
     { name: "Light Orange", value: "#BD6C26" },
+  ];
+
+  const tagOptions = [
+    "casual",
+    "formal",
+    "outdoor",
+    "indoor",
+    "creative",
+    "social",
+    "cozy",
+    "adventure",
   ];
 
   const formatDate = (date) => {
@@ -96,6 +110,19 @@ export default function CreateBubble() {
 
   const handleTimeConfirm = () => {
     setShowTimePicker(false);
+  };
+
+  const handleTagToggle = (tag) => {
+    setSelectedTags((prev) => {
+      if (prev.includes(tag)) {
+        return prev.filter((t) => t !== tag);
+      } else if (prev.length < 3) {
+        return [...prev, tag];
+      } else {
+        Alert.alert("Limit Reached", "You can only select up to 3 tags");
+        return prev;
+      }
+    });
   };
 
   // Validate emails when guest list changes
@@ -172,6 +199,7 @@ export default function CreateBubble() {
         needQR,
         icon: selectedIcon,
         backgroundColor: selectedBackgroundColor,
+        tags: selectedTags,
         hostName: userData?.name || user.email,
         hostUid: user.uid,
       };
@@ -193,6 +221,7 @@ export default function CreateBubble() {
             setNeedQR(false);
             setSelectedIcon("heart");
             setSelectedBackgroundColor("#E89349");
+            setSelectedTags([]);
             setEmailValidation({ valid: [], invalid: [], notFound: [] });
           },
         },
@@ -391,6 +420,31 @@ export default function CreateBubble() {
           >
             <Text style={styles.pickerButtonText}>🎨</Text>
           </TouchableOpacity>
+        </View>
+
+        <Text style={styles.inputTitle}>
+          Choose tags for your bubble (up to 3)
+        </Text>
+        <View style={styles.tagContainer}>
+          {tagOptions.map((tag) => (
+            <TouchableOpacity
+              key={tag}
+              style={[
+                styles.tagOption,
+                selectedTags.includes(tag) && styles.selectedTagOption,
+              ]}
+              onPress={() => handleTagToggle(tag)}
+            >
+              <Text
+                style={[
+                  styles.tagText,
+                  selectedTags.includes(tag) && styles.selectedTagText,
+                ]}
+              >
+                {tag}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         <TouchableOpacity
@@ -859,5 +913,37 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#452A17",
     marginTop: 5,
+  },
+  tagContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    paddingHorizontal: 15,
+    marginBottom: 15,
+  },
+  tagOption: {
+    backgroundColor: "#FEFADF",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginBottom: 8,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    minWidth: 80,
+    alignItems: "center",
+  },
+  selectedTagOption: {
+    backgroundColor: "#606B38",
+    borderColor: "#606B38",
+  },
+  tagText: {
+    fontSize: 14,
+    color: "#452A17",
+    fontWeight: "500",
+  },
+  selectedTagText: {
+    color: "#FEFADF",
+    fontWeight: "bold",
   },
 });

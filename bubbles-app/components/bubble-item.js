@@ -17,6 +17,7 @@ export default function BubbleItem({
   onDecline,
   icon = "heart",
   backgroundColor = "#E89349",
+  tags = [],
   ...props
 }) {
   return (
@@ -33,11 +34,15 @@ export default function BubbleItem({
         <View style={styles.bubbleContent}>
           <Text style={cardTitle}>{bubbleName}</Text>
           <Text style={cardText}>{bubbleHost}</Text>
-          <View style={styles.tagContainer}>
-            {tags.map((tag) => (
-              <Text key={tag.id}>{tag.name}</Text>
-            ))}
-          </View>
+          {tags && tags.length > 0 && (
+            <View style={styles.tagContainer}>
+              {tags.map((tag, index) => (
+                <View key={index} style={styles.tagItem}>
+                  <Text style={styles.tagText}>{tag}</Text>
+                </View>
+              ))}
+            </View>
+          )}
         </View>
       </TouchableOpacity>
 
@@ -68,7 +73,22 @@ const styles = StyleSheet.create({
   },
   tagContainer: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 5,
+    marginTop: 5,
+  },
+  tagItem: {
+    backgroundColor: "#606B38",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginRight: 5,
+    marginBottom: 3,
+  },
+  tagText: {
+    fontSize: 10,
+    color: "#FEFADF",
+    fontWeight: "500",
   },
   bubbleCard: {
     backgroundColor: "#FEFADF",
