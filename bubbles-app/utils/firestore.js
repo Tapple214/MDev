@@ -190,3 +190,33 @@ export const updateUserPreferences = async (userId, preferences) => {
     throw error;
   }
 };
+
+// Create a new bubble
+export const createBubble = async (bubbleData) => {
+  try {
+    const bubblesRef = collection(db, "bubbles");
+    const newBubbleRef = doc(bubblesRef);
+
+    // Combine date and time into a timestamp
+    const scheduleDate = new Date(`${bubbleData.date} ${bubbleData.time}`);
+
+    const bubbleDoc = {
+      name: bubbleData.name,
+      description: bubbleData.description,
+      location: bubbleData.location,
+      schedule: scheduleDate,
+      guestList: bubbleData.guestList,
+      needQR: bubbleData.needQR,
+      hostName: bubbleData.hostName,
+      hostUid: bubbleData.hostUid,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+
+    await setDoc(newBubbleRef, bubbleDoc);
+    return { id: newBubbleRef.id, ...bubbleDoc };
+  } catch (error) {
+    console.error("Error creating bubble in Firestore:", error);
+    throw error;
+  }
+};
