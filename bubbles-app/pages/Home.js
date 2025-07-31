@@ -330,7 +330,6 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   categoriesContainer: {
-    paddingTop: 5,
     paddingBottom: 15,
     flex: 0,
     flexGrow: 0,
