@@ -18,15 +18,23 @@ export default function BubbleItem({
   bubbleName,
   bubbleHost,
   action,
+  userRole,
+  onAccept,
+  onDecline,
   ...props
 }) {
   return (
-    <TouchableOpacity activeOpacity={0.7} onPress={action} {...props}>
-      <View style={styles.bubbleCard}>
+    <View style={styles.bubbleCardContainer}>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={action}
+        style={styles.bubbleCard}
+        {...props}
+      >
         <View style={styles.bubbleIcon}>
           <Feather name="heart" size={20} color="#EEDCAD" />
         </View>
-        <View>
+        <View style={styles.bubbleContent}>
           <Text style={cardTitle}>{bubbleName}</Text>
           <Text style={cardText}>{bubbleHost}</Text>
           <View style={styles.tagContainer}>
@@ -35,20 +43,47 @@ export default function BubbleItem({
             ))}
           </View>
         </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+
+      {/* Guest action buttons */}
+      {userRole === "guest" && (
+        <View style={styles.actionButtons}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.acceptButton]}
+            onPress={onAccept}
+          >
+            <Text style={styles.actionButtonText}>I'm coming!</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.declineButton]}
+            onPress={onDecline}
+          >
+            <Text style={styles.actionButtonText}>X</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  tagContainer: { flexDirection: "row", gap: 5 },
+  bubbleCardContainer: {
+    marginBottom: 15,
+  },
+  tagContainer: {
+    flexDirection: "row",
+    gap: 5,
+  },
   bubbleCard: {
     backgroundColor: "#FEFADF",
     borderRadius: 10,
     height: 120,
     paddingVertical: 15,
     paddingLeft: 30,
-    marginBottom: 15,
+    flex: 1,
+  },
+  bubbleContent: {
+    flex: 1,
   },
   bubbleIcon: {
     backgroundColor: "#E89349",
@@ -58,5 +93,30 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: -20,
     top: 15,
+  },
+  actionButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+    gap: 10,
+  },
+  actionButton: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  acceptButton: {
+    backgroundColor: "#4CAF50",
+  },
+  declineButton: {
+    backgroundColor: "#F44336",
+  },
+  actionButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
   },
 });
