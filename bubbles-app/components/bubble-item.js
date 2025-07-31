@@ -81,6 +81,14 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingLeft: 30,
     flex: 1,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   bubbleContent: {
     flex: 1,

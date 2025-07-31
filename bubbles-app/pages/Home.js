@@ -335,9 +335,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     marginLeft: 8,
-
     borderRadius: 50,
-
     alignSelf: "flex-start", // ensures that width is as long as content/text in it
   },
   categoryText: {
@@ -357,6 +355,14 @@ const styles = StyleSheet.create({
   quickActionsContainer: {
     width: screenwidth,
     paddingHorizontal: 15,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   quickActionsCard: {
     backgroundColor: "#FEFADF",

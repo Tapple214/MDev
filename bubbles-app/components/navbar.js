@@ -84,19 +84,19 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: 80,
+    height: 100,
   },
   highlightIcon: {
     position: "relative",
     backgroundColor: "#452A17",
-    padding: 13,
+    padding: 10,
     borderRadius: 50,
     alignSelf: "flex-start",
-    bottom: 10,
+    // bottom: 10,
   },
-  highlightIconContainer: {
-    // Remove the red background for testing
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  // highlightIconContainer: {
+  //   // Remove the red background for testing
+  //   alignItems: "center",
+  //   justifyContent: "center",
+  // },
 });
