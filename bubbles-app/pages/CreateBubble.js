@@ -13,7 +13,6 @@ export default function CreateBubble() {
   return (
     <View style={styles.generalContainer}>
       <Text style={styles.title}>Fill the deets to get your bubble set!</Text>
-      <NavBar />
       <Text style={styles.inputTitle}>What is your bubble's name?</Text>
       <TextInput
         value={bubbleName}
@@ -53,6 +52,7 @@ export default function CreateBubble() {
         placeholder="Enter bubble time"
         style={styles.input}
       />
+      <NavBar />
     </View>
   );
 }
