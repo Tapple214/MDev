@@ -5,8 +5,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useAuth } from "../contexts/AuthContext";
 
-// TODO: add a page prop to change the middle icon
-export default function NavBar() {
+export default function NavBar({ page = "default" }) {
   const { logout } = useAuth();
   const navigation = useNavigation();
   const state = navigation.getState();
@@ -31,6 +30,47 @@ export default function NavBar() {
       },
     ]);
   };
+
+  // Dynamic highlight icon configuration based on page
+  const getHighlightIconConfig = () => {
+    switch (page) {
+      case "BubbleBuddies":
+        return {
+          icon: "user-plus",
+          onPress: () => {
+            // Placeholder functionality for adding person
+            Alert.alert(
+              "Add Person",
+              "Add person functionality will be implemented here"
+            );
+          },
+          color: "#EEDCAD",
+          backgroundColor: "#452A17", // Original brown background
+        };
+      case "BubbleView":
+        return {
+          icon: "edit-3",
+          onPress: () => {
+            // Placeholder functionality for editing bubble
+            Alert.alert(
+              "Edit Bubble",
+              "Edit bubble functionality will be implemented here"
+            );
+          },
+          color: "#EEDCAD",
+          backgroundColor: "#452A17", // Original brown background
+        };
+      default:
+        return {
+          icon: "plus",
+          onPress: () => navigation.navigate("CreateBubble"),
+          color: "#EEDCAD",
+          backgroundColor: "#452A17", // Original brown background
+        };
+    }
+  };
+
+  const highlightConfig = getHighlightIconConfig();
 
   return (
     <View style={styles.navbar}>
@@ -63,10 +103,17 @@ export default function NavBar() {
 
       <View style={styles.highlightIconContainer}>
         <TouchableOpacity
-          style={styles.highlightIcon}
-          onPress={() => navigation.navigate("CreateBubble")}
+          style={[
+            styles.highlightIcon,
+            { backgroundColor: highlightConfig.backgroundColor },
+          ]}
+          onPress={highlightConfig.onPress}
         >
-          <Feather name="plus" size={25} color="#EEDCAD" />
+          <Feather
+            name={highlightConfig.icon}
+            size={25}
+            color={highlightConfig.color}
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -92,11 +139,9 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 50,
     alignSelf: "flex-start",
-    // bottom: 10,
   },
-  // highlightIconContainer: {
-  //   // Remove the red background for testing
-  //   alignItems: "center",
-  //   justifyContent: "center",
-  // },
+  highlightIconContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });

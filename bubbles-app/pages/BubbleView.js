@@ -92,7 +92,7 @@ export default function BubbleView() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-      <NavBar />
+      <NavBar page="BubbleView" />
     </View>
   );
 }

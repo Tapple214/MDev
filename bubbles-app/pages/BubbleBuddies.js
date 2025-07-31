@@ -41,7 +41,7 @@ export default function BubbleBuddies() {
         )}
       </View>
 
-      <NavBar />
+      <NavBar page="BubbleBuddies" />
     </View>
   );
 }
