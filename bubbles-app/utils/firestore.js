@@ -281,6 +281,28 @@ export const checkEmailExists = async (email) => {
   }
 };
 
+// Get user data by email
+export const getUserByEmail = async (email) => {
+  try {
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("email", "==", email.toLowerCase().trim()));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const userDoc = querySnapshot.docs[0];
+      return {
+        id: userDoc.id,
+        ...userDoc.data(),
+      };
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting user by email:", error);
+    throw error;
+  }
+};
+
 // Validate email format
 export const isValidEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

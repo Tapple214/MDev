@@ -5,7 +5,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useAuth } from "../contexts/AuthContext";
 
-export default function NavBar({ page = "default" }) {
+export default function NavBar({ page = "default", onAddPerson }) {
   const { logout } = useAuth();
   const navigation = useNavigation();
   const state = navigation.getState();
@@ -38,11 +38,14 @@ export default function NavBar({ page = "default" }) {
         return {
           icon: "user-plus",
           onPress: () => {
-            // Placeholder functionality for adding person
-            Alert.alert(
-              "Add Person",
-              "Add person functionality will be implemented here"
-            );
+            if (onAddPerson) {
+              onAddPerson();
+            } else {
+              Alert.alert(
+                "Add Person",
+                "Add person functionality will be implemented here"
+              );
+            }
           },
           color: "#EEDCAD",
           backgroundColor: "#452A17", // Original brown background
