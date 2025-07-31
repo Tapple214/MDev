@@ -7,11 +7,16 @@ import {
   TouchableOpacity,
   Dimensions,
   Alert,
+  RefreshControl,
 } from "react-native";
 import NavBar from "../components/navbar";
 import BubbleItem from "../components/bubble-item";
 import { useAuth } from "../contexts/AuthContext";
-import { getBubbles, getUser } from "../utils/firestore";
+import {
+  getUserBubbles,
+  getUser,
+  updateGuestResponse,
+} from "../utils/firestore";
 
 // Quick actions that are displayed on the home screen
 const quickActions = [
@@ -38,28 +43,94 @@ const categories = [
 export default function Home({ navigation }) {
   const { user } = useAuth();
   const [userData, setUserData] = useState(null);
-  const [bubblesData, setBubblesData] = useState(null);
+  const [bubblesData, setBubblesData] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (user && user.uid) {
+  const fetchData = async () => {
+    if (user && user.uid) {
+      try {
+        setLoading(true);
+
+        // Fetch user data
         const fetchedUserData = await getUser(user.uid);
         console.log("User data from Firestore:", fetchedUserData);
         setUserData(fetchedUserData);
 
-        const fetchedBubblesData = await getBubbles(user.uid);
+        // Fetch bubbles data
+        const fetchedBubblesData = await getUserBubbles(user.uid);
         console.log("Bubbles data from Firestore:", fetchedBubblesData);
         setBubblesData(fetchedBubblesData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        Alert.alert("Error", "Failed to load data. Please try again.");
+      } finally {
+        setLoading(false);
       }
-    };
-    fetchUserData();
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
   }, [user]);
 
-  console.log(userData);
+  // Refresh data when screen comes into focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      fetchData();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  };
+
+  const handleAcceptBubble = async (bubbleId) => {
+    try {
+      // Update bubble status in database
+      await updateGuestResponse(bubbleId, user.email, "accepted");
+      Alert.alert("Success!", "You've confirmed you're coming to this bubble!");
+      // Refresh the data to show updated status
+      await fetchData();
+    } catch (error) {
+      console.error("Error accepting bubble:", error);
+      Alert.alert("Error", "Failed to accept bubble. Please try again.");
+    }
+  };
+
+  const handleDeclineBubble = async (bubbleId) => {
+    try {
+      // Update bubble status in database
+      await updateGuestResponse(bubbleId, user.email, "declined");
+      Alert.alert("Declined", "You've declined this bubble invitation.");
+      // Refresh the data to show updated status
+      await fetchData();
+    } catch (error) {
+      console.error("Error declining bubble:", error);
+      Alert.alert("Error", "Failed to decline bubble. Please try again.");
+    }
+  };
+
+  console.log("Current bubbles data:", bubblesData);
 
   return (
     <View style={[styles.generalContainer, { paddingBottom: 80 }]}>
-      <ScrollView vertical stickyHeaderIndices={[2]}>
+      <ScrollView
+        vertical
+        stickyHeaderIndices={[2]}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#606B38"]}
+            tintColor="#606B38"
+          />
+        }
+      >
         <View style={styles.headerContainer}>
           <Text style={styles.title}>Hi {userData?.name}!</Text>
           <View style={styles.headerButtons}></View>
@@ -100,7 +171,9 @@ export default function Home({ navigation }) {
         </ScrollView>
 
         <View style={styles.bubblesContainer}>
-          {bubblesData && bubblesData.length > 0 ? (
+          {loading ? (
+            <Text style={styles.noBubblesText}>Loading bubbles...</Text>
+          ) : bubblesData && bubblesData.length > 0 ? (
             bubblesData.map((bubbleData) => (
               <BubbleItem
                 cardTitle={styles.cardTitle}
@@ -108,12 +181,17 @@ export default function Home({ navigation }) {
                 key={bubbleData.id}
                 bubbleName={bubbleData.name}
                 bubbleHost={bubbleData.hostName}
+                userRole={bubbleData.userRole}
+                onAccept={() => handleAcceptBubble(bubbleData.id)}
+                onDecline={() => handleDeclineBubble(bubbleData.id)}
                 // send as params
                 action={() =>
                   navigation.navigate("BubbleView", {
                     bubbleDetails: {
                       bubbleName: bubbleData.name,
                       host: bubbleData.hostName,
+                      bubbleId: bubbleData.id,
+                      userRole: bubbleData.userRole,
                     },
                   })
                 }

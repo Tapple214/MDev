@@ -72,6 +72,41 @@ export const getBubbles = async (userId) => {
   }
 };
 
+// Get all bubbles that a user is involved with (as host or guest)
+export const getUserBubbles = async (userId) => {
+  try {
+    const bubblesRef = collection(db, "bubbles");
+    const querySnapshot = await getDocs(bubblesRef);
+    const bubbles = [];
+
+    querySnapshot.forEach((doc) => {
+      const bubbleData = doc.data();
+
+      // Check if user is the host
+      if (bubbleData.hostUid === userId) {
+        bubbles.push({
+          id: doc.id,
+          ...bubbleData,
+          userRole: "host",
+        });
+      }
+      // Check if user is in the guest list
+      else if (bubbleData.guestList && bubbleData.guestList.includes(userId)) {
+        bubbles.push({
+          id: doc.id,
+          ...bubbleData,
+          userRole: "guest",
+        });
+      }
+    });
+
+    return bubbles;
+  } catch (error) {
+    console.error("Error getting user bubbles from Firestore:", error);
+    throw error;
+  }
+};
+
 // Update user data in Firestore
 export const updateUser = async (userId, userData) => {
   try {
@@ -277,6 +312,59 @@ export const validateGuestEmails = async (emailList) => {
     return results;
   } catch (error) {
     console.error("Error validating guest emails:", error);
+    throw error;
+  }
+};
+
+// Update guest response for a bubble
+export const updateGuestResponse = async (bubbleId, guestEmail, response) => {
+  try {
+    const bubbleRef = doc(db, "bubbles", bubbleId);
+
+    // Get current bubble data
+    const bubbleSnap = await getDoc(bubbleRef);
+    if (!bubbleSnap.exists()) {
+      throw new Error("Bubble not found");
+    }
+
+    const bubbleData = bubbleSnap.data();
+    const guestResponses = bubbleData.guestResponses || {};
+
+    // Update guest response
+    guestResponses[guestEmail] = {
+      response: response, // 'accepted' or 'declined'
+      respondedAt: serverTimestamp(),
+    };
+
+    // Update the bubble document
+    await updateDoc(bubbleRef, {
+      guestResponses: guestResponses,
+      updatedAt: serverTimestamp(),
+    });
+
+    return true;
+  } catch (error) {
+    console.error("Error updating guest response:", error);
+    throw error;
+  }
+};
+
+// Get bubble by ID
+export const getBubbleById = async (bubbleId) => {
+  try {
+    const bubbleRef = doc(db, "bubbles", bubbleId);
+    const bubbleSnap = await getDoc(bubbleRef);
+
+    if (bubbleSnap.exists()) {
+      return {
+        id: bubbleSnap.id,
+        ...bubbleSnap.data(),
+      };
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting bubble by ID:", error);
     throw error;
   }
 };
