@@ -15,7 +15,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import NavBar from "../components/navbar";
 import { useAuth } from "../contexts/AuthContext";
-import { createBubble } from "../utils/firestore";
+import { createBubble, validateGuestEmails } from "../utils/firestore";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 export default function CreateBubble() {
@@ -30,6 +30,12 @@ export default function CreateBubble() {
   const [isLoading, setIsLoading] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [emailValidation, setEmailValidation] = useState({
+    valid: [],
+    invalid: [],
+    notFound: [],
+  });
+  const [isValidatingEmails, setIsValidatingEmails] = useState(false);
 
   const formatDate = (date) => {
     return date.toLocaleDateString("en-US", {
@@ -68,6 +74,25 @@ export default function CreateBubble() {
     setShowTimePicker(false);
   };
 
+  // Validate emails when guest list changes
+  const handleGuestListChange = async (text) => {
+    setGuestList(text);
+
+    if (text.trim()) {
+      setIsValidatingEmails(true);
+      try {
+        const validation = await validateGuestEmails(text);
+        setEmailValidation(validation);
+      } catch (error) {
+        console.error("Error validating emails:", error);
+      } finally {
+        setIsValidatingEmails(false);
+      }
+    } else {
+      setEmailValidation({ valid: [], invalid: [], notFound: [] });
+    }
+  };
+
   const validateForm = () => {
     if (!bubbleName.trim()) {
       Alert.alert("Error", "Please enter a bubble name");
@@ -79,6 +104,17 @@ export default function CreateBubble() {
     }
     if (!bubbleLocation.trim()) {
       Alert.alert("Error", "Please enter a bubble location");
+      return false;
+    }
+    if (guestList.trim() && emailValidation.invalid.length > 0) {
+      Alert.alert("Error", "Please fix invalid email formats");
+      return false;
+    }
+    if (guestList.trim() && emailValidation.notFound.length > 0) {
+      Alert.alert(
+        "Error",
+        "Some emails are not registered users. Please check the guest list."
+      );
       return false;
     }
     return true;
@@ -95,17 +131,12 @@ export default function CreateBubble() {
     setIsLoading(true);
 
     try {
-      // Combine date and time
-      const combinedDateTime = new Date(selectedDate);
-      combinedDateTime.setHours(selectedTime.getHours());
-      combinedDateTime.setMinutes(selectedTime.getMinutes());
-
       const bubbleData = {
         name: bubbleName.trim(),
         description: bubbleDescription.trim(),
         location: bubbleLocation.trim(),
-        date: formatDate(selectedDate),
-        time: formatTime(selectedTime),
+        selectedDate: selectedDate,
+        selectedTime: selectedTime,
         guestList: guestList.trim(),
         needQR,
         hostName: userData?.name || user.email,
@@ -126,6 +157,7 @@ export default function CreateBubble() {
             setSelectedTime(new Date());
             setGuestList("");
             setNeedQR(false);
+            setEmailValidation({ valid: [], invalid: [], notFound: [] });
           },
         },
       ]);
@@ -135,6 +167,45 @@ export default function CreateBubble() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const renderEmailValidationStatus = () => {
+    if (!guestList.trim()) return null;
+
+    return (
+      <View style={styles.validationContainer}>
+        {isValidatingEmails && (
+          <View style={styles.validationItem}>
+            <ActivityIndicator size="small" color="#606B38" />
+            <Text style={styles.validationText}>Validating emails...</Text>
+          </View>
+        )}
+
+        {emailValidation.valid.length > 0 && (
+          <View style={styles.validationItem}>
+            <Text style={styles.validEmail}>
+              ✓ Valid emails: {emailValidation.valid.join(", ")}
+            </Text>
+          </View>
+        )}
+
+        {emailValidation.invalid.length > 0 && (
+          <View style={styles.validationItem}>
+            <Text style={styles.invalidEmail}>
+              ✗ Invalid format: {emailValidation.invalid.join(", ")}
+            </Text>
+          </View>
+        )}
+
+        {emailValidation.notFound.length > 0 && (
+          <View style={styles.validationItem}>
+            <Text style={styles.notFoundEmail}>
+              ⚠ Not registered: {emailValidation.notFound.join(", ")}
+            </Text>
+          </View>
+        )}
+      </View>
+    );
   };
 
   return (
@@ -210,13 +281,15 @@ export default function CreateBubble() {
         </Text>
         <TextInput
           value={guestList}
-          onChangeText={setGuestList}
+          onChangeText={handleGuestListChange}
           placeholder="Enter guest emails (e.g., guest1@email.com, guest2@email.com)"
           style={styles.input}
           multiline
           numberOfLines={5}
           editable={!isLoading}
         />
+
+        {renderEmailValidationStatus()}
 
         <View style={styles.switchContainer}>
           <Text style={styles.inputTitle}>Need QR Code for entry?</Text>
@@ -372,6 +445,32 @@ const styles = StyleSheet.create({
   },
   pickerButtonText: {
     fontSize: 20,
+  },
+  validationContainer: {
+    marginHorizontal: 15,
+    marginBottom: 15,
+  },
+  validationItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  validationText: {
+    marginLeft: 8,
+    fontSize: 14,
+    color: "#606B38",
+  },
+  validEmail: {
+    fontSize: 14,
+    color: "#4CAF50",
+  },
+  invalidEmail: {
+    fontSize: 14,
+    color: "#F44336",
+  },
+  notFoundEmail: {
+    fontSize: 14,
+    color: "#FF9800",
   },
   switchContainer: {
     flexDirection: "row",

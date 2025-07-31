@@ -197,8 +197,12 @@ export const createBubble = async (bubbleData) => {
     const bubblesRef = collection(db, "bubbles");
     const newBubbleRef = doc(bubblesRef);
 
-    // Combine date and time into a timestamp
-    const scheduleDate = new Date(`${bubbleData.date} ${bubbleData.time}`);
+    // Create a proper date object from the selected date and time
+    const scheduleDate = new Date(bubbleData.selectedDate);
+    scheduleDate.setHours(bubbleData.selectedTime.getHours());
+    scheduleDate.setMinutes(bubbleData.selectedTime.getMinutes());
+    scheduleDate.setSeconds(0);
+    scheduleDate.setMilliseconds(0);
 
     const bubbleDoc = {
       name: bubbleData.name,
@@ -217,6 +221,62 @@ export const createBubble = async (bubbleData) => {
     return { id: newBubbleRef.id, ...bubbleDoc };
   } catch (error) {
     console.error("Error creating bubble in Firestore:", error);
+    throw error;
+  }
+};
+
+// Check if a single email exists as a user
+export const checkEmailExists = async (email) => {
+  try {
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("email", "==", email.toLowerCase().trim()));
+    const querySnapshot = await getDocs(q);
+
+    return !querySnapshot.empty;
+  } catch (error) {
+    console.error("Error checking if email exists:", error);
+    throw error;
+  }
+};
+
+// Validate email format
+export const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email.trim());
+};
+
+// Validate multiple emails and check if they exist in database
+export const validateGuestEmails = async (emailList) => {
+  try {
+    const emails = emailList
+      .split(",")
+      .map((email) => email.trim())
+      .filter((email) => email.length > 0);
+    const results = {
+      valid: [],
+      invalid: [],
+      notFound: [],
+    };
+
+    for (const email of emails) {
+      // Check email format
+      if (!isValidEmail(email)) {
+        results.invalid.push(email);
+        continue;
+      }
+
+      // Check if email exists in database
+      const exists = await checkEmailExists(email);
+      if (exists) {
+        results.valid.push(email);
+      } else {
+        results.notFound.push(email);
+      }
+    }
+
+    return results;
+  } catch (error) {
+    console.error("Error validating guest emails:", error);
     throw error;
   }
 };
