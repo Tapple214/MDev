@@ -249,6 +249,8 @@ export const createBubble = async (bubbleData) => {
       schedule: scheduleDate,
       guestList: bubbleData.guestList,
       needQR: bubbleData.needQR,
+      icon: bubbleData.icon || "heart",
+      backgroundColor: bubbleData.backgroundColor || "#E89349",
       hostName: bubbleData.hostName,
       hostUid: bubbleData.hostUid,
       createdAt: serverTimestamp(),

@@ -13,6 +13,7 @@ import {
   Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Feather } from "@expo/vector-icons";
 import NavBar from "../components/navbar";
 import GuestSelector from "../components/guest-selector";
 import { useAuth } from "../contexts/AuthContext";
@@ -37,6 +38,28 @@ export default function CreateBubble() {
     notFound: [],
   });
   const [isValidatingEmails, setIsValidatingEmails] = useState(false);
+
+  // Icon and background color selection
+  const [selectedIcon, setSelectedIcon] = useState("heart");
+  const [selectedBackgroundColor, setSelectedBackgroundColor] =
+    useState("#E89349");
+  const [showIconPicker, setShowIconPicker] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+
+  // Available options
+  const iconOptions = [
+    { name: "heart", icon: "heart" },
+    { name: "star", icon: "star" },
+    { name: "gift", icon: "gift" },
+    { name: "map-pin", icon: "map-pin" },
+  ];
+
+  const colorOptions = [
+    { name: "Orange", value: "#E89349" },
+    { name: "Green", value: "#778A31" },
+    { name: "Brown", value: "#5D5820" },
+    { name: "Light Orange", value: "#BD6C26" },
+  ];
 
   const formatDate = (date) => {
     return date.toLocaleDateString("en-US", {
@@ -140,6 +163,8 @@ export default function CreateBubble() {
         selectedTime: selectedTime,
         guestList: guestList.trim(),
         needQR,
+        icon: selectedIcon,
+        backgroundColor: selectedBackgroundColor,
         hostName: userData?.name || user.email,
         hostUid: user.uid,
       };
@@ -158,6 +183,8 @@ export default function CreateBubble() {
             setSelectedTime(new Date());
             setGuestList("");
             setNeedQR(false);
+            setSelectedIcon("heart");
+            setSelectedBackgroundColor("#E89349");
             setEmailValidation({ valid: [], invalid: [], notFound: [] });
           },
         },
@@ -303,6 +330,61 @@ export default function CreateBubble() {
           />
         </View>
 
+        <Text style={styles.inputTitle}>Choose your bubble icon</Text>
+        <View style={styles.pickerContainer}>
+          <View style={styles.pickerValueContainer}>
+            <View style={styles.iconPreviewContainer}>
+              <View
+                style={[
+                  styles.iconPreview,
+                  { backgroundColor: selectedBackgroundColor },
+                ]}
+              >
+                <Feather name={selectedIcon} size={20} color="#EEDCAD" />
+              </View>
+              <Text style={styles.pickerValueText}>
+                {iconOptions.find((option) => option.icon === selectedIcon)
+                  ?.name || "Heart"}
+              </Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            style={styles.pickerButton}
+            onPress={() => setShowIconPicker(true)}
+            disabled={isLoading}
+          >
+            <Text style={styles.pickerButtonText}>🎨</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.inputTitle}>
+          Choose your bubble background color
+        </Text>
+        <View style={styles.pickerContainer}>
+          <View style={styles.pickerValueContainer}>
+            <View style={styles.colorPreviewContainer}>
+              <View
+                style={[
+                  styles.colorPreview,
+                  { backgroundColor: selectedBackgroundColor },
+                ]}
+              />
+              <Text style={styles.pickerValueText}>
+                {colorOptions.find(
+                  (option) => option.value === selectedBackgroundColor
+                )?.name || "Orange"}
+              </Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            style={styles.pickerButton}
+            onPress={() => setShowColorPicker(true)}
+            disabled={isLoading}
+          >
+            <Text style={styles.pickerButtonText}>🎨</Text>
+          </TouchableOpacity>
+        </View>
+
         <TouchableOpacity
           style={[
             styles.createButton,
@@ -390,6 +472,99 @@ export default function CreateBubble() {
         </View>
       </Modal>
 
+      {/* Icon Picker Modal */}
+      <Modal
+        visible={showIconPicker}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowIconPicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.iconModalContent}>
+            <View style={styles.modalContentWrapper}>
+              <Text style={styles.modalTitle}>Select Icon</Text>
+              <View style={styles.iconGrid}>
+                {iconOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option.icon}
+                    style={[
+                      styles.iconOption,
+                      selectedIcon === option.icon && styles.selectedIconOption,
+                    ]}
+                    onPress={() => {
+                      setSelectedIcon(option.icon);
+                      setShowIconPicker(false);
+                    }}
+                  >
+                    <View
+                      style={[
+                        styles.iconOptionBackground,
+                        { backgroundColor: selectedBackgroundColor },
+                      ]}
+                    >
+                      <Feather name={option.icon} size={24} color="#EEDCAD" />
+                    </View>
+                    <Text style={styles.iconOptionText}>{option.name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setShowIconPicker(false)}
+            >
+              <Text style={styles.modalButtonTextCancel}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Color Picker Modal */}
+      <Modal
+        visible={showColorPicker}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowColorPicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.colorModalContent}>
+            <View style={styles.modalContentWrapper}>
+              <Text style={styles.modalTitle}>Select Background Color</Text>
+              <View style={styles.colorGrid}>
+                {colorOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[
+                      styles.colorOption,
+                      selectedBackgroundColor === option.value &&
+                        styles.selectedColorOption,
+                    ]}
+                    onPress={() => {
+                      setSelectedBackgroundColor(option.value);
+                      setShowColorPicker(false);
+                    }}
+                  >
+                    <View
+                      style={[
+                        styles.colorPreview,
+                        { backgroundColor: option.value },
+                      ]}
+                    />
+                    <Text style={styles.colorOptionText}>{option.name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setShowColorPicker(false)}
+            >
+              <Text style={styles.modalButtonTextCancel}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <NavBar />
     </View>
   );
@@ -400,6 +575,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#EEDCAD",
     height: "100%",
     paddingVertical: 15,
+    paddingBottom: 100,
   },
   title: {
     fontSize: 20,
@@ -517,6 +693,48 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  iconModalContent: {
+    backgroundColor: "#EEDCAD",
+    borderRadius: 10,
+    padding: 20,
+    margin: 20,
+    alignItems: "center",
+    width: 320,
+    maxWidth: "90%",
+    minHeight: 300,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  colorModalContent: {
+    backgroundColor: "#EEDCAD",
+    borderRadius: 10,
+    padding: 20,
+    margin: 20,
+    alignItems: "center",
+    width: 300,
+    maxWidth: "90%",
+    minHeight: 280,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalContentWrapper: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+  },
   modalTitle: {
     fontSize: 18,
     fontWeight: "bold",
@@ -534,13 +752,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   modalButton: {
-    flex: 1,
-    padding: 10,
+    padding: 12,
     marginHorizontal: 5,
     borderRadius: 5,
     backgroundColor: "#FEFADF",
     alignItems: "center",
-    color: "#452A17",
+    minWidth: 100,
+    marginTop: 10,
   },
   modalButtonConfirm: {
     backgroundColor: "#606B38",
@@ -554,5 +772,84 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#FEFADF",
+  },
+  iconPreviewContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconPreview: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 10,
+  },
+  colorPreviewContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  colorPreview: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  iconGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+    marginBottom: 20,
+    width: "100%",
+  },
+  iconOption: {
+    alignItems: "center",
+    margin: 10,
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: "#FEFADF",
+    minWidth: 80,
+  },
+  selectedIconOption: {
+    backgroundColor: "#606B38",
+  },
+  iconOptionBackground: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  iconOptionText: {
+    fontSize: 12,
+    textAlign: "center",
+    color: "#452A17",
+  },
+  colorGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+    marginBottom: 20,
+    width: "100%",
+  },
+  colorOption: {
+    alignItems: "center",
+    margin: 10,
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: "#FEFADF",
+    minWidth: 80,
+  },
+  selectedColorOption: {
+    backgroundColor: "#606B38",
+  },
+  colorOptionText: {
+    fontSize: 12,
+    textAlign: "center",
+    color: "#452A17",
+    marginTop: 5,
   },
 });

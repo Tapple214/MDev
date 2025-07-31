@@ -21,6 +21,8 @@ export default function BubbleItem({
   userRole,
   onAccept,
   onDecline,
+  icon = "heart",
+  backgroundColor = "#E89349",
   ...props
 }) {
   return (
@@ -31,8 +33,8 @@ export default function BubbleItem({
         style={styles.bubbleCard}
         {...props}
       >
-        <View style={styles.bubbleIcon}>
-          <Feather name="heart" size={20} color="#EEDCAD" />
+        <View style={[styles.bubbleIcon, { backgroundColor }]}>
+          <Feather name={icon} size={20} color="#EEDCAD" />
         </View>
         <View style={styles.bubbleContent}>
           <Text style={cardTitle}>{bubbleName}</Text>
@@ -94,7 +96,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bubbleIcon: {
-    backgroundColor: "#E89349",
     alignSelf: "flex-start",
     padding: 10,
     borderRadius: 50,

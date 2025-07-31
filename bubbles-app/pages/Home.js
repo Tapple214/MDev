@@ -155,7 +155,7 @@ export default function Home({ navigation }) {
   console.log("Selected category:", selectedCategory);
 
   return (
-    <View style={[styles.generalContainer, { paddingBottom: 80 }]}>
+    <View style={styles.generalContainer}>
       <ScrollView
         vertical
         stickyHeaderIndices={[2]}
@@ -234,6 +234,8 @@ export default function Home({ navigation }) {
                 bubbleName={bubbleData.name}
                 bubbleHost={bubbleData.hostName}
                 userRole={bubbleData.userRole}
+                icon={bubbleData.icon || "heart"}
+                backgroundColor={bubbleData.backgroundColor || "#E89349"}
                 onAccept={() => handleAcceptBubble(bubbleData.id)}
                 onDecline={() => handleDeclineBubble(bubbleData.id)}
                 // send as params
@@ -265,7 +267,8 @@ const styles = StyleSheet.create({
   generalContainer: {
     backgroundColor: "#EEDCAD",
     height: "100%",
-    paddingVertical: 15,
+    paddingTop: 15,
+    paddingBottom: 100,
   },
   headerContainer: {
     flexDirection: "row",
