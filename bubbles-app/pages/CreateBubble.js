@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import NavBar from "../components/navbar";
+import GuestSelector from "../components/guest-selector";
 import { useAuth } from "../contexts/AuthContext";
 import { createBubble, validateGuestEmails } from "../utils/firestore";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -279,10 +280,10 @@ export default function CreateBubble() {
         <Text style={styles.inputTitle}>
           Guest List (comma separated emails)
         </Text>
-        <TextInput
+        <GuestSelector
           value={guestList}
           onChangeText={handleGuestListChange}
-          placeholder="Enter guest emails (e.g., guest1@email.com, guest2@email.com)"
+          placeholder="Enter guest emails or tap 👥 to select from users"
           style={styles.input}
           multiline
           numberOfLines={5}
