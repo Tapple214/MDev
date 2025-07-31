@@ -73,7 +73,7 @@ export const getBubbles = async (userId) => {
 };
 
 // Get all bubbles that a user is involved with (as host or guest)
-export const getUserBubbles = async (userId) => {
+export const getUserBubbles = async (userId, userEmail) => {
   try {
     const bubblesRef = collection(db, "bubbles");
     const querySnapshot = await getDocs(bubblesRef);
@@ -90,8 +90,11 @@ export const getUserBubbles = async (userId) => {
           userRole: "host",
         });
       }
-      // Check if user is in the guest list
-      else if (bubbleData.guestList && bubbleData.guestList.includes(userId)) {
+      // Check if user is in the guest list (guestList contains email addresses)
+      else if (
+        bubbleData.guestList &&
+        bubbleData.guestList.includes(userEmail)
+      ) {
         bubbles.push({
           id: doc.id,
           ...bubbleData,
