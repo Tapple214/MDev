@@ -268,13 +268,13 @@ export default function CreateBubble() {
                 style={styles.modalButton}
                 onPress={() => setShowDatePicker(false)}
               >
-                <Text style={styles.modalButtonText}>Cancel</Text>
+                <Text style={styles.modalButtonTextCancel}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.modalButtonConfirm]}
                 onPress={handleDateConfirm}
               >
-                <Text style={styles.modalButtonText}>Confirm</Text>
+                <Text style={styles.modalButtonTextConfirm}>Confirm</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -303,13 +303,13 @@ export default function CreateBubble() {
                 style={styles.modalButton}
                 onPress={() => setShowTimePicker(false)}
               >
-                <Text style={styles.modalButtonText}>Cancel</Text>
+                <Text style={styles.modalButtonTextCancel}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.modalButtonConfirm]}
                 onPress={handleTimeConfirm}
               >
-                <Text style={styles.modalButtonText}>Confirm</Text>
+                <Text style={styles.modalButtonTextConfirm}>Confirm</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -445,7 +445,12 @@ const styles = StyleSheet.create({
   modalButtonConfirm: {
     backgroundColor: "#606B38",
   },
-  modalButtonText: {
+  modalButtonTextCancel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#452A17",
+  },
+  modalButtonTextConfirm: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#FEFADF",
