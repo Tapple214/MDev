@@ -12,10 +12,12 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Login({ navigation }) {
+  const { login, signup } = useAuth();
+
+  const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: "",
@@ -23,11 +25,19 @@ export default function Login({ navigation }) {
     password: "",
     confirmPassword: "",
   });
-  const [loading, setLoading] = useState(false);
-  const { login, signup } = useAuth();
 
   const updateForm = (field, value) =>
     setFormData((prev) => ({ ...prev, [field]: value }));
+
+  const renderInput = (field, placeholder, props = {}) => (
+    <TextInput
+      style={styles.input}
+      placeholder={placeholder}
+      value={formData[field]}
+      onChangeText={(value) => updateForm(field, value)}
+      {...props}
+    />
+  );
 
   const errorMessages = {
     "auth/user-not-found":
@@ -40,26 +50,6 @@ export default function Login({ navigation }) {
       "Network error. Please check your connection.",
     "auth/too-many-requests":
       "Too many failed attempts. Please try again later.",
-  };
-
-  const validateForm = () => {
-    if (!formData.email || !formData.password) {
-      Alert.alert("Error", "Please fill in all fields");
-      return false;
-    }
-    if (!isLogin && !formData.name) {
-      Alert.alert("Error", "Please enter your name");
-      return false;
-    }
-    if (!isLogin && formData.password !== formData.confirmPassword) {
-      Alert.alert("Error", "Passwords do not match");
-      return false;
-    }
-    if (!isLogin && formData.password.length < 6) {
-      Alert.alert("Error", "Password must be at least 6 characters");
-      return false;
-    }
-    return true;
   };
 
   const handleAuth = async () => {
@@ -86,18 +76,28 @@ export default function Login({ navigation }) {
     }
   };
 
-  const renderInput = (field, placeholder, props = {}) => (
-    <TextInput
-      style={styles.input}
-      placeholder={placeholder}
-      value={formData[field]}
-      onChangeText={(value) => updateForm(field, value)}
-      {...props}
-    />
-  );
+  const validateForm = () => {
+    if (!formData.email || !formData.password) {
+      Alert.alert("Error", "Please fill in all fields");
+      return false;
+    }
+    if (!isLogin && !formData.name) {
+      Alert.alert("Error", "Please enter your name");
+      return false;
+    }
+    if (!isLogin && formData.password !== formData.confirmPassword) {
+      Alert.alert("Error", "Passwords do not match");
+      return false;
+    }
+    if (!isLogin && formData.password.length < 6) {
+      Alert.alert("Error", "Password must be at least 6 characters");
+      return false;
+    }
+    return true;
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.generalContainer}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
@@ -159,12 +159,19 @@ export default function Login({ navigation }) {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: "#EEDCAD", flex: 1 },
+  generalContainer: {
+    backgroundColor: "#EEDCAD",
+    height: "100%",
+    paddingTop: 40,
+    paddingBottom: 100,
+    paddingHorizontal: 20,
+    flex: 1,
+  },
   keyboardView: { flex: 1 },
   scrollContainer: { flexGrow: 1, paddingVertical: 15 },
   image: {
@@ -175,7 +182,6 @@ const styles = StyleSheet.create({
     marginTop: 25,
     marginBottom: 20,
   },
-  formContainer: { paddingHorizontal: 20, flex: 1 },
   title: {
     fontSize: 24,
     fontWeight: "bold",
