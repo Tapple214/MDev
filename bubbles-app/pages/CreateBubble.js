@@ -9,22 +9,64 @@ import {
   Alert,
   TouchableOpacity,
   ActivityIndicator,
+  Platform,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import NavBar from "../components/navbar";
 import { useAuth } from "../contexts/AuthContext";
 import { createBubble } from "../utils/firestore";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 export default function CreateBubble() {
   const { user, userData } = useAuth();
   const [bubbleName, setBubbleName] = useState("");
   const [bubbleDescription, setBubbleDescription] = useState("");
   const [bubbleLocation, setBubbleLocation] = useState("");
-  const [bubbleDate, setBubbleDate] = useState("");
-  const [bubbleTime, setBubbleTime] = useState("");
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedTime, setSelectedTime] = useState(new Date());
   const [guestList, setGuestList] = useState("");
   const [needQR, setNeedQR] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const formatTime = (date) => {
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
+  const onDateChange = (event, selectedDate) => {
+    if (selectedDate) {
+      setSelectedDate(selectedDate);
+    }
+  };
+
+  const onTimeChange = (event, selectedTime) => {
+    if (selectedTime) {
+      setSelectedTime(selectedTime);
+    }
+  };
+
+  const handleDateConfirm = () => {
+    setShowDatePicker(false);
+  };
+
+  const handleTimeConfirm = () => {
+    setShowTimePicker(false);
+  };
 
   const validateForm = () => {
     if (!bubbleName.trim()) {
@@ -37,14 +79,6 @@ export default function CreateBubble() {
     }
     if (!bubbleLocation.trim()) {
       Alert.alert("Error", "Please enter a bubble location");
-      return false;
-    }
-    if (!bubbleDate.trim()) {
-      Alert.alert("Error", "Please enter a bubble date");
-      return false;
-    }
-    if (!bubbleTime.trim()) {
-      Alert.alert("Error", "Please enter a bubble time");
       return false;
     }
     return true;
@@ -61,12 +95,17 @@ export default function CreateBubble() {
     setIsLoading(true);
 
     try {
+      // Combine date and time
+      const combinedDateTime = new Date(selectedDate);
+      combinedDateTime.setHours(selectedTime.getHours());
+      combinedDateTime.setMinutes(selectedTime.getMinutes());
+
       const bubbleData = {
         name: bubbleName.trim(),
         description: bubbleDescription.trim(),
         location: bubbleLocation.trim(),
-        date: bubbleDate.trim(),
-        time: bubbleTime.trim(),
+        date: formatDate(selectedDate),
+        time: formatTime(selectedTime),
         guestList: guestList.trim(),
         needQR,
         hostName: userData?.name || user.email,
@@ -83,8 +122,8 @@ export default function CreateBubble() {
             setBubbleName("");
             setBubbleDescription("");
             setBubbleLocation("");
-            setBubbleDate("");
-            setBubbleTime("");
+            setSelectedDate(new Date());
+            setSelectedTime(new Date());
             setGuestList("");
             setNeedQR(false);
           },
@@ -134,23 +173,37 @@ export default function CreateBubble() {
           editable={!isLoading}
         />
 
-        <Text style={styles.inputTitle}>When is your bubble? (Date)</Text>
-        <TextInput
-          value={bubbleDate}
-          onChangeText={setBubbleDate}
-          placeholder="Enter bubble date (e.g., July 24, 2025)"
-          style={styles.input}
-          editable={!isLoading}
-        />
+        <Text style={styles.inputTitle}>When is your bubble?</Text>
+        <View style={styles.pickerContainer}>
+          <View style={styles.pickerValueContainer}>
+            <Text style={styles.pickerValueText}>
+              {formatDate(selectedDate)}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.pickerButton}
+            onPress={() => setShowDatePicker(true)}
+            disabled={isLoading}
+          >
+            <Text style={styles.pickerButtonText}>📅</Text>
+          </TouchableOpacity>
+        </View>
 
         <Text style={styles.inputTitle}>What time is your bubble?</Text>
-        <TextInput
-          value={bubbleTime}
-          onChangeText={setBubbleTime}
-          placeholder="Enter bubble time (e.g., 5:30 PM)"
-          style={styles.input}
-          editable={!isLoading}
-        />
+        <View style={styles.pickerContainer}>
+          <View style={styles.pickerValueContainer}>
+            <Text style={styles.pickerValueText}>
+              {formatTime(selectedTime)}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.pickerButton}
+            onPress={() => setShowTimePicker(true)}
+            disabled={isLoading}
+          >
+            <Text style={styles.pickerButtonText}>🕐</Text>
+          </TouchableOpacity>
+        </View>
 
         <Text style={styles.inputTitle}>
           Guest List (comma separated emails)
@@ -192,6 +245,77 @@ export default function CreateBubble() {
         </TouchableOpacity>
       </ScrollView>
 
+      {/* Date Picker Modal */}
+      <Modal
+        visible={showDatePicker}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowDatePicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Select Date</Text>
+            <DateTimePicker
+              value={selectedDate}
+              mode="date"
+              display="spinner"
+              onChange={onDateChange}
+              minimumDate={new Date()}
+              style={styles.dateTimePicker}
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => setShowDatePicker(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonConfirm]}
+                onPress={handleDateConfirm}
+              >
+                <Text style={styles.modalButtonText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Time Picker Modal */}
+      <Modal
+        visible={showTimePicker}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowTimePicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Select Time</Text>
+            <DateTimePicker
+              value={selectedTime}
+              mode="time"
+              display="spinner"
+              onChange={onTimeChange}
+              style={styles.dateTimePicker}
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => setShowTimePicker(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonConfirm]}
+                onPress={handleTimeConfirm}
+              >
+                <Text style={styles.modalButtonText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       <NavBar />
     </View>
   );
@@ -220,6 +344,35 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     backgroundColor: "#FEFADF",
   },
+  pickerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 15,
+    marginBottom: 15,
+  },
+  pickerValueContainer: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: "#FEFADF",
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  pickerValueText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  pickerButton: {
+    padding: 10,
+    backgroundColor: "#FEFADF",
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  pickerButtonText: {
+    fontSize: 20,
+  },
   switchContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -242,5 +395,59 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "#EEDCAD",
+    borderRadius: 10,
+    padding: 20,
+    margin: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 15,
+    color: "#452A17",
+  },
+  dateTimePicker: {
+    width: 200,
+    height: 200,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginTop: 20,
+  },
+  modalButton: {
+    flex: 1,
+    padding: 10,
+    marginHorizontal: 5,
+    borderRadius: 5,
+    backgroundColor: "#FEFADF",
+    alignItems: "center",
+    color: "#452A17",
+  },
+  modalButtonConfirm: {
+    backgroundColor: "#606B38",
+  },
+  modalButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FEFADF",
   },
 });
