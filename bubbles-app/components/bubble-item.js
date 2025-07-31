@@ -26,22 +26,27 @@ export default function BubbleItem({
   return (
     <View style={styles.bubbleCardContainer}>
       <TouchableOpacity
-        activeOpacity={0.7}
+        activeOpacity={0.8}
         onPress={action}
         style={styles.bubbleCard}
         {...props}
       >
-        <View style={styles.bubbleIcon}>
-          <Feather name="heart" size={20} color="#EEDCAD" />
-        </View>
-        <View style={styles.bubbleContent}>
-          <Text style={cardTitle}>{bubbleName}</Text>
-          <Text style={cardText}>{bubbleHost}</Text>
-          <View style={styles.tagContainer}>
-            {tags.map((tag) => (
-              <Text key={tag.id}>{tag.name}</Text>
-            ))}
+        <View style={styles.bubbleHeader}>
+          <View style={styles.bubbleIcon}>
+            <Feather name="message-circle" size={20} color="#FFFFFF" />
           </View>
+          <View style={styles.bubbleContent}>
+            <Text style={cardTitle}>{bubbleName}</Text>
+            <Text style={cardText}>Hosted by {bubbleHost}</Text>
+          </View>
+        </View>
+
+        <View style={styles.tagContainer}>
+          {tags.map((tag) => (
+            <View key={tag.id} style={styles.tag}>
+              <Text style={styles.tagText}>{tag.name}</Text>
+            </View>
+          ))}
         </View>
       </TouchableOpacity>
 
@@ -52,13 +57,15 @@ export default function BubbleItem({
             style={[styles.actionButton, styles.acceptButton]}
             onPress={onAccept}
           >
-            <Text style={styles.actionButtonText}>I'm coming!</Text>
+            <Feather name="check" size={16} color="#FFFFFF" />
+            <Text style={styles.actionButtonText}>Accept</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.actionButton, styles.declineButton]}
             onPress={onDecline}
           >
-            <Text style={styles.actionButtonText}>X</Text>
+            <Feather name="x" size={16} color="#FFFFFF" />
+            <Text style={styles.actionButtonText}>Decline</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -68,55 +75,79 @@ export default function BubbleItem({
 
 const styles = StyleSheet.create({
   bubbleCardContainer: {
-    marginBottom: 15,
-  },
-  tagContainer: {
-    flexDirection: "row",
-    gap: 5,
+    marginBottom: 16,
   },
   bubbleCard: {
-    backgroundColor: "#FEFADF",
-    borderRadius: 10,
-    height: 120,
-    paddingVertical: 15,
-    paddingLeft: 30,
-    flex: 1,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  bubbleHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  bubbleIcon: {
+    backgroundColor: "#6366F1",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
   },
   bubbleContent: {
     flex: 1,
   },
-  bubbleIcon: {
-    backgroundColor: "#E89349",
-    alignSelf: "flex-start",
-    padding: 10,
-    borderRadius: 50,
-    position: "absolute",
-    left: -20,
-    top: 15,
+  tagContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  tag: {
+    backgroundColor: "#F3F4F6",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  tagText: {
+    fontSize: 12,
+    color: "#6B7280",
+    fontWeight: "500",
   },
   actionButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 10,
-    gap: 10,
+    marginTop: 12,
+    gap: 12,
   },
   actionButton: {
     flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 20,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    gap: 8,
   },
   acceptButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#10B981",
   },
   declineButton: {
-    backgroundColor: "#F44336",
+    backgroundColor: "#EF4444",
   },
   actionButtonText: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: "600",
   },
 });

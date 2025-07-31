@@ -22,16 +22,18 @@ function NavigationContent() {
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: "#EEDCAD",
+          backgroundColor: "#FFFFFF",
           borderBottomWidth: 0,
           elevation: 0,
           shadowOpacity: 0,
         },
-        headerTintColor: "#452A17",
+        headerTintColor: "#2D3748",
         headerTitleStyle: {
-          fontWeight: "bold",
-          color: "#452A17",
+          fontWeight: "700",
+          fontSize: 18,
+          color: "#2D3748",
         },
+        headerShadowVisible: false,
       }}
     >
       {user ? (

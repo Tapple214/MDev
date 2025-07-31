@@ -22,12 +22,14 @@ import {
 const quickActions = [
   {
     id: 1,
-    title: "Create a Bubble!",
+    title: "Create a Bubble",
+    subtitle: "Plan your next meetup",
     goTo: "CreateBubble",
   },
   {
     id: 2,
-    title: "Add a Bubble Buddy!",
+    title: "Add Bubble Buddies",
+    subtitle: "Connect with friends",
     goTo: "BubbleBuddies",
   },
 ];
@@ -163,34 +165,34 @@ export default function Home({ navigation }) {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={["#606B38"]}
-            tintColor="#606B38"
+            colors={["#6366F1"]}
+            tintColor="#6366F1"
           />
         }
       >
         <View style={styles.headerContainer}>
-          <Text style={styles.title}>Hi {userData?.name}!</Text>
-          <View style={styles.headerButtons}></View>
+          <View>
+            <Text style={styles.greeting}>Good morning</Text>
+            <Text style={styles.title}>{userData?.name}!</Text>
+          </View>
         </View>
 
         <ScrollView
           horizontal
           pagingEnabled
-          showsHorizontalScrollIndicator={true}
+          showsHorizontalScrollIndicator={false}
           style={styles.quickActionsScrollView}
         >
           {quickActions.map((quickAction) => (
             <View key={quickAction.id} style={styles.quickActionsContainer}>
-              <View style={styles.quickActionsCard}>
-                <TouchableOpacity
-                  key={quickAction.id}
-                  onPress={() => navigation.navigate(quickAction.goTo)}
-                >
-                  <View style={styles.quickActionsCard}>
-                    <Text style={styles.cardTitle}>{quickAction.title}</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                key={quickAction.id}
+                onPress={() => navigation.navigate(quickAction.goTo)}
+                style={styles.quickActionsCard}
+              >
+                <Text style={styles.cardTitle}>{quickAction.title}</Text>
+                <Text style={styles.cardSubtitle}>{quickAction.subtitle}</Text>
+              </TouchableOpacity>
             </View>
           ))}
         </ScrollView>
@@ -224,7 +226,9 @@ export default function Home({ navigation }) {
 
         <View style={styles.bubblesContainer}>
           {loading ? (
-            <Text style={styles.noBubblesText}>Loading bubbles...</Text>
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>Loading bubbles...</Text>
+            </View>
           ) : filteredBubbles && filteredBubbles.length > 0 ? (
             filteredBubbles.map((bubbleData) => (
               <BubbleItem
@@ -250,7 +254,12 @@ export default function Home({ navigation }) {
               />
             ))
           ) : (
-            <Text style={styles.noBubblesText}>No bubbles found</Text>
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyTitle}>No bubbles yet</Text>
+              <Text style={styles.emptySubtitle}>
+                Create your first bubble or wait for invitations
+              </Text>
+            </View>
           )}
         </View>
       </ScrollView>
@@ -263,117 +272,117 @@ const screenwidth = Dimensions.get("window").width;
 
 const styles = StyleSheet.create({
   generalContainer: {
-    backgroundColor: "#EEDCAD",
+    backgroundColor: "#F8FAFC",
     height: "100%",
-    paddingVertical: 15,
+    paddingVertical: 20,
   },
   headerContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 15,
-    paddingBottom: 15,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
-  headerButtons: {
-    flexDirection: "row",
-    gap: 10,
+  greeting: {
+    fontSize: 16,
+    color: "#6B7280",
+    marginBottom: 4,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  logoutButton: {
-    backgroundColor: "#452A17",
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  logoutText: {
-    color: "#EEDCAD",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  debugButton: {
-    backgroundColor: "#4A90E2",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
-  },
-  debugButtonText: {
-    color: "#EEDCAD",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  migrateButton: {
-    backgroundColor: "#778A31",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
-  },
-  migrateButtonText: {
-    color: "#EEDCAD",
-    fontSize: 12,
-    fontWeight: "600",
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#1F2937",
   },
   cardTitle: {
-    fontSize: 15,
-    fontWeight: "bold",
-    paddingBottom: 2,
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1F2937",
+    marginBottom: 4,
+  },
+  cardSubtitle: {
+    fontSize: 14,
+    color: "#6B7280",
   },
   cardText: {
-    fontSize: 12,
-    paddingBottom: 10,
+    fontSize: 14,
+    color: "#6B7280",
+    marginBottom: 8,
   },
   categoriesContainer: {
-    paddingTop: 5,
-    paddingBottom: 15,
+    paddingTop: 10,
+    paddingBottom: 20,
     flex: 0,
     flexGrow: 0,
-    backgroundColor: "#EEDCAD",
+    backgroundColor: "#F8FAFC",
   },
   categoryBtn: {
     paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingHorizontal: 16,
     marginLeft: 8,
-
-    borderRadius: 50,
-
-    alignSelf: "flex-start", // ensures that width is as long as content/text in it
+    borderRadius: 20,
+    backgroundColor: "#F3F4F6",
+    alignSelf: "flex-start",
   },
   categoryText: {
-    color: "#452A17",
-    fontWeight: "bold",
+    color: "#6B7280",
+    fontWeight: "500",
+    fontSize: 14,
   },
   bubblesContainer: {
     width: screenwidth,
-    paddingRight: 15,
-    paddingLeft: 35,
+    paddingRight: 20,
+    paddingLeft: 20,
   },
   quickActionsScrollView: {
-    paddingBottom: 15,
-    flex: 0, // prevents unnecessary growth
-    flexGrow: 0, // ensures its only as high as contents in it
+    paddingBottom: 20,
+    flex: 0,
+    flexGrow: 0,
   },
   quickActionsContainer: {
     width: screenwidth,
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
   },
   quickActionsCard: {
-    backgroundColor: "#FEFADF",
+    backgroundColor: "#FFFFFF",
     padding: 20,
-    justifyContent: "center",
-    borderRadius: 10,
-  },
-  noBubblesText: {
-    textAlign: "center",
-    fontSize: 16,
-    color: "#452A17",
-    marginTop: 20,
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   selectedCategoryBtn: {
-    backgroundColor: "#452A17",
+    backgroundColor: "#6366F1",
   },
   selectedCategoryText: {
-    color: "#EEDCAD",
+    color: "#FFFFFF",
+  },
+  loadingContainer: {
+    alignItems: "center",
+    paddingVertical: 40,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: "#6B7280",
+  },
+  emptyContainer: {
+    alignItems: "center",
+    paddingVertical: 60,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1F2937",
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: "#6B7280",
+    textAlign: "center",
+    paddingHorizontal: 40,
   },
 });

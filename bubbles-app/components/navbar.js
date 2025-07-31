@@ -1,7 +1,7 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useNavigation } from "@react-navigation/native";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -33,69 +33,91 @@ export default function NavBar() {
   };
 
   return (
-    <View style={styles.navbar}>
-      <TouchableOpacity onPress={handleLogout}>
-        <Feather name="log-out" size={30} color="#452A17" />
-      </TouchableOpacity>
+    <View style={styles.navbarContainer}>
+      <View style={styles.navbar}>
+        <TouchableOpacity style={styles.navButton} onPress={handleLogout}>
+          <Feather name="log-out" size={24} color="#6B7280" />
+        </TouchableOpacity>
 
-      <TouchableOpacity
-        onPress={() => {
-          if (currentRoute.name !== "Home") {
-            navigation.popToTop("Home");
-          }
-        }}
-      >
-        <Feather name="home" size={30} color="#452A17" />
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => {
+            if (currentRoute.name !== "Home") {
+              navigation.popToTop("Home");
+            }
+          }}
+        >
+          <Feather name="home" size={24} color="#6B7280" />
+        </TouchableOpacity>
 
-      <TouchableOpacity>
-        <Feather
-          name="users"
-          size={30}
-          color="#452A17"
+        <TouchableOpacity
+          style={styles.navButton}
           onPress={() => {
             if (currentRoute.name !== "BubbleBuddies") {
               navigation.navigate("BubbleBuddies");
             }
           }}
-        />
-      </TouchableOpacity>
-
-      <View style={styles.highlightIconContainer}>
-        <TouchableOpacity
-          style={styles.highlightIcon}
-          onPress={() => navigation.navigate("CreateBubble")}
         >
-          <Feather name="plus" size={25} color="#EEDCAD" />
+          <Feather name="users" size={24} color="#6B7280" />
         </TouchableOpacity>
+
+        <View style={styles.highlightIconContainer}>
+          <TouchableOpacity
+            style={styles.highlightIcon}
+            onPress={() => navigation.navigate("CreateBubble")}
+          >
+            <Feather name="plus" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  navbarContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+  },
   navbar: {
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: "#EEDCAD",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
-    position: "absolute",
-    paddingBottom: 30,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 80,
+    borderRadius: 24,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  navButton: {
+    padding: 8,
+    borderRadius: 12,
   },
   highlightIcon: {
-    position: "relative",
-    backgroundColor: "#452A17",
-    padding: 13,
-    borderRadius: 50,
-    alignSelf: "flex-start",
-    bottom: 10,
+    backgroundColor: "#6366F1",
+    padding: 12,
+    borderRadius: 16,
+    shadowColor: "#6366F1",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   highlightIconContainer: {
-    // Remove the red background for testing
     alignItems: "center",
     justifyContent: "center",
   },

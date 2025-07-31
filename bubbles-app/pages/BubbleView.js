@@ -17,72 +17,61 @@ export default function BubbleView() {
   return (
     <View style={styles.generalContainer}>
       <ScrollView vertical style={styles.bubbleViewScrollView}>
-        <Text style={styles.title}>More info on the Bubble!</Text>
-        {/* Row 1 */}
-        <View style={styles.bubbleDetailsRow}>
-          <View style={[styles.cell, { width: "95%" }]}>
-            <Text style={styles.cardTitle}>{bubbleDetails.bubbleName}</Text>
-            <Feather
-              name="bookmark"
-              size={45}
-              style={{ position: "absolute", right: -25, top: 15 }}
-              color="#778A31"
-            />
-          </View>
+        <View style={styles.header}>
+          <Text style={styles.title}>Bubble Details</Text>
+          <TouchableOpacity style={styles.bookmarkButton}>
+            <Feather name="bookmark" size={24} color="#6366F1" />
+          </TouchableOpacity>
         </View>
 
-        {/* Row 2 */}
-        <View style={styles.bubbleDetailsRow}>
-          <View style={[styles.cell, { width: "40%", marginLeft: 20 }]}>
-            <Text>3</Text>
-            <Feather
-              name="check-square"
-              size={45}
-              style={{ position: "absolute", left: -25, bottom: 15 }}
-              color="#949D72"
-            />
-          </View>
-          <View style={[styles.cell, { flex: 1 }]}>
-            <Text>4</Text>
-            <Feather
-              name="user"
-              size={45}
-              style={{ position: "absolute", left: 15, top: 15 }}
-              color="#E89349"
-            />
-            <Text>{bubbleDetails.host}</Text>
-          </View>
+        <View style={styles.bubbleCard}>
+          <Text style={styles.bubbleName}>{bubbleDetails.bubbleName}</Text>
+          <Text style={styles.bubbleHost}>Hosted by {bubbleDetails.host}</Text>
         </View>
 
-        {/* Row 3 */}
-        <View style={styles.bubbleDetailsRow}>
-          <View style={[styles.cell, { width: "55%" }]}>
-            <Text>5</Text>
-            <Feather
-              name="map-pin"
-              size={45}
-              style={{ position: "absolute", right: 15, top: 15 }}
-              color="#BD3526"
-            />
+        <View style={styles.detailsGrid}>
+          <View style={styles.detailCard}>
+            <View style={styles.iconContainer}>
+              <Feather name="check-square" size={24} color="#10B981" />
+            </View>
+            <Text style={styles.detailNumber}>3</Text>
+            <Text style={styles.detailLabel}>Confirmed</Text>
           </View>
-          <View style={[styles.cell, { flex: 1, marginRight: 20 }]}>
-            <Text>6</Text>
-            <Feather
-              name="clock"
-              size={45}
-              style={{ position: "absolute", right: -25, bottom: 15 }}
-              color="#46462B"
-            />
+
+          <View style={styles.detailCard}>
+            <View style={styles.iconContainer}>
+              <Feather name="user" size={24} color="#6366F1" />
+            </View>
+            <Text style={styles.detailNumber}>4</Text>
+            <Text style={styles.detailLabel}>Total Guests</Text>
+          </View>
+
+          <View style={styles.detailCard}>
+            <View style={styles.iconContainer}>
+              <Feather name="map-pin" size={24} color="#EF4444" />
+            </View>
+            <Text style={styles.detailNumber}>5</Text>
+            <Text style={styles.detailLabel}>Location</Text>
+          </View>
+
+          <View style={styles.detailCard}>
+            <View style={styles.iconContainer}>
+              <Feather name="clock" size={24} color="#F59E0B" />
+            </View>
+            <Text style={styles.detailNumber}>6</Text>
+            <Text style={styles.detailLabel}>Time</Text>
           </View>
         </View>
 
         <View style={styles.quickActionsContainer}>
-          <TouchableOpacity style={styles.button}>
-            <Feather name="camera" size={30} style={{ paddingBottom: 10 }} />
-            <Text>Add to BubbleBook</Text>
+          <TouchableOpacity style={styles.actionButton}>
+            <Feather name="camera" size={24} color="#6366F1" />
+            <Text style={styles.actionButtonText}>Add to BubbleBook</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
-            <Text>Show/Scan QR Code</Text>
+
+          <TouchableOpacity style={styles.actionButton}>
+            <Feather name="qr-code" size={24} color="#6366F1" />
+            <Text style={styles.actionButtonText}>Show/Scan QR Code</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -92,47 +81,121 @@ export default function BubbleView() {
 }
 
 const styles = StyleSheet.create({
-  // General properties
   generalContainer: {
-    backgroundColor: "#EEDCAD",
+    backgroundColor: "#F8FAFC",
     height: "100%",
-    paddingVertical: 15,
+    paddingVertical: 20,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    paddingHorizontal: 15,
-    paddingBottom: 15,
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#1F2937",
   },
-  cardTitle: {
-    fontSize: 15,
-    fontWeight: "bold",
-    paddingBottom: 2,
-  },
-  button: {
-    padding: 10,
-    backgroundColor: "#FEFADF",
-    borderRadius: 10,
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  quickActionsContainer: {
-    width: "100%",
-    paddingHorizontal: 15,
+  bookmarkButton: {
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: "#F3F4F6",
   },
   bubbleViewScrollView: {
     flex: 1,
   },
-  bubbleDetailsRow: {
-    flexDirection: "row",
-    height: 150,
-    marginBottom: 15,
-    gap: 15,
-    paddingHorizontal: 15,
+  bubbleCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 20,
+    marginHorizontal: 20,
+    marginBottom: 24,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  cell: {
-    backgroundColor: "rgba(254, 250, 223, 0.5)",
-    borderRadius: 10,
-    padding: 15,
+  bubbleName: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#1F2937",
+    marginBottom: 8,
+  },
+  bubbleHost: {
+    fontSize: 16,
+    color: "#6B7280",
+  },
+  detailsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 20,
+    marginBottom: 24,
+    gap: 12,
+  },
+  detailCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 20,
+    width: "47%",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#F3F4F6",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  detailNumber: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#1F2937",
+    marginBottom: 4,
+  },
+  detailLabel: {
+    fontSize: 14,
+    color: "#6B7280",
+    textAlign: "center",
+  },
+  quickActionsContainer: {
+    paddingHorizontal: 20,
+    gap: 12,
+  },
+  actionButton: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  actionButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1F2937",
+    marginLeft: 12,
   },
 });
