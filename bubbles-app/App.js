@@ -1,8 +1,8 @@
+import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Text } from "react-native";
+
+// Custom hooks and utility functions
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
 // Import page components
@@ -16,6 +16,7 @@ import CreateBubble from "./pages/CreateBubble";
 const Stack = createStackNavigator();
 
 function NavigationContent() {
+  // Custom Hook
   const { user } = useAuth();
 
   return (

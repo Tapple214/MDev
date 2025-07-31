@@ -8,17 +8,18 @@ import {
   TextInput,
   Alert,
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
 } from "react-native";
+
+// Custom hooks
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Login({ navigation }) {
+  // Custom Hook
   const { login, signup } = useAuth();
 
+  // States
   const [loading, setLoading] = useState(false);
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(true); // login or signup
   const [formData, setFormData] = useState({
     email: "",
     name: "",
@@ -26,6 +27,7 @@ export default function Login({ navigation }) {
     confirmPassword: "",
   });
 
+  // Form input management
   const updateForm = (field, value) =>
     setFormData((prev) => ({ ...prev, [field]: value }));
 
@@ -39,43 +41,7 @@ export default function Login({ navigation }) {
     />
   );
 
-  const errorMessages = {
-    "auth/user-not-found":
-      "No account found with this email. Please sign up first.",
-    "auth/wrong-password": "Incorrect password",
-    "auth/email-already-in-use": "An account with this email already exists",
-    "auth/weak-password": "Password is too weak",
-    "auth/invalid-email": "Invalid email address",
-    "auth/network-request-failed":
-      "Network error. Please check your connection.",
-    "auth/too-many-requests":
-      "Too many failed attempts. Please try again later.",
-  };
-
-  const handleAuth = async () => {
-    if (!validateForm()) return;
-
-    setLoading(true);
-    try {
-      if (isLogin) {
-        await login(formData.email, formData.password);
-        navigation.navigate("Home");
-      } else {
-        await signup(formData.email, formData.password, formData.name);
-        Alert.alert("Success", "Account created successfully!", [
-          { text: "OK", onPress: () => setIsLogin(true) },
-        ]);
-      }
-    } catch (error) {
-      console.log("Auth error:", error.code, error.message);
-      const errorMessage =
-        errorMessages[error.code] || `Authentication error: ${error.message}`;
-      Alert.alert("Error", errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // To check whether the form is filled in correctly
   const validateForm = () => {
     if (!formData.email || !formData.password) {
       Alert.alert("Error", "Please fill in all fields");
@@ -96,69 +62,100 @@ export default function Login({ navigation }) {
     return true;
   };
 
+  // What to send to the user when an error occurs
+  const errorMessages = {
+    "auth/user-not-found":
+      "No account found with this email. Please sign up first.",
+    "auth/wrong-password": "Incorrect password",
+    "auth/email-already-in-use": "An account with this email already exists",
+    "auth/weak-password": "Password is too weak",
+    "auth/invalid-email": "Invalid email address",
+    "auth/network-request-failed":
+      "Network error. Please check your connection.",
+    "auth/too-many-requests":
+      "Too many failed attempts. Please try again later.",
+  };
+
+  // What to do during and after the authentication process
+  const handleAuth = async () => {
+    if (!validateForm()) return;
+    setLoading(true);
+
+    try {
+      // If form is for login
+      if (isLogin) {
+        await login(formData.email, formData.password);
+        navigation.navigate("Home");
+      } else {
+        // If form is for signup
+        await signup(formData.email, formData.password, formData.name);
+        Alert.alert("Success", "Account created successfully!", [
+          { text: "OK", onPress: () => setIsLogin(true) },
+        ]);
+      }
+    } catch (error) {
+      const errorMessage =
+        errorMessages[error.code] || `Authentication error: ${error.message}`;
+      Alert.alert("Error", errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <View style={styles.generalContainer}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardView}
+      <Image source={require("../assets/login.jpeg")} style={styles.image} />
+
+      <Text style={styles.title}>
+        {isLogin ? "Welcome To Bubbles!" : "Join Bubbles!"}
+      </Text>
+
+      {/* Email */}
+      {renderInput("email", "Email", {
+        keyboardType: "email-address",
+        autoCapitalize: "none",
+        autoCorrect: false,
+      })}
+
+      {/* Name; Only show if form is for signup */}
+      {!isLogin &&
+        renderInput("name", "Name", {
+          autoCapitalize: "words",
+          autoCorrect: false,
+        })}
+
+      {/* Password */}
+      {renderInput("password", "Password", { autoCapitalize: "none" })}
+
+      {/* Confirm Password; Only show if form is for signup */}
+      {!isLogin &&
+        renderInput("confirmPassword", "Confirm Password", {
+          autoCapitalize: "none",
+        })}
+
+      {/* Confirm button */}
+      <TouchableOpacity
+        style={[styles.button, loading && styles.buttonDisabled]}
+        onPress={handleAuth}
+        disabled={loading}
       >
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <Image
-            source={require("../assets/login.jpeg")}
-            style={styles.image}
-          />
+        {loading ? (
+          <ActivityIndicator color="#EEDCAD" />
+        ) : (
+          <Text style={styles.buttonText}>
+            {isLogin ? "Sign In" : "Sign Up"}
+          </Text>
+        )}
+      </TouchableOpacity>
 
-          <View style={styles.formContainer}>
-            <Text style={styles.title}>
-              {isLogin ? "Welcome Back!" : "Join Bubbles!"}
-            </Text>
-
-            {renderInput("email", "Email", {
-              keyboardType: "email-address",
-              autoCapitalize: "none",
-              autoCorrect: false,
-            })}
-
-            {!isLogin &&
-              renderInput("name", "Name", {
-                autoCapitalize: "words",
-                autoCorrect: false,
-              })}
-
-            {renderInput("password", "Password", { autoCapitalize: "none" })}
-
-            {!isLogin &&
-              renderInput("confirmPassword", "Confirm Password", {
-                autoCapitalize: "none",
-              })}
-
-            <TouchableOpacity
-              style={[styles.button, loading && styles.buttonDisabled]}
-              onPress={handleAuth}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="#EEDCAD" />
-              ) : (
-                <Text style={styles.buttonText}>
-                  {isLogin ? "Sign In" : "Sign Up"}
-                </Text>
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.switchButton}
-              onPress={() => setIsLogin(!isLogin)}
-            >
-              <Text style={styles.switchText}>
-                {isLogin
-                  ? "Don't have an account? Sign Up"
-                  : "Already have an account? Sign In"}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+      {/* Switch button */}
+      <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
+        <Text style={styles.switchText}>
+          {isLogin
+            ? "Don't have an account? Sign Up"
+            : "Already have an account? Sign In"}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -167,26 +164,24 @@ const styles = StyleSheet.create({
   generalContainer: {
     backgroundColor: "#EEDCAD",
     height: "100%",
-    paddingTop: 40,
+    paddingTop: 50,
     paddingBottom: 100,
     paddingHorizontal: 20,
     flex: 1,
   },
-  keyboardView: { flex: 1 },
-  scrollContainer: { flexGrow: 1, paddingVertical: 15 },
   image: {
     width: 250,
     height: 250,
     resizeMode: "contain",
     alignSelf: "center",
     marginTop: 25,
-    marginBottom: 20,
+    marginBottom: 25,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 30,
+    marginBottom: 15,
     color: "#333",
   },
   input: {
@@ -199,18 +194,18 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
   },
   button: {
-    backgroundColor: "#4A90E2",
+    backgroundColor: "#452A17",
     borderRadius: 10,
     padding: 15,
     alignItems: "center",
+    marginVertical: 10,
     marginBottom: 15,
   },
-  buttonDisabled: { opacity: 0.7 },
-  buttonText: { color: "white", fontSize: 16, fontWeight: "bold" },
-  switchButton: { alignItems: "center", paddingVertical: 10 },
+  buttonText: { color: "#FEFADF", fontSize: 16, fontWeight: "bold" },
   switchText: {
-    color: "#4A90E2",
+    color: "#452A17",
     fontSize: 14,
     textDecorationLine: "underline",
+    alignSelf: "center",
   },
 });

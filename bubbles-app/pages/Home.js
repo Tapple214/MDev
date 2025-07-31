@@ -9,8 +9,12 @@ import {
   Alert,
   RefreshControl,
 } from "react-native";
+
+// Components
 import NavBar from "../components/navbar";
 import BubbleItem from "../components/bubble-item";
+
+// Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
 import {
   getUserBubbles,
@@ -32,6 +36,7 @@ const quickActions = [
   },
 ];
 
+// To show the different bubbles related to the user
 const categories = [
   { id: 1, name: "All" },
   { id: 2, name: "Created By Me" },
@@ -41,7 +46,10 @@ const categories = [
 ];
 
 export default function Home({ navigation }) {
+  // Custom Hook
   const { user } = useAuth();
+
+  // States
   const [userData, setUserData] = useState(null);
   const [bubblesData, setBubblesData] = useState([]);
   const [filteredBubbles, setFilteredBubbles] = useState([]);
