@@ -371,3 +371,29 @@ export const getBubbleById = async (bubbleId) => {
     throw error;
   }
 };
+
+// Get all users for bubble buddy selection (excluding current user)
+export const getAllUsersForSelection = async (currentUserId) => {
+  try {
+    const usersRef = collection(db, "users");
+    const querySnapshot = await getDocs(usersRef);
+    const users = [];
+
+    querySnapshot.forEach((doc) => {
+      const userData = doc.data();
+      // Exclude current user from the list
+      if (doc.id !== currentUserId) {
+        users.push({
+          id: doc.id,
+          name: userData.name,
+          email: userData.email,
+        });
+      }
+    });
+
+    return users;
+  } catch (error) {
+    console.error("Error getting all users for selection:", error);
+    throw error;
+  }
+};
