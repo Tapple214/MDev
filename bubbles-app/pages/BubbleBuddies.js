@@ -39,7 +39,6 @@ export default function BubbleBuddies() {
     const fetchUserData = async () => {
       if (user && user.uid) {
         const fetchedUserData = await getUser(user.uid);
-        console.log("User data from Firestore:", fetchedUserData);
         setUserData(fetchedUserData);
       }
     };
@@ -189,8 +188,6 @@ export default function BubbleBuddies() {
       </View>
     );
   };
-
-  console.log("bubble buddies", userData?.bubbleBuddies?.[0]);
 
   return (
     <View style={styles.generalContainer}>

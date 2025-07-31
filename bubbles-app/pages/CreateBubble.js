@@ -204,7 +204,6 @@ export default function CreateBubble() {
         hostUid: user.uid,
       };
 
-      console.log("Creating bubble with data:", bubbleData);
       await createBubble(bubbleData);
 
       Alert.alert("Success!", "Your bubble has been created successfully!", [

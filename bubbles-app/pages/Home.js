@@ -64,12 +64,11 @@ export default function Home({ navigation }) {
 
         // Fetch user data
         const fetchedUserData = await getUser(user.uid);
-        console.log("User data from Firestore:", fetchedUserData);
         setUserData(fetchedUserData);
 
         // Fetch bubbles data
         const fetchedBubblesData = await getUserBubbles(user.uid, user.email);
-        console.log("Bubbles data from Firestore:", fetchedBubblesData);
+
         setBubblesData(fetchedBubblesData);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -157,10 +156,6 @@ export default function Home({ navigation }) {
       Alert.alert("Error", "Failed to decline bubble. Please try again.");
     }
   };
-
-  console.log("Current bubbles data:", bubblesData);
-  console.log("Filtered bubbles:", filteredBubbles);
-  console.log("Selected category:", selectedCategory);
 
   return (
     <View style={styles.generalContainer}>
