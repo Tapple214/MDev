@@ -22,12 +22,18 @@ export default function BubbleView() {
         <View style={styles.bubbleDetailsRow}>
           <View style={[styles.cell, { width: "95%" }]}>
             <Text style={styles.cardTitle}>{bubbleDetails.bubbleName}</Text>
-            <Feather
-              name="bookmark"
-              size={45}
-              style={{ position: "absolute", right: -25, top: 15 }}
-              color="#778A31"
-            />
+            <View
+              style={[
+                styles.bubbleIcon,
+                { backgroundColor: bubbleDetails.backgroundColor || "#E89349" },
+              ]}
+            >
+              <Feather
+                name={bubbleDetails.icon || "heart"}
+                size={30}
+                color="#EEDCAD"
+              />
+            </View>
           </View>
         </View>
 
@@ -134,5 +140,15 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(254, 250, 223, 0.5)",
     borderRadius: 10,
     padding: 15,
+  },
+  bubbleIcon: {
+    position: "absolute",
+    right: -20,
+    top: 15,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

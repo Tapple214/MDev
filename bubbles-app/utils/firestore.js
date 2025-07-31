@@ -257,6 +257,7 @@ export const createBubble = async (bubbleData) => {
       updatedAt: serverTimestamp(),
     };
 
+    console.log("Saving bubble document:", bubbleDoc);
     await setDoc(newBubbleRef, bubbleDoc);
     return { id: newBubbleRef.id, ...bubbleDoc };
   } catch (error) {

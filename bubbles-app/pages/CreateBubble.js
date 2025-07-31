@@ -130,6 +130,13 @@ export default function CreateBubble() {
       Alert.alert("Error", "Please enter a bubble location");
       return false;
     }
+    if (!selectedIcon || !selectedBackgroundColor) {
+      Alert.alert(
+        "Error",
+        "Please select an icon and background color for your bubble"
+      );
+      return false;
+    }
     if (guestList.trim() && emailValidation.invalid.length > 0) {
       Alert.alert("Error", "Please fix invalid email formats");
       return false;
@@ -169,6 +176,7 @@ export default function CreateBubble() {
         hostUid: user.uid,
       };
 
+      console.log("Creating bubble with data:", bubbleData);
       await createBubble(bubbleData);
 
       Alert.alert("Success!", "Your bubble has been created successfully!", [
