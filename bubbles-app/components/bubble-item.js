@@ -1,11 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
-const tags = [
-  { id: 1, name: "tag 1" },
-  { id: 2, name: "tag 2" },
-];
-
 export default function BubbleItem({
   cardTitle,
   cardText,
@@ -33,7 +28,7 @@ export default function BubbleItem({
         </View>
         <View style={styles.bubbleContent}>
           <Text style={cardTitle}>{bubbleName}</Text>
-          <Text style={cardText}>{bubbleHost}</Text>
+          <Text style={cardText}>By {bubbleHost}</Text>
           {tags && tags.length > 0 && (
             <View style={styles.tagContainer}>
               {tags.map((tag, index) => (
@@ -48,18 +43,18 @@ export default function BubbleItem({
 
       {/* Guest action buttons */}
       {userRole === "guest" && (
-        <View style={styles.actionButtons}>
+        <View style={styles.buttons}>
           <TouchableOpacity
-            style={[styles.actionButton, styles.acceptButton]}
-            onPress={onAccept}
-          >
-            <Text style={styles.actionButtonText}>I'm coming!</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.actionButton, styles.declineButton]}
+            style={[styles.button, styles.declineButton]}
             onPress={onDecline}
           >
             <Text style={styles.actionButtonText}>X</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, styles.acceptButton]}
+            onPress={onAccept}
+          >
+            <Text style={styles.actionButtonText}>I'm coming!</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -75,7 +70,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 5,
-    marginTop: 5,
   },
   tagItem: {
     backgroundColor: "#606B38",
@@ -93,8 +87,9 @@ const styles = StyleSheet.create({
   bubbleCard: {
     backgroundColor: "#FEFADF",
     borderRadius: 10,
-    height: 120,
-    paddingVertical: 15,
+    minHeight: 100,
+    paddingTop: 15,
+    paddingBottom: 10,
     paddingLeft: 30,
     flex: 1,
     shadowColor: "#000",
@@ -117,14 +112,17 @@ const styles = StyleSheet.create({
     left: -20,
     top: 15,
   },
-  actionButtons: {
+  buttons: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 10,
     gap: 10,
+    position: "absolute",
+    right: 10,
+    bottom: 10,
   },
-  actionButton: {
-    flex: 1,
+  button: {
+    flex: 0,
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 20,
@@ -132,14 +130,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   acceptButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#606B38",
   },
   declineButton: {
-    backgroundColor: "#F44336",
+    backgroundColor: "#BD3526",
   },
   actionButtonText: {
-    color: "#fff",
+    color: "#FEFADF",
     fontSize: 14,
     fontWeight: "bold",
+    flex: 0,
   },
 });

@@ -10,7 +10,12 @@ import {
   Alert,
 } from "react-native";
 import { useAuth } from "../contexts/AuthContext";
-import { getAllUsersForSelection } from "../utils/firestore";
+import {
+  getAllUsersForSelection,
+  getBubbleBuddiesForSelection,
+  searchUsersInDatabase,
+  validateGuestEmails,
+} from "../utils/firestore";
 
 export default function GuestSelector({
   value,
@@ -20,31 +25,101 @@ export default function GuestSelector({
   multiline,
   numberOfLines,
   editable = true,
+  showModeSelection = true, // New prop to control mode selection visibility
 }) {
   const { user } = useAuth();
   const [showUserSelector, setShowUserSelector] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectionMode, setSelectionMode] = useState("all"); // "all", "buddies", "search"
 
   useEffect(() => {
     if (showUserSelector) {
-      loadUsers();
+      // If showModeSelection is false, default to bubble buddies only
+      if (!showModeSelection) {
+        loadBubbleBuddies();
+      } else {
+        loadAllUsers();
+      }
     }
-  }, [showUserSelector]);
+  }, [showUserSelector, showModeSelection]);
 
-  const loadUsers = async () => {
+  const loadAllUsers = async () => {
     if (!user) return;
 
     setLoading(true);
     try {
       const allUsers = await getAllUsersForSelection(user.uid);
       setUsers(allUsers);
+      setSelectionMode("all");
     } catch (error) {
       console.error("Error loading users:", error);
       Alert.alert("Error", "Failed to load users");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadBubbleBuddies = async () => {
+    if (!user) return;
+
+    setLoading(true);
+    try {
+      const bubbleBuddies = await getBubbleBuddiesForSelection(user.uid);
+      setUsers(bubbleBuddies);
+      setSelectionMode("buddies");
+    } catch (error) {
+      console.error("Error loading bubble buddies:", error);
+      Alert.alert("Error", "Failed to load bubble buddies");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle manual text input - search ALL users in database
+  const handleSearchQueryChange = async (text) => {
+    setSearchQuery(text);
+
+    if (text.trim()) {
+      setIsSearching(true);
+      try {
+        // Check if input contains email format
+        if (text.includes("@")) {
+          // Email validation approach - check against ALL users
+          const validation = await validateGuestEmails(text);
+          const validEmails = validation.valid;
+
+          // Get user data for valid emails from ALL users
+          const searchResults = [];
+          for (const email of validEmails) {
+            const results = await searchUsersInDatabase(email);
+            searchResults.push(...results);
+          }
+          setSearchResults(searchResults);
+        } else {
+          // Name search approach - search across ENTIRE database
+          const results = await searchUsersInDatabase(text);
+          setSearchResults(results);
+        }
+        setSelectionMode("search");
+      } catch (error) {
+        console.error("Error searching users:", error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    } else {
+      setSearchResults([]);
+      // If showModeSelection is false, default back to bubble buddies
+      if (!showModeSelection) {
+        setSelectionMode("buddies");
+      } else {
+        setSelectionMode("all");
+      }
     }
   };
 
@@ -65,6 +140,11 @@ export default function GuestSelector({
   };
 
   const handleConfirmSelection = () => {
+    if (selectedUsers.length === 0) {
+      setShowUserSelector(false);
+      return;
+    }
+
     const selectedEmails = selectedUsers.map((user) => user.email);
     const currentEmails = value
       ? value
@@ -80,10 +160,34 @@ export default function GuestSelector({
     onChangeText(emailString);
     setSelectedUsers([]);
     setShowUserSelector(false);
+    setSearchQuery("");
+    setSearchResults([]);
   };
 
   const isUserSelected = (userId) => {
     return selectedUsers.find((user) => user.id === userId);
+  };
+
+  const getDisplayUsers = () => {
+    if (selectionMode === "search" && searchResults.length > 0) {
+      return searchResults;
+    }
+    return users;
+  };
+
+  const getModalTitle = () => {
+    if (!showModeSelection) {
+      return "Select from Your Bubble Buddies";
+    }
+
+    switch (selectionMode) {
+      case "buddies":
+        return "Select from Your Bubble Buddies";
+      case "search":
+        return "Search Results (All Users)";
+      default:
+        return "Select from All Users";
+    }
   };
 
   return (
@@ -118,7 +222,62 @@ export default function GuestSelector({
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Select Bubble Buddies</Text>
+            <Text style={styles.modalTitle}>{getModalTitle()}</Text>
+
+            {/* Search Input */}
+            <View style={styles.searchContainer}>
+              <TextInput
+                style={styles.searchInput}
+                placeholder={
+                  showModeSelection
+                    ? "Search all users by name or email..."
+                    : "Search your bubble buddies..."
+                }
+                value={searchQuery}
+                onChangeText={handleSearchQueryChange}
+                autoCapitalize="words"
+                autoCorrect={false}
+              />
+            </View>
+
+            {/* Mode Selection Buttons - Only show when showModeSelection is true */}
+            {showModeSelection && (
+              <View style={styles.modeButtonsContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.modeButton,
+                    selectionMode === "all" && styles.activeModeButton,
+                  ]}
+                  onPress={loadAllUsers}
+                >
+                  <Text
+                    style={[
+                      styles.modeButtonText,
+                      selectionMode === "all" && styles.activeModeButtonText,
+                    ]}
+                  >
+                    All Users
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.modeButton,
+                    selectionMode === "buddies" && styles.activeModeButton,
+                  ]}
+                  onPress={loadBubbleBuddies}
+                >
+                  <Text
+                    style={[
+                      styles.modeButtonText,
+                      selectionMode === "buddies" &&
+                        styles.activeModeButtonText,
+                    ]}
+                  >
+                    Bubble Buddies
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
             {selectedUsers.length > 0 && (
               <View style={styles.selectedUsersContainer}>
@@ -139,9 +298,15 @@ export default function GuestSelector({
 
             {loading ? (
               <Text style={styles.loadingText}>Loading users...</Text>
+            ) : isSearching ? (
+              <Text style={styles.loadingText}>
+                {showModeSelection
+                  ? "Searching all users..."
+                  : "Searching bubble buddies..."}
+              </Text>
             ) : (
               <ScrollView style={styles.userList}>
-                {users.map((user) => (
+                {getDisplayUsers().map((user) => (
                   <TouchableOpacity
                     key={user.id}
                     style={[
@@ -168,6 +333,13 @@ export default function GuestSelector({
                     </Text>
                   </TouchableOpacity>
                 ))}
+                {getDisplayUsers().length === 0 && (
+                  <Text style={styles.noUsersText}>
+                    {selectionMode === "search"
+                      ? "No users found"
+                      : "No users available"}
+                  </Text>
+                )}
               </ScrollView>
             )}
 
@@ -177,6 +349,8 @@ export default function GuestSelector({
                 onPress={() => {
                   setSelectedUsers([]);
                   setShowUserSelector(false);
+                  setSearchQuery("");
+                  setSearchResults([]);
                 }}
               >
                 <Text style={styles.modalButtonTextCancel}>Cancel</Text>
@@ -348,5 +522,47 @@ const styles = StyleSheet.create({
     color: "#FEFADF",
     fontSize: 12,
     fontWeight: "bold",
+  },
+  searchContainer: {
+    marginBottom: 15,
+    padding: 10,
+    backgroundColor: "#FEFADF",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  searchInput: {
+    fontSize: 16,
+    color: "#333",
+  },
+  modeButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginBottom: 15,
+  },
+  modeButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  activeModeButton: {
+    backgroundColor: "#606B38",
+    borderColor: "#606B38",
+  },
+  modeButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#452A17",
+  },
+  activeModeButtonText: {
+    color: "#FEFADF",
+  },
+  noUsersText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "#666",
+    padding: 20,
   },
 });

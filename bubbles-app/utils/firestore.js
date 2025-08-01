@@ -283,3 +283,102 @@ export const getAllUsersForSelection = async (currentUserId) => {
     throw error;
   }
 };
+
+// Get user's bubble buddies for selection
+export const getBubbleBuddiesForSelection = async (currentUserId) => {
+  try {
+    const userRef = doc(db, "users", currentUserId);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      return [];
+    }
+
+    const userData = userSnap.data();
+    const bubbleBuddies = userData.bubbleBuddies || [];
+
+    // Get full user data for each bubble buddy email
+    const usersRef = collection(db, "users");
+    const users = [];
+
+    for (const email of bubbleBuddies) {
+      const q = query(usersRef, where("email", "==", email));
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((doc) => {
+        const buddyData = doc.data();
+        users.push({
+          id: doc.id,
+          name: buddyData.name,
+          email: buddyData.email,
+        });
+      });
+    }
+
+    return users;
+  } catch (error) {
+    console.error("Error getting bubble buddies for selection:", error);
+    throw error;
+  }
+};
+
+// Add users to bubble buddies
+export const addBubbleBuddies = async (userId, emails) => {
+  try {
+    const userRef = doc(db, "users", userId);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      throw new Error("User not found");
+    }
+
+    const userData = userSnap.data();
+    const currentBubbleBuddies = userData.bubbleBuddies || [];
+
+    // Add new emails without duplicates
+    const updatedBubbleBuddies = [
+      ...new Set([...currentBubbleBuddies, ...emails]),
+    ];
+
+    await updateDoc(userRef, {
+      bubbleBuddies: updatedBubbleBuddies,
+      updatedAt: serverTimestamp(),
+    });
+
+    return true;
+  } catch (error) {
+    console.error("Error adding bubble buddies:", error);
+    throw error;
+  }
+};
+
+// Search users by name or email across the entire database
+export const searchUsersInDatabase = async (searchTerm) => {
+  try {
+    const usersRef = collection(db, "users");
+    const querySnapshot = await getDocs(usersRef);
+    const users = [];
+
+    querySnapshot.forEach((doc) => {
+      const userData = doc.data();
+      const searchLower = searchTerm.toLowerCase();
+
+      // Check if search term matches name or email
+      if (
+        userData.name.toLowerCase().includes(searchLower) ||
+        userData.email.toLowerCase().includes(searchLower)
+      ) {
+        users.push({
+          id: doc.id,
+          name: userData.name,
+          email: userData.email,
+        });
+      }
+    });
+
+    return users;
+  } catch (error) {
+    console.error("Error searching users in database:", error);
+    throw error;
+  }
+};
