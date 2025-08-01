@@ -85,7 +85,6 @@ export default function Login({ navigation }) {
       // If form is for login
       if (isLogin) {
         await login(formData.email, formData.password);
-        navigation.navigate("Home");
       } else {
         // If form is for signup
         await signup(formData.email, formData.password, formData.name);
