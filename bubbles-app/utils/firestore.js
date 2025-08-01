@@ -199,16 +199,6 @@ export const findUser = async (searchTerm, searchType = "email") => {
   }
 };
 
-// Search users by name
-export const searchUsersByName = async (name) => {
-  try {
-    return await findUser(name, "name");
-  } catch (error) {
-    console.error("Error searching users by name:", error);
-    throw error;
-  }
-};
-
 // Validate multiple emails and check if they exist in database
 export const validateGuestEmails = async (emailList) => {
   try {

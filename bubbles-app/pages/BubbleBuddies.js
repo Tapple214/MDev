@@ -14,11 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import NavBar from "../components/navbar";
 import { useAuth } from "../contexts/AuthContext";
-import {
-  getUser,
-  searchUsersByName,
-  validateGuestEmails,
-} from "../utils/firestore";
+import { getUser, findUser, validateGuestEmails } from "../utils/firestore";
 
 export default function BubbleBuddies() {
   const { user } = useAuth();
@@ -61,7 +57,7 @@ export default function BubbleBuddies() {
           setEmailValidation(validation);
         } else {
           // Name search approach
-          const results = await searchUsersByName(text.trim());
+          const results = await findUser(text.trim(), "name");
           if (results.length > 0) {
             setEmailValidation({
               valid: results.map((user) => user.email),

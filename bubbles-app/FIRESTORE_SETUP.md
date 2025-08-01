@@ -95,9 +95,9 @@ Updates existing user data.
 
 Retrieves all users from the collection.
 
-### `searchUsersByName(name)`
+### `findUser(searchTerm, searchType)`
 
-Searches users by name (partial match).
+Searches users by email or name. `searchType` can be "email" or "name".
 
 ## Usage Examples
 
@@ -111,8 +111,11 @@ await addUser(userId, {
 // Get user data
 const userData = await getUser(userId);
 
-// Search users
-const users = await searchUsersByName("John");
+// Search users by name
+const users = await findUser("John", "name");
+
+// Search users by email
+const user = await findUser("john@example.com", "email");
 ```
 
 ## Testing the Implementation
