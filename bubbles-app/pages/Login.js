@@ -12,6 +12,7 @@ import {
 
 // Custom hooks
 import { useAuth } from "../contexts/AuthContext";
+import { COLORS } from "../utils/colors";
 
 export default function Login({ navigation }) {
   // Custom Hook
@@ -139,7 +140,7 @@ export default function Login({ navigation }) {
         disabled={loading}
       >
         {loading ? (
-          <ActivityIndicator color="#EEDCAD" />
+          <ActivityIndicator color={COLORS.background} />
         ) : (
           <Text style={styles.buttonText}>
             {isLogin ? "Sign In" : "Sign Up"}
@@ -161,7 +162,7 @@ export default function Login({ navigation }) {
 
 const styles = StyleSheet.create({
   generalContainer: {
-    backgroundColor: "#EEDCAD",
+    backgroundColor: COLORS.background,
     height: "100%",
     paddingTop: 50,
     paddingBottom: 100,
@@ -181,10 +182,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 15,
-    color: "#333",
+    color: COLORS.text.primary,
   },
   input: {
-    backgroundColor: "#FEFADF",
+    backgroundColor: COLORS.surface,
     borderRadius: 10,
     padding: 15,
     marginBottom: 15,
@@ -193,16 +194,16 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
   },
   button: {
-    backgroundColor: "#452A17",
+    backgroundColor: COLORS.primary,
     borderRadius: 10,
     padding: 15,
     alignItems: "center",
     marginVertical: 10,
     marginBottom: 15,
   },
-  buttonText: { color: "#FEFADF", fontSize: 16, fontWeight: "bold" },
+  buttonText: { color: COLORS.surface, fontSize: 16, fontWeight: "bold" },
   switchText: {
-    color: "#452A17",
+    color: COLORS.primary,
     fontSize: 14,
     textDecorationLine: "underline",
     alignSelf: "center",

@@ -18,6 +18,7 @@ import GuestSelector from "../components/guest-selector";
 import { useAuth } from "../contexts/AuthContext";
 import { createBubble, validateGuestEmails } from "../utils/firestore";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { COLORS } from "../utils/colors";
 
 export default function CreateBubble() {
   const { user, userData } = useAuth();
@@ -40,8 +41,9 @@ export default function CreateBubble() {
 
   // Icon and background color selection
   const [selectedIcon, setSelectedIcon] = useState("heart");
-  const [selectedBackgroundColor, setSelectedBackgroundColor] =
-    useState("#E89349");
+  const [selectedBackgroundColor, setSelectedBackgroundColor] = useState(
+    COLORS.elemental.orange
+  );
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
 
@@ -57,10 +59,10 @@ export default function CreateBubble() {
   ];
 
   const colorOptions = [
-    { name: "Orange", value: "#E89349" },
-    { name: "Green", value: "#778A31" },
-    { name: "Brown", value: "#5D5820" },
-    { name: "Light Orange", value: "#BD6C26" },
+    { name: "Orange", value: COLORS.elemental.orange },
+    { name: "Sage", value: COLORS.elemental.sage },
+    { name: "Beige", value: COLORS.elemental.beige },
+    { name: "Rust", value: COLORS.elemental.rust },
   ];
 
   const tagOptions = [
@@ -632,7 +634,7 @@ export default function CreateBubble() {
 
 const styles = StyleSheet.create({
   generalContainer: {
-    backgroundColor: "#EEDCAD",
+    backgroundColor: COLORS.background,
     height: "100%",
     paddingVertical: 15,
     paddingBottom: 100,
@@ -652,7 +654,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginHorizontal: 15,
     marginBottom: 15,
-    backgroundColor: "#FEFADF",
+    backgroundColor: COLORS.surface,
   },
   pickerContainer: {
     flexDirection: "row",
@@ -664,18 +666,18 @@ const styles = StyleSheet.create({
   pickerValueContainer: {
     flex: 1,
     padding: 10,
-    backgroundColor: "#FEFADF",
+    backgroundColor: COLORS.surface,
     borderRadius: 5,
     borderWidth: 1,
     borderColor: "#ddd",
   },
   pickerValueText: {
     fontSize: 16,
-    color: "#333",
+    color: COLORS.text.primary,
   },
   pickerButton: {
     padding: 10,
-    backgroundColor: "#FEFADF",
+    backgroundColor: COLORS.surface,
     borderRadius: 5,
     borderWidth: 1,
     borderColor: "#ddd",
@@ -695,19 +697,19 @@ const styles = StyleSheet.create({
   validationText: {
     marginLeft: 8,
     fontSize: 14,
-    color: "#606B38",
+    color: COLORS.elemental.sage,
   },
   validEmail: {
     fontSize: 14,
-    color: "#4CAF50",
+    color: COLORS.status.success,
   },
   invalidEmail: {
     fontSize: 14,
-    color: "#F44336",
+    color: COLORS.status.error,
   },
   notFoundEmail: {
     fontSize: 14,
-    color: "#FF9800",
+    color: COLORS.status.warning,
   },
   switchContainer: {
     flexDirection: "row",
@@ -717,7 +719,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   createButton: {
-    backgroundColor: "#606B38",
+    backgroundColor: COLORS.confirm,
     padding: 15,
     borderRadius: 5,
     marginHorizontal: 15,
@@ -728,7 +730,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#cccccc",
   },
   createButtonText: {
-    color: "#fff",
+    color: COLORS.surface,
     fontSize: 16,
     fontWeight: "bold",
   },
@@ -739,7 +741,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    backgroundColor: "#EEDCAD",
+    backgroundColor: COLORS.background,
     borderRadius: 10,
     padding: 20,
     margin: 20,
@@ -754,7 +756,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   iconModalContent: {
-    backgroundColor: "#EEDCAD",
+    backgroundColor: COLORS.background,
     borderRadius: 10,
     padding: 20,
     margin: 20,
@@ -772,7 +774,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   colorModalContent: {
-    backgroundColor: "#EEDCAD",
+    backgroundColor: COLORS.background,
     borderRadius: 10,
     padding: 20,
     margin: 20,

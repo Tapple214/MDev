@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useAuth } from "../contexts/AuthContext";
+import { COLORS } from "../utils/colors";
 
 export default function NavBar({ page = "default", onAddPerson }) {
   const { logout } = useAuth();
@@ -47,8 +48,8 @@ export default function NavBar({ page = "default", onAddPerson }) {
               );
             }
           },
-          color: "#EEDCAD",
-          backgroundColor: "#452A17", // Original brown background
+          color: COLORS.background,
+          backgroundColor: COLORS.primary, // Original brown background
         };
       case "BubbleView":
         return {
@@ -60,15 +61,15 @@ export default function NavBar({ page = "default", onAddPerson }) {
               "Edit bubble functionality will be implemented here"
             );
           },
-          color: "#EEDCAD",
-          backgroundColor: "#452A17", // Original brown background
+          color: COLORS.background,
+          backgroundColor: COLORS.primary, // Original brown background
         };
       default:
         return {
           icon: "plus",
           onPress: () => navigation.navigate("CreateBubble"),
-          color: "#EEDCAD",
-          backgroundColor: "#452A17", // Original brown background
+          color: COLORS.background,
+          backgroundColor: COLORS.primary, // Original brown background
         };
     }
   };
@@ -78,7 +79,7 @@ export default function NavBar({ page = "default", onAddPerson }) {
   return (
     <View style={styles.navbar}>
       <TouchableOpacity onPress={handleLogout}>
-        <Feather name="log-out" size={30} color="#452A17" />
+        <Feather name="log-out" size={30} color={COLORS.primary} />
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -88,14 +89,14 @@ export default function NavBar({ page = "default", onAddPerson }) {
           }
         }}
       >
-        <Feather name="home" size={30} color="#452A17" />
+        <Feather name="home" size={30} color={COLORS.primary} />
       </TouchableOpacity>
 
       <TouchableOpacity>
         <Feather
           name="users"
           size={30}
-          color="#452A17"
+          color={COLORS.primary}
           onPress={() => {
             if (currentRoute.name !== "BubbleBuddies") {
               navigation.navigate("BubbleBuddies");
@@ -127,7 +128,7 @@ const styles = StyleSheet.create({
   navbar: {
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: "#EEDCAD",
+    backgroundColor: COLORS.background,
     alignItems: "center",
     position: "absolute",
     paddingBottom: 30,
@@ -138,7 +139,7 @@ const styles = StyleSheet.create({
   },
   highlightIcon: {
     position: "relative",
-    backgroundColor: "#452A17",
+    backgroundColor: COLORS.primary,
     padding: 10,
     borderRadius: 50,
     alignSelf: "flex-start",

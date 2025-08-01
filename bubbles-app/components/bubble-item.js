@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { COLORS } from "../utils/colors";
 
 export default function BubbleItem({
   cardTitle,
@@ -24,7 +25,7 @@ export default function BubbleItem({
         {...props}
       >
         <View style={[styles.bubbleIcon, { backgroundColor }]}>
-          <Feather name={icon} size={20} color="#EEDCAD" />
+          <Feather name={icon} size={20} color={COLORS.background} />
         </View>
         <View style={styles.bubbleContent}>
           <Text style={cardTitle}>{bubbleName}</Text>
@@ -72,7 +73,7 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   tagItem: {
-    backgroundColor: "#606B38",
+    backgroundColor: COLORS.elemental.sage,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -81,11 +82,11 @@ const styles = StyleSheet.create({
   },
   tagText: {
     fontSize: 10,
-    color: "#FEFADF",
+    color: COLORS.surface,
     fontWeight: "500",
   },
   bubbleCard: {
-    backgroundColor: "#FEFADF",
+    backgroundColor: COLORS.surface,
     borderRadius: 10,
     minHeight: 120,
     paddingTop: 15,
@@ -130,13 +131,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   acceptButton: {
-    backgroundColor: "#606B38",
+    backgroundColor: COLORS.confirm,
   },
   declineButton: {
-    backgroundColor: "#BD3526",
+    backgroundColor: COLORS.reject,
   },
   actionButtonText: {
-    color: "#FEFADF",
+    color: COLORS.surface,
     fontSize: 12,
     fontWeight: "bold",
     flex: 0,

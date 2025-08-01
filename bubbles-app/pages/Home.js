@@ -21,6 +21,7 @@ import {
   getUser,
   updateGuestResponse,
 } from "../utils/firestore";
+import { COLORS } from "../utils/colors";
 
 // Quick actions that are displayed on the home screen
 const quickActions = [
@@ -293,7 +294,7 @@ const screenwidth = Dimensions.get("window").width;
 
 const styles = StyleSheet.create({
   generalContainer: {
-    backgroundColor: "#EEDCAD",
+    backgroundColor: COLORS.background,
     height: "100%",
     paddingTop: 15,
     paddingBottom: 100,
@@ -314,13 +315,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   logoutButton: {
-    backgroundColor: "#452A17",
+    backgroundColor: COLORS.primary,
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 20,
   },
   logoutText: {
-    color: "#EEDCAD",
+    color: COLORS.background,
     fontSize: 14,
     fontWeight: "600",
   },
@@ -331,18 +332,18 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   debugButtonText: {
-    color: "#EEDCAD",
+    color: COLORS.background,
     fontSize: 12,
     fontWeight: "600",
   },
   migrateButton: {
-    backgroundColor: "#778A31",
+    backgroundColor: COLORS.elemental.sage,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 15,
   },
   migrateButtonText: {
-    color: "#EEDCAD",
+    color: COLORS.background,
     fontSize: 12,
     fontWeight: "600",
   },
@@ -359,7 +360,7 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
     flex: 0,
     flexGrow: 0,
-    backgroundColor: "#EEDCAD",
+    backgroundColor: COLORS.background,
   },
   categoryBtn: {
     paddingVertical: 10,
@@ -369,7 +370,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start", // ensures that width is as long as content/text in it
   },
   categoryText: {
-    color: "#452A17",
+    color: COLORS.primary,
     fontWeight: "bold",
   },
   bubblesContainer: {
@@ -397,7 +398,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   quickActionsCard: {
-    backgroundColor: "#FEFADF",
+    backgroundColor: COLORS.surface,
     padding: 20,
     justifyContent: "center",
     borderRadius: 10,
@@ -405,14 +406,14 @@ const styles = StyleSheet.create({
   noBubblesText: {
     textAlign: "center",
     fontSize: 16,
-    color: "#452A17",
+    color: COLORS.primary,
     marginTop: 20,
   },
   selectedCategoryBtn: {
-    backgroundColor: "#452A17",
+    backgroundColor: COLORS.primary,
   },
   selectedCategoryText: {
-    color: "#EEDCAD",
+    color: COLORS.background,
   },
   dotContainer: {
     flexDirection: "row",
@@ -429,7 +430,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   activeDot: {
-    backgroundColor: "#452A17",
+    backgroundColor: COLORS.primary,
     width: 10,
     height: 10,
     borderRadius: 5,
