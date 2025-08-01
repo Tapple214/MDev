@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   bubbleCard: {
     backgroundColor: "#FEFADF",
     borderRadius: 10,
-    minHeight: 100,
+    minHeight: 120,
     paddingTop: 15,
     paddingBottom: 10,
     paddingLeft: 30,
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     color: "#FEFADF",
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "bold",
     flex: 0,
   },

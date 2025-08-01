@@ -18,7 +18,7 @@ export const addUser = async (userId, userData) => {
     const userRef = doc(db, "users", userId);
     await setDoc(userRef, {
       name: userData.name,
-      email: userData.email,
+      email: userData.email.toLowerCase().trim(),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       profilePicture: userData.profilePicture || null,
@@ -62,12 +62,20 @@ export const createBubble = async (bubbleData) => {
     scheduleDate.setSeconds(0);
     scheduleDate.setMilliseconds(0);
 
+    // Convert guest emails to lowercase
+    const guestList = bubbleData.guestList
+      ? bubbleData.guestList
+          .split(",")
+          .map((email) => email.trim().toLowerCase())
+          .filter((email) => email.length > 0)
+      : [];
+
     const bubbleDoc = {
       name: bubbleData.name,
       description: bubbleData.description,
       location: bubbleData.location,
       schedule: scheduleDate,
-      guestList: bubbleData.guestList,
+      guestList: guestList,
       needQR: bubbleData.needQR,
       icon: bubbleData.icon || "heart",
       backgroundColor: bubbleData.backgroundColor || "#E89349",
@@ -93,6 +101,9 @@ export const getUserBubbles = async (userId, userEmail) => {
     const querySnapshot = await getDocs(bubblesRef);
     const bubbles = [];
 
+    // Normalize user email to lowercase for consistent comparison
+    const normalizedUserEmail = userEmail.toLowerCase().trim();
+
     querySnapshot.forEach((doc) => {
       const bubbleData = doc.data();
 
@@ -105,15 +116,31 @@ export const getUserBubbles = async (userId, userEmail) => {
         });
       }
       // Check if user is in the guest list (guestList contains email addresses)
-      else if (
-        bubbleData.guestList &&
-        bubbleData.guestList.includes(userEmail)
-      ) {
-        bubbles.push({
-          id: doc.id,
-          ...bubbleData,
-          userRole: "guest",
-        });
+      else if (bubbleData.guestList) {
+        // Handle both string and array formats for guestList
+        let guestEmails = [];
+
+        if (typeof bubbleData.guestList === "string") {
+          // If guestList is a string, split it into an array
+          guestEmails = bubbleData.guestList
+            .split(",")
+            .map((email) => email.trim().toLowerCase())
+            .filter((email) => email.length > 0);
+        } else if (Array.isArray(bubbleData.guestList)) {
+          // If guestList is already an array, normalize the emails
+          guestEmails = bubbleData.guestList
+            .map((email) => email.trim().toLowerCase())
+            .filter((email) => email.length > 0);
+        }
+
+        // Check if user is in the guest list
+        if (guestEmails.includes(normalizedUserEmail)) {
+          bubbles.push({
+            id: doc.id,
+            ...bubbleData,
+            userRole: "guest",
+          });
+        }
       }
     });
 
@@ -194,7 +221,7 @@ export const validateGuestEmails = async (emailList) => {
   try {
     const emails = emailList
       .split(",")
-      .map((email) => email.trim())
+      .map((email) => email.trim().toLowerCase())
       .filter((email) => email.length > 0);
     const results = {
       valid: [],
@@ -239,8 +266,11 @@ export const updateGuestResponse = async (bubbleId, guestEmail, response) => {
     const bubbleData = bubbleSnap.data();
     const guestResponses = bubbleData.guestResponses || {};
 
+    // Normalize guest email to lowercase
+    const normalizedGuestEmail = guestEmail.toLowerCase().trim();
+
     // Update guest response
-    guestResponses[guestEmail] = {
+    guestResponses[normalizedGuestEmail] = {
       response: response, // 'accepted' or 'declined'
       respondedAt: serverTimestamp(),
     };
@@ -302,11 +332,19 @@ export const getBubbleBuddiesForSelection = async (currentUserId) => {
     const users = [];
 
     for (const email of bubbleBuddies) {
-      const q = query(usersRef, where("email", "==", email));
+      // Ensure email is lowercase for consistent querying
+      const normalizedEmail = email.toLowerCase().trim();
+      const q = query(usersRef, where("email", "==", normalizedEmail));
       const querySnapshot = await getDocs(q);
 
       querySnapshot.forEach((doc) => {
         const buddyData = doc.data();
+
+        // Safety check - ensure buddyData and required properties exist
+        if (!buddyData || !buddyData.name || !buddyData.email) {
+          return; // Skip this buddy if data is incomplete
+        }
+
         users.push({
           id: doc.id,
           name: buddyData.name,
@@ -335,9 +373,10 @@ export const addBubbleBuddies = async (userId, emails) => {
     const userData = userSnap.data();
     const currentBubbleBuddies = userData.bubbleBuddies || [];
 
-    // Add new emails without duplicates
+    // Convert emails to lowercase and add without duplicates
+    const normalizedEmails = emails.map((email) => email.toLowerCase().trim());
     const updatedBubbleBuddies = [
-      ...new Set([...currentBubbleBuddies, ...emails]),
+      ...new Set([...currentBubbleBuddies, ...normalizedEmails]),
     ];
 
     await updateDoc(userRef, {

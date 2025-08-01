@@ -78,8 +78,11 @@ export const AuthProvider = ({ children }) => {
       );
       const user = userCredential.user;
 
-      // Add user data to Firestore
-      await addUserToFirestore(user.uid, { name, email });
+      // Add user data to Firestore with normalized email
+      await addUserToFirestore(user.uid, {
+        name,
+        email: email.toLowerCase().trim(),
+      });
 
       return user;
     } catch (error) {
