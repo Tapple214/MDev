@@ -12,7 +12,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
-// Add a new user to the users collection
+// Sign up functionality
 export const addUser = async (userId, userData) => {
   try {
     const userRef = doc(db, "users", userId);
@@ -21,7 +21,6 @@ export const addUser = async (userId, userData) => {
       email: userData.email,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-      // Add any additional user fields here
       profilePicture: userData.profilePicture || null,
       bio: userData.bio || "",
       preferences: userData.preferences || {},
@@ -33,7 +32,7 @@ export const addUser = async (userId, userData) => {
   }
 };
 
-// Get user data from Firestore
+// For disaplying user info in the app where needed
 export const getUser = async (userId) => {
   try {
     const userRef = doc(db, "users", userId);
@@ -46,28 +45,6 @@ export const getUser = async (userId) => {
     }
   } catch (error) {
     console.error("Error getting user from Firestore:", error);
-    throw error;
-  }
-};
-
-// Get bubbles where the user is the host
-export const getBubbles = async (userId) => {
-  try {
-    const bubblesRef = collection(db, "bubbles");
-    const q = query(bubblesRef, where("hostUid", "==", userId));
-    const querySnapshot = await getDocs(q);
-    const bubbles = [];
-
-    querySnapshot.forEach((doc) => {
-      bubbles.push({
-        id: doc.id,
-        ...doc.data(),
-      });
-    });
-
-    return bubbles;
-  } catch (error) {
-    console.error("Error getting bubbles from Firestore:", error);
     throw error;
   }
 };
@@ -110,20 +87,7 @@ export const getUserBubbles = async (userId, userEmail) => {
   }
 };
 
-// Update user data in Firestore
-export const updateUser = async (userId, userData) => {
-  try {
-    const userRef = doc(db, "users", userId);
-    await updateDoc(userRef, {
-      ...userData,
-      updatedAt: serverTimestamp(),
-    });
-    return true;
-  } catch (error) {
-    console.error("Error updating user in Firestore:", error);
-    throw error;
-  }
-};
+
 
 // Delete user data from Firestore
 export const deleteUser = async (userId) => {
@@ -183,52 +147,6 @@ export const searchUsersByName = async (name) => {
     throw error;
   }
 };
-
-// Update user profile picture
-export const updateUserProfilePicture = async (userId, profilePictureUrl) => {
-  try {
-    const userRef = doc(db, "users", userId);
-    await updateDoc(userRef, {
-      profilePicture: profilePictureUrl,
-      updatedAt: serverTimestamp(),
-    });
-    return true;
-  } catch (error) {
-    console.error("Error updating profile picture:", error);
-    throw error;
-  }
-};
-
-// Update user bio
-export const updateUserBio = async (userId, bio) => {
-  try {
-    const userRef = doc(db, "users", userId);
-    await updateDoc(userRef, {
-      bio: bio,
-      updatedAt: serverTimestamp(),
-    });
-    return true;
-  } catch (error) {
-    console.error("Error updating user bio:", error);
-    throw error;
-  }
-};
-
-// Update user preferences
-export const updateUserPreferences = async (userId, preferences) => {
-  try {
-    const userRef = doc(db, "users", userId);
-    await updateDoc(userRef, {
-      preferences: preferences,
-      updatedAt: serverTimestamp(),
-    });
-    return true;
-  } catch (error) {
-    console.error("Error updating user preferences:", error);
-    throw error;
-  }
-};
-
 // Create a new bubble
 export const createBubble = async (bubbleData) => {
   try {
@@ -257,7 +175,6 @@ export const createBubble = async (bubbleData) => {
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
-
 
     await setDoc(newBubbleRef, bubbleDoc);
     return { id: newBubbleRef.id, ...bubbleDoc };
