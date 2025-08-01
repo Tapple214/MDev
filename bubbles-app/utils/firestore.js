@@ -49,6 +49,43 @@ export const getUser = async (userId) => {
   }
 };
 
+// Create a new bubble
+export const createBubble = async (bubbleData) => {
+  try {
+    const bubblesRef = collection(db, "bubbles");
+    const newBubbleRef = doc(bubblesRef);
+
+    // Create a proper date object from the selected date and time
+    const scheduleDate = new Date(bubbleData.selectedDate);
+    scheduleDate.setHours(bubbleData.selectedTime.getHours());
+    scheduleDate.setMinutes(bubbleData.selectedTime.getMinutes());
+    scheduleDate.setSeconds(0);
+    scheduleDate.setMilliseconds(0);
+
+    const bubbleDoc = {
+      name: bubbleData.name,
+      description: bubbleData.description,
+      location: bubbleData.location,
+      schedule: scheduleDate,
+      guestList: bubbleData.guestList,
+      needQR: bubbleData.needQR,
+      icon: bubbleData.icon || "heart",
+      backgroundColor: bubbleData.backgroundColor || "#E89349",
+      tags: bubbleData.tags || [],
+      hostName: bubbleData.hostName,
+      hostUid: bubbleData.hostUid,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+
+    await setDoc(newBubbleRef, bubbleDoc);
+    return { id: newBubbleRef.id, ...bubbleDoc };
+  } catch (error) {
+    console.error("Error creating bubble in Firestore:", error);
+    throw error;
+  }
+};
+
 // Get all bubbles that a user is involved with (as host or guest)
 export const getUserBubbles = async (userId, userEmail) => {
   try {
@@ -87,8 +124,6 @@ export const getUserBubbles = async (userId, userEmail) => {
   }
 };
 
-
-
 // Delete user data from Firestore
 export const deleteUser = async (userId) => {
   try {
@@ -122,15 +157,31 @@ export const getAllUsers = async () => {
   }
 };
 
-// Search users by name
-export const searchUsersByName = async (name) => {
+// Validate email format
+export const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email.trim());
+};
+
+// Unified function to find users by email or name
+export const findUser = async (searchTerm, searchType = "email") => {
   try {
     const usersRef = collection(db, "users");
-    const q = query(
-      usersRef,
-      where("name", ">=", name),
-      where("name", "<=", name + "\uf8ff")
-    );
+    let q;
+
+    if (searchType === "email") {
+      q = query(
+        usersRef,
+        where("email", "==", searchTerm.toLowerCase().trim())
+      );
+    } else if (searchType === "name") {
+      q = query(
+        usersRef,
+        where("name", ">=", searchTerm),
+        where("name", "<=", searchTerm + "\uf8ff")
+      );
+    }
+
     const querySnapshot = await getDocs(q);
     const users = [];
 
@@ -143,87 +194,19 @@ export const searchUsersByName = async (name) => {
 
     return users;
   } catch (error) {
+    console.error(`Error finding user by ${searchType}:`, error);
+    throw error;
+  }
+};
+
+// Search users by name
+export const searchUsersByName = async (name) => {
+  try {
+    return await findUser(name, "name");
+  } catch (error) {
     console.error("Error searching users by name:", error);
     throw error;
   }
-};
-// Create a new bubble
-export const createBubble = async (bubbleData) => {
-  try {
-    const bubblesRef = collection(db, "bubbles");
-    const newBubbleRef = doc(bubblesRef);
-
-    // Create a proper date object from the selected date and time
-    const scheduleDate = new Date(bubbleData.selectedDate);
-    scheduleDate.setHours(bubbleData.selectedTime.getHours());
-    scheduleDate.setMinutes(bubbleData.selectedTime.getMinutes());
-    scheduleDate.setSeconds(0);
-    scheduleDate.setMilliseconds(0);
-
-    const bubbleDoc = {
-      name: bubbleData.name,
-      description: bubbleData.description,
-      location: bubbleData.location,
-      schedule: scheduleDate,
-      guestList: bubbleData.guestList,
-      needQR: bubbleData.needQR,
-      icon: bubbleData.icon || "heart",
-      backgroundColor: bubbleData.backgroundColor || "#E89349",
-      tags: bubbleData.tags || [],
-      hostName: bubbleData.hostName,
-      hostUid: bubbleData.hostUid,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    };
-
-    await setDoc(newBubbleRef, bubbleDoc);
-    return { id: newBubbleRef.id, ...bubbleDoc };
-  } catch (error) {
-    console.error("Error creating bubble in Firestore:", error);
-    throw error;
-  }
-};
-
-// Check if a single email exists as a user
-export const checkEmailExists = async (email) => {
-  try {
-    const usersRef = collection(db, "users");
-    const q = query(usersRef, where("email", "==", email.toLowerCase().trim()));
-    const querySnapshot = await getDocs(q);
-
-    return !querySnapshot.empty;
-  } catch (error) {
-    console.error("Error checking if email exists:", error);
-    throw error;
-  }
-};
-
-// Get user data by email
-export const getUserByEmail = async (email) => {
-  try {
-    const usersRef = collection(db, "users");
-    const q = query(usersRef, where("email", "==", email.toLowerCase().trim()));
-    const querySnapshot = await getDocs(q);
-
-    if (!querySnapshot.empty) {
-      const userDoc = querySnapshot.docs[0];
-      return {
-        id: userDoc.id,
-        ...userDoc.data(),
-      };
-    } else {
-      return null;
-    }
-  } catch (error) {
-    console.error("Error getting user by email:", error);
-    throw error;
-  }
-};
-
-// Validate email format
-export const isValidEmail = (email) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email.trim());
 };
 
 // Validate multiple emails and check if they exist in database

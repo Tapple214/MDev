@@ -17,8 +17,6 @@ import { useAuth } from "../contexts/AuthContext";
 import {
   getUser,
   searchUsersByName,
-  checkEmailExists,
-  getUserByEmail,
   validateGuestEmails,
 } from "../utils/firestore";
 
