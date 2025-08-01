@@ -13,6 +13,8 @@ import {
 // Components
 import NavBar from "../components/navbar";
 import BubbleItem from "../components/bubble-item";
+import QRCodeScanner from "../components/qr-code-scanner-simple";
+import { Feather } from "@expo/vector-icons";
 
 // Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
@@ -58,6 +60,7 @@ export default function Home({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [currentQuickActionIndex, setCurrentQuickActionIndex] = useState(0);
+  const [showQRScanner, setShowQRScanner] = useState(false);
 
   const fetchData = async () => {
     if (user && user.uid) {
@@ -159,6 +162,27 @@ export default function Home({ navigation }) {
     }
   };
 
+  const handleQRCodeScanned = (qrData) => {
+    Alert.alert(
+      "QR Code Scanned!",
+      `Bubble: ${qrData.bubbleName}\nHost: ${qrData.hostName}`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Join Bubble",
+          onPress: () => {
+            // Here you would implement the logic to join the bubble
+            // For now, just show a success message
+            Alert.alert("Success", "You have joined the bubble!");
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.generalContainer}>
       <ScrollView
@@ -175,7 +199,14 @@ export default function Home({ navigation }) {
       >
         <View style={styles.headerContainer}>
           <Text style={styles.title}>Hi {userData?.name}!</Text>
-          <View style={styles.headerButtons}></View>
+          <View style={styles.headerButtons}>
+            <TouchableOpacity
+              style={styles.qrScanButton}
+              onPress={() => setShowQRScanner(true)}
+            >
+              <Feather name="qr-code" size={20} color={COLORS.surface} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.quickActionsWrapper}>
@@ -275,6 +306,7 @@ export default function Home({ navigation }) {
                       userRole: bubbleData.userRole,
                       icon: bubbleData.icon || "heart",
                       backgroundColor: bubbleData.backgroundColor || "#E89349",
+                      needQR: bubbleData.needQR,
                     },
                   })
                 }
@@ -285,6 +317,14 @@ export default function Home({ navigation }) {
           )}
         </View>
       </ScrollView>
+
+      {/* QR Code Scanner Modal */}
+      <QRCodeScanner
+        isVisible={showQRScanner}
+        onClose={() => setShowQRScanner(false)}
+        onQRCodeScanned={handleQRCodeScanned}
+      />
+
       <NavBar />
     </View>
   );
@@ -309,6 +349,13 @@ const styles = StyleSheet.create({
   headerButtons: {
     flexDirection: "row",
     gap: 10,
+    alignItems: "center",
+  },
+  qrScanButton: {
+    backgroundColor: COLORS.confirm,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
   },
   title: {
     fontSize: 20,

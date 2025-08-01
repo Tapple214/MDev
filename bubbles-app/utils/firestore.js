@@ -11,6 +11,7 @@ import {
   deleteDoc,
   serverTimestamp,
 } from "firebase/firestore";
+import { generateEntryQRCode } from "./qrCode";
 
 // Sign up functionality
 export const addUser = async (userId, userData) => {
@@ -70,6 +71,20 @@ export const createBubble = async (bubbleData) => {
           .filter((email) => email.length > 0)
       : [];
 
+    // Generate QR code data if needQR is true
+    let qrCodeData = null;
+    console.log("Creating bubble with needQR:", bubbleData.needQR);
+    if (bubbleData.needQR) {
+      const tempBubbleData = {
+        id: newBubbleRef.id,
+        name: bubbleData.name,
+        hostName: bubbleData.hostName,
+        schedule: scheduleDate,
+      };
+      qrCodeData = generateEntryQRCode(tempBubbleData);
+      console.log("Generated QR code data:", qrCodeData);
+    }
+
     const bubbleDoc = {
       name: bubbleData.name,
       description: bubbleData.description,
@@ -77,6 +92,7 @@ export const createBubble = async (bubbleData) => {
       schedule: scheduleDate,
       guestList: guestList,
       needQR: bubbleData.needQR,
+      qrCodeData: qrCodeData,
       icon: bubbleData.icon || "heart",
       backgroundColor: bubbleData.backgroundColor || "#E89349",
       tags: bubbleData.tags || [],
@@ -85,6 +101,12 @@ export const createBubble = async (bubbleData) => {
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
+
+    console.log("Final bubbleDoc to save:", {
+      name: bubbleDoc.name,
+      needQR: bubbleDoc.needQR,
+      qrCodeData: bubbleDoc.qrCodeData ? "exists" : "null",
+    });
 
     await setDoc(newBubbleRef, bubbleDoc);
     return { id: newBubbleRef.id, ...bubbleDoc };
