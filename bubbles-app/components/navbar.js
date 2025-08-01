@@ -105,6 +105,19 @@ export default function NavBar({ page = "default", onAddPerson }) {
         />
       </TouchableOpacity>
 
+      <TouchableOpacity>
+        <Feather
+          name="image"
+          size={30}
+          color={COLORS.primary}
+          onPress={() => {
+            if (currentRoute.name !== "BubbleBook") {
+              navigation.navigate("BubbleBook");
+            }
+          }}
+        />
+      </TouchableOpacity>
+
       <View style={styles.highlightIconContainer}>
         <TouchableOpacity
           style={[

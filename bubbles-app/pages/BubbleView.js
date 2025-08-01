@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import NavBar from "../components/navbar";
 import { Feather } from "@expo/vector-icons";
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useNavigation } from "@react-navigation/native";
 import { COLORS } from "../utils/colors";
 import QRCodeDisplay from "../components/qr-code-display";
 import QRCodeScanner from "../components/qr-code-scanner-simple";
@@ -21,6 +21,7 @@ import { useAuth } from "../contexts/AuthContext";
 
 export default function BubbleView() {
   const route = useRoute();
+  const navigation = useNavigation();
   const { bubbleDetails } = route.params;
   const { user } = useAuth();
   const [bubbleData, setBubbleData] = useState(null);
@@ -225,7 +226,10 @@ export default function BubbleView() {
         </View>
 
         <View style={styles.quickActionsContainer}>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate("BubbleBook")}
+          >
             <Feather name="camera" size={30} style={{ paddingBottom: 10 }} />
             <Text>Add to BubbleBook</Text>
           </TouchableOpacity>
