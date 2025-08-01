@@ -94,7 +94,7 @@ export default function GuestSelector({
             value={value}
             onChangeText={onChangeText}
             placeholder={placeholder}
-            style={styles.pickerValueText}
+            style={[styles.pickerValueText, style]}
             multiline={multiline}
             numberOfLines={numberOfLines}
             editable={editable}
@@ -118,7 +118,24 @@ export default function GuestSelector({
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Select Guests</Text>
+            <Text style={styles.modalTitle}>Select Bubble Buddies</Text>
+
+            {selectedUsers.length > 0 && (
+              <View style={styles.selectedUsersContainer}>
+                <Text style={styles.selectedUsersTitle}>
+                  Selected ({selectedUsers.length}):
+                </Text>
+                <ScrollView horizontal style={styles.selectedUsersList}>
+                  {selectedUsers.map((user) => (
+                    <View key={user.id} style={styles.selectedUserChip}>
+                      <Text style={styles.selectedUserChipText}>
+                        {user.name}
+                      </Text>
+                    </View>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
 
             {loading ? (
               <Text style={styles.loadingText}>Loading users...</Text>
@@ -168,7 +185,11 @@ export default function GuestSelector({
                 style={[styles.modalButton, styles.modalButtonConfirm]}
                 onPress={handleConfirmSelection}
               >
-                <Text style={styles.modalButtonTextConfirm}>Confirm</Text>
+                <Text style={styles.modalButtonTextConfirm}>
+                  Add{" "}
+                  {selectedUsers.length > 0 ? `(${selectedUsers.length})` : ""}{" "}
+                  Buddies
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -300,5 +321,32 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#FEFADF",
+  },
+  selectedUsersContainer: {
+    marginBottom: 15,
+    padding: 10,
+    backgroundColor: "#FEFADF",
+    borderRadius: 8,
+  },
+  selectedUsersTitle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#452A17",
+    marginBottom: 8,
+  },
+  selectedUsersList: {
+    maxHeight: 40,
+  },
+  selectedUserChip: {
+    backgroundColor: "#606B38",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    marginRight: 8,
+  },
+  selectedUserChipText: {
+    color: "#FEFADF",
+    fontSize: 12,
+    fontWeight: "bold",
   },
 });

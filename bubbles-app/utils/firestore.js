@@ -136,27 +136,6 @@ export const deleteUser = async (userId) => {
   }
 };
 
-// Get all users from the users collection
-export const getAllUsers = async () => {
-  try {
-    const usersRef = collection(db, "users");
-    const querySnapshot = await getDocs(usersRef);
-    const users = [];
-
-    querySnapshot.forEach((doc) => {
-      users.push({
-        id: doc.id,
-        ...doc.data(),
-      });
-    });
-
-    return users;
-  } catch (error) {
-    console.error("Error getting all users from Firestore:", error);
-    throw error;
-  }
-};
-
 // Validate email format
 export const isValidEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -195,6 +174,17 @@ export const findUser = async (searchTerm, searchType = "email") => {
     return users;
   } catch (error) {
     console.error(`Error finding user by ${searchType}:`, error);
+    throw error;
+  }
+};
+
+// Check if a single email exists as a user
+export const checkEmailExists = async (email) => {
+  try {
+    const users = await findUser(email, "email");
+    return users.length > 0;
+  } catch (error) {
+    console.error("Error checking if email exists:", error);
     throw error;
   }
 };
@@ -264,26 +254,6 @@ export const updateGuestResponse = async (bubbleId, guestEmail, response) => {
     return true;
   } catch (error) {
     console.error("Error updating guest response:", error);
-    throw error;
-  }
-};
-
-// Get bubble by ID
-export const getBubbleById = async (bubbleId) => {
-  try {
-    const bubbleRef = doc(db, "bubbles", bubbleId);
-    const bubbleSnap = await getDoc(bubbleRef);
-
-    if (bubbleSnap.exists()) {
-      return {
-        id: bubbleSnap.id,
-        ...bubbleSnap.data(),
-      };
-    } else {
-      return null;
-    }
-  } catch (error) {
-    console.error("Error getting bubble by ID:", error);
     throw error;
   }
 };

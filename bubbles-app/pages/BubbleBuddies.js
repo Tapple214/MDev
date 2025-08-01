@@ -14,7 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import NavBar from "../components/navbar";
 import { useAuth } from "../contexts/AuthContext";
-import { getUser, findUser, validateGuestEmails } from "../utils/firestore";
+import { getUser, validateGuestEmails } from "../utils/firestore";
 
 export default function BubbleBuddies() {
   const { user } = useAuth();
@@ -39,41 +39,18 @@ export default function BubbleBuddies() {
     fetchUserData();
   }, [user]);
 
-  // Validate emails or search by name when query changes
+  // Validate emails when query changes
   const handleSearchQueryChange = async (text) => {
     setSearchQuery(text);
 
     if (text.trim()) {
       setIsValidatingEmails(true);
       try {
-        // Check if it's an email search
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const isEmailSearch =
-          text.includes("@") || emailRegex.test(text.trim());
-
-        if (isEmailSearch) {
-          // Email validation approach
-          const validation = await validateGuestEmails(text);
-          setEmailValidation(validation);
-        } else {
-          // Name search approach
-          const results = await findUser(text.trim(), "name");
-          if (results.length > 0) {
-            setEmailValidation({
-              valid: results.map((user) => user.email),
-              invalid: [],
-              notFound: [],
-            });
-          } else {
-            setEmailValidation({
-              valid: [],
-              invalid: [],
-              notFound: [text.trim()],
-            });
-          }
-        }
+        // Email validation approach
+        const validation = await validateGuestEmails(text);
+        setEmailValidation(validation);
       } catch (error) {
-        console.error("Error searching:", error);
+        console.error("Error validating emails:", error);
         setEmailValidation({ valid: [], invalid: [], notFound: [] });
       } finally {
         setIsValidatingEmails(false);
@@ -85,40 +62,34 @@ export default function BubbleBuddies() {
 
   const handleAddBuddy = async () => {
     if (!searchQuery.trim()) {
-      Alert.alert("Error", "Please enter a name or email address");
+      Alert.alert("Error", "Please enter an email address");
       return;
     }
 
-    const isEmailSearch = searchQuery.includes("@");
-
-    if (isEmailSearch && emailValidation.invalid.length > 0) {
+    if (emailValidation.invalid.length > 0) {
       Alert.alert("Error", "Please fix invalid email formats");
       return;
     }
 
     if (emailValidation.notFound.length > 0) {
-      const message = isEmailSearch
-        ? "Some emails are not registered users. Please check the email addresses."
-        : "No users found with that name. Please try a different search.";
-      Alert.alert("Error", message);
+      Alert.alert(
+        "Error",
+        "Some emails are not registered users. Please check the email addresses."
+      );
       return;
     }
 
     if (emailValidation.valid.length === 0) {
-      Alert.alert("Error", "Please enter a valid name or email address");
+      Alert.alert("Error", "Please enter a valid email address");
       return;
     }
 
     try {
       // Add the valid users to bubble buddies
       // This would require updating the user's bubbleBuddies array in Firestore
-      const successMessage = isEmailSearch
-        ? `${emailValidation.valid.join(
-            ", "
-          )} has been added to your bubble buddies!`
-        : `${emailValidation.valid.join(
-            ", "
-          )} has been added to your bubble buddies!`;
+      const successMessage = `${emailValidation.valid.join(
+        ", "
+      )} has been added to your bubble buddies!`;
 
       Alert.alert("Success", successMessage);
       setShowAddModal(false);
@@ -213,13 +184,13 @@ export default function BubbleBuddies() {
             <Text style={styles.modalTitle}>Add Bubble Buddy</Text>
 
             <Text style={styles.modalSubtitle}>
-              Search by name or enter email addresses (comma separated)
+              Enter email addresses (comma separated)
             </Text>
 
             <View style={styles.searchContainer}>
               <TextInput
                 style={styles.searchInput}
-                placeholder="Enter name or email addresses"
+                placeholder="Enter email addresses"
                 value={searchQuery}
                 onChangeText={handleSearchQueryChange}
                 autoCapitalize="words"

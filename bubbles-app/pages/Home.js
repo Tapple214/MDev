@@ -56,6 +56,7 @@ export default function Home({ navigation }) {
   const [selectedCategory, setSelectedCategory] = useState(1); // Default to "All"
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [currentQuickActionIndex, setCurrentQuickActionIndex] = useState(0);
 
   const fetchData = async () => {
     if (user && user.uid) {
@@ -176,27 +177,48 @@ export default function Home({ navigation }) {
           <View style={styles.headerButtons}></View>
         </View>
 
-        <ScrollView
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={true}
-          style={styles.quickActionsScrollView}
-        >
-          {quickActions.map((quickAction) => (
-            <View key={quickAction.id} style={styles.quickActionsContainer}>
-              <View style={styles.quickActionsCard}>
-                <TouchableOpacity
-                  key={quickAction.id}
-                  onPress={() => navigation.navigate(quickAction.goTo)}
-                >
-                  <View style={styles.quickActionsCard}>
-                    <Text style={styles.cardTitle}>{quickAction.title}</Text>
-                  </View>
-                </TouchableOpacity>
+        <View style={styles.quickActionsWrapper}>
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            style={styles.quickActionsScrollView}
+            onMomentumScrollEnd={(event) => {
+              const contentOffset = event.nativeEvent.contentOffset;
+              const viewSize = event.nativeEvent.layoutMeasurement.width;
+              const selectedIndex = Math.floor(contentOffset.x / viewSize);
+              setCurrentQuickActionIndex(selectedIndex);
+            }}
+          >
+            {quickActions.map((quickAction) => (
+              <View key={quickAction.id} style={styles.quickActionsContainer}>
+                <View style={styles.quickActionsCard}>
+                  <TouchableOpacity
+                    key={quickAction.id}
+                    onPress={() => navigation.navigate(quickAction.goTo)}
+                  >
+                    <View style={styles.quickActionsCard}>
+                      <Text style={styles.cardTitle}>{quickAction.title}</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          ))}
-        </ScrollView>
+            ))}
+          </ScrollView>
+
+          {/* Dot Indicators */}
+          <View style={styles.dotContainer}>
+            {quickActions.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.dot,
+                  index === currentQuickActionIndex && styles.activeDot,
+                ]}
+              />
+            ))}
+          </View>
+        </View>
 
         <ScrollView
           horizontal
@@ -355,8 +377,10 @@ const styles = StyleSheet.create({
     paddingRight: 15,
     paddingLeft: 35,
   },
+  quickActionsWrapper: {
+    paddingBottom: 10,
+  },
   quickActionsScrollView: {
-    paddingBottom: 15,
     flex: 0, // prevents unnecessary growth
     flexGrow: 0, // ensures its only as high as contents in it
   },
@@ -389,5 +413,25 @@ const styles = StyleSheet.create({
   },
   selectedCategoryText: {
     color: "#EEDCAD",
+  },
+  dotContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingTop: 10,
+    paddingBottom: 5,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#C4C4C4",
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    backgroundColor: "#452A17",
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
 });
