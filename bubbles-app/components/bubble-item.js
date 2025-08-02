@@ -21,6 +21,7 @@ export default function BubbleItem({
   response = "pending",
   ...props
 }) {
+  // Different tags will be represented by different icons (shown on top right of bubble item)
   const getTagIcon = (tag) => {
     switch (tag.toLowerCase()) {
       case "casual":
@@ -44,6 +45,7 @@ export default function BubbleItem({
     }
   };
 
+  // Upon clicking a tag, an alert that explains what the tag means will appear
   const getTagDescription = (tag) => {
     switch (tag.toLowerCase()) {
       case "casual":
@@ -122,22 +124,9 @@ export default function BubbleItem({
 }
 
 const styles = StyleSheet.create({
+  // Bubble item properties
   bubbleCardContainer: {
     marginBottom: 15,
-  },
-  tagContainer: {
-    flexDirection: "row",
-    position: "absolute",
-    top: 10,
-    right: 10,
-    gap: 4,
-  },
-  tagItem: {
-    backgroundColor: COLORS.elemental.brown,
-    padding: 6,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
   },
   bubbleCard: {
     backgroundColor: COLORS.surface,
@@ -166,5 +155,21 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: -20,
     top: 15,
+  },
+
+  // Tag properties
+  tagContainer: {
+    flexDirection: "row",
+    position: "absolute",
+    top: 10,
+    right: 10,
+    gap: 4,
+  },
+  tagItem: {
+    backgroundColor: COLORS.elemental.brown,
+    padding: 6,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
