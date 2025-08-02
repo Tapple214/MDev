@@ -193,7 +193,7 @@ export default function BubbleView() {
           {/* Guest List */}
           <View style={[styles.cell, { flex: 1 }]}>
             <Text style={[styles.cardTitle, { textAlign: "right" }]}>
-              Guest List
+              Guests
             </Text>
 
             <Text style={[styles.cardText, { textAlign: "right" }]}>
