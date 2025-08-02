@@ -11,12 +11,8 @@ import {
   RefreshControl,
   Modal,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import { Feather } from "@expo/vector-icons";
-import NavBar from "../components/navbar";
-import { COLORS } from "../utils/colors";
-import { useAuth } from "../contexts/AuthContext";
 import {
   doc,
   collection,
@@ -28,6 +24,13 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
+
+// Component imports
+import NavBar from "../components/navbar";
+
+// Utility function/Hooks imports
+import { COLORS } from "../utils/colors";
+import { useAuth } from "../contexts/AuthContext";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -225,7 +228,7 @@ export default function BubbleBook() {
   };
 
   return (
-    <SafeAreaView style={styles.generalContainer}>
+    <View style={styles.generalContainer}>
       <ScrollView
         vertical
         refreshControl={
@@ -328,7 +331,7 @@ export default function BubbleBook() {
       </Modal>
 
       <NavBar page="BubbleBook" />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -360,7 +363,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   addPhotoButton: {
-    backgroundColor: COLORS.confirm,
+    backgroundColor: COLORS.primary,
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 25,
