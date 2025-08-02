@@ -10,12 +10,11 @@ import {
   RefreshControl,
 } from "react-native";
 
+// TODO: create a typography util file
+
 // Components
 import NavBar from "../components/navbar";
 import BubbleItem from "../components/bubble-item";
-import QRCodeScanner from "../components/qr-code-scanner-simple";
-import { Feather } from "@expo/vector-icons";
-
 // Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -337,53 +336,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingBottom: 15,
   },
-  headerButtons: {
-    flexDirection: "row",
-    gap: 10,
-    alignItems: "center",
-  },
-  qrScanButton: {
-    backgroundColor: COLORS.confirm,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
   title: {
     fontSize: 20,
     fontWeight: "bold",
-  },
-  logoutButton: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  logoutText: {
-    color: COLORS.background,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  debugButton: {
-    backgroundColor: "#4A90E2",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
-  },
-  debugButtonText: {
-    color: COLORS.background,
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  migrateButton: {
-    backgroundColor: COLORS.elemental.sage,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
-  },
-  migrateButtonText: {
-    color: COLORS.background,
-    fontSize: 12,
-    fontWeight: "600",
   },
   cardTitle: {
     fontSize: 15,
