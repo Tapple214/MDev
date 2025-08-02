@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { COLORS } from "../utils/colors";
 
@@ -44,6 +44,29 @@ export default function BubbleItem({
     }
   };
 
+  const getTagDescription = (tag) => {
+    switch (tag.toLowerCase()) {
+      case "casual":
+        return "A relaxed, informal gathering with a laid-back atmosphere.";
+      case "formal":
+        return "A structured, professional event with dress code and etiquette.";
+      case "outdoor":
+        return "An outdoor activity or event taking place in nature.";
+      case "indoor":
+        return "An indoor gathering, typically at home or in a venue.";
+      case "creative":
+        return "An artistic or creative activity that involves imagination.";
+      case "social":
+        return "A group gathering focused on social interaction and networking.";
+      case "cozy":
+        return "A warm, intimate gathering with a comfortable, homey feel.";
+      case "adventure":
+        return "An exciting, exploratory activity with new experiences.";
+      default:
+        return "A bubble with this tag.";
+    }
+  };
+
   return (
     <View style={styles.bubbleCardContainer}>
       <TouchableOpacity
@@ -64,13 +87,24 @@ export default function BubbleItem({
         {tags && tags.length > 0 && (
           <View style={styles.tagContainer}>
             {tags.map((tag, index) => (
-              <View key={index} style={styles.tagItem}>
-                <Feather
-                  name={getTagIcon(tag)}
-                  size={12}
-                  color={COLORS.surface}
-                />
-              </View>
+              <TouchableOpacity
+                key={index}
+                onPress={() => {
+                  Alert.alert(
+                    `${tag.charAt(0).toUpperCase() + tag.slice(1)} Bubble`,
+                    getTagDescription(tag),
+                    [{ text: "OK" }]
+                  );
+                }}
+              >
+                <View style={styles.tagItem}>
+                  <Feather
+                    name={getTagIcon(tag)}
+                    size={12}
+                    color={COLORS.surface}
+                  />
+                </View>
+              </TouchableOpacity>
             ))}
           </View>
         )}
