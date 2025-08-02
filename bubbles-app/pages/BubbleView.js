@@ -196,6 +196,14 @@ export default function BubbleView() {
               Guest List
             </Text>
 
+            <Text style={[styles.cardText, { textAlign: "right" }]}>
+              {bubbleData?.guestList
+                ? Array.isArray(bubbleData.guestList)
+                  ? bubbleData.guestList.length
+                  : bubbleData.guestList.split(",").length
+                : 0}
+            </Text>
+
             <Feather
               name="user"
               size={45}
@@ -203,14 +211,6 @@ export default function BubbleView() {
               color="#E89349"
             />
             <Text>{bubbleData?.host}</Text>
-
-            <Text style={styles.cardText}>
-              {bubbleData?.guestList
-                ? Array.isArray(bubbleData.guestList)
-                  ? bubbleData.guestList.length
-                  : bubbleData.guestList.split(",").length
-                : 0}
-            </Text>
 
             <TouchableOpacity
               onPress={() =>
