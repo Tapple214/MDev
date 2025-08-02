@@ -6,13 +6,14 @@ export const confirmAttendance = async (bubbleId, guestEmail, qrData) => {
   try {
     const bubbleRef = doc(db, "bubbles", bubbleId);
 
-    // Update the guest response to confirmed
+    // Update the guest response to confirmed and mark as attended
     await updateDoc(bubbleRef, {
       [`guestResponses.${guestEmail}`]: {
         response: "confirmed",
         confirmedAt: new Date().toISOString(),
         qrScanned: true,
         qrData: qrData,
+        attended: true, // Mark as attended when QR is scanned
       },
     });
 

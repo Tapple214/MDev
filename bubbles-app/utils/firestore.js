@@ -291,10 +291,11 @@ export const updateGuestResponse = async (bubbleId, guestEmail, response) => {
     // Normalize guest email to lowercase
     const normalizedGuestEmail = guestEmail.toLowerCase().trim();
 
-    // Update guest response
+    // Update guest response with attended field defaulting to false
     guestResponses[normalizedGuestEmail] = {
       response: response, // 'accepted' or 'declined'
       respondedAt: serverTimestamp(),
+      attended: false, // Default to false, will be set to true when QR is scanned
     };
 
     // Update the bubble document

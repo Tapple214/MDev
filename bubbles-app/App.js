@@ -12,6 +12,7 @@ import BubbleView from "./pages/BubbleView";
 import BubbleBook from "./pages/BubbleBook";
 import BubbleBuddies from "./pages/BubbleBuddies";
 import CreateBubble from "./pages/CreateBubble";
+import GuestList from "./pages/GuestList";
 
 const Stack = createStackNavigator();
 
@@ -43,6 +44,7 @@ function NavigationContent() {
           <Stack.Screen name="BubbleBook" component={BubbleBook} />
           <Stack.Screen name="BubbleBuddies" component={BubbleBuddies} />
           <Stack.Screen name="CreateBubble" component={CreateBubble} />
+          <Stack.Screen name="GuestList" component={GuestList} />
         </>
       ) : (
         // User is not signed in

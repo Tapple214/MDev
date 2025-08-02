@@ -7,82 +7,72 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import NavBar from "../components/navbar";
 import { Feather } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { COLORS } from "../utils/colors";
-import QRCodeDisplay from "../components/qr-code-display";
-import QRCodeScanner from "../components/qr-code-scanner-simple";
 import { getDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
+
+// Component imports
+import NavBar from "../components/navbar";
+import QRCodeDisplay from "../components/qr-code-display";
+import QRCodeScanner from "../components/qr-code-scanner-simple";
+
+// Utility function/Hooks imports
+import { COLORS } from "../utils/colors";
 import { confirmAttendance, validateAttendanceQR } from "../utils/attendance";
 import { generateEntryQRCode } from "../utils/qrCode";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function BubbleView() {
+  // Hooks
   const route = useRoute();
   const navigation = useNavigation();
-  const { bubbleDetails } = route.params;
   const { user } = useAuth();
+
+  // Extract details from route params (From Home.js)
+  const { bubbleDetails } = route.params;
+
+  // State variables
   const [bubbleData, setBubbleData] = useState(null);
   const [showQRCode, setShowQRCode] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  console.log("BubbleView render - showQRCode:", showQRCode);
-  console.log("User role:", bubbleDetails.userRole);
-
-  // Monitor showQRCode state changes
+  // Load bubble data from Firestore
   useEffect(() => {
-    console.log("showQRCode state changed to:", showQRCode);
-  }, [showQRCode]);
-
-  // Fetch complete bubble data including QR code
-  useEffect(() => {
-    const fetchBubbleData = async () => {
-      if (bubbleDetails.bubbleId) {
+    const loadBubbleData = async () => {
+      try {
         setLoading(true);
-        try {
-          const bubbleRef = doc(db, "bubbles", bubbleDetails.bubbleId);
-          const bubbleSnap = await getDoc(bubbleRef);
+        const bubbleRef = doc(db, "bubbles", bubbleDetails.bubbleId);
+        const bubbleSnap = await getDoc(bubbleRef);
 
-          if (bubbleSnap.exists()) {
-            const fetchedData = { id: bubbleSnap.id, ...bubbleSnap.data() };
-            console.log("Fetched bubble data:", fetchedData);
-            console.log("needQR:", fetchedData.needQR);
-            console.log("qrCodeData exists:", !!fetchedData.qrCodeData);
-            setBubbleData(fetchedData);
-          }
-        } catch (error) {
-          console.error("Error fetching bubble data:", error);
-          Alert.alert("Error", "Failed to load bubble details");
-        } finally {
-          setLoading(false);
+        if (bubbleSnap.exists()) {
+          setBubbleData({ id: bubbleSnap.id, ...bubbleSnap.data() });
+        } else {
+          Alert.alert("Error", "Bubble not found");
         }
+      } catch (error) {
+        console.error("Error loading bubble data:", error);
+        Alert.alert("Error", "Failed to load bubble data");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchBubbleData();
+    if (bubbleDetails.bubbleId) {
+      loadBubbleData();
+    }
   }, [bubbleDetails.bubbleId]);
 
+  // If user is host, user will have to show QR code
   const handleShowQRCode = () => {
-    console.log("QR button clicked");
-    console.log("bubbleData:", bubbleData);
-    console.log("needQR:", bubbleData?.needQR);
-    console.log("qrCodeData:", bubbleData?.qrCodeData);
-    console.log("User role:", bubbleDetails.userRole);
-
     if (!bubbleData?.needQR) {
       Alert.alert("Info", "This bubble doesn't require QR code entry");
       return;
     }
 
-    // Different behavior for host vs guest
     if (bubbleDetails.userRole === "host") {
-      // Host: Show QR code for others to scan
       if (!bubbleData?.qrCodeData) {
-        // Temporary fix: Generate QR code on the fly for existing bubbles
-        console.log("QR code missing, generating on the fly...");
         const tempBubbleData = {
           id: bubbleData.id,
           name: bubbleData.name,
@@ -90,10 +80,8 @@ export default function BubbleView() {
           schedule: bubbleData.schedule,
         };
         const generatedQR = generateEntryQRCode(tempBubbleData);
-        console.log("Generated QR on the fly:", generatedQR);
 
         if (generatedQR) {
-          // Update the local state with the generated QR
           setBubbleData((prev) => ({ ...prev, qrCodeData: generatedQR }));
           setShowQRCode(true);
         } else {
@@ -101,17 +89,15 @@ export default function BubbleView() {
         }
         return;
       }
-      console.log("Host: Setting showQRCode to true");
+
       setShowQRCode(true);
     } else {
-      // Guest: Scan QR code to confirm attendance
-      console.log("Guest: Opening QR scanner");
       setShowQRScanner(true);
     }
   };
 
+  // If user is guest, user will have to scan QR code to confirm attendance
   const handleQRCodeScanned = async (qrData) => {
-    // Validate the QR code
     const validation = validateAttendanceQR(qrData, bubbleDetails.bubbleId);
 
     if (!validation.isValid) {
@@ -130,7 +116,7 @@ export default function BubbleView() {
           onPress: () => setShowQRScanner(false),
         },
         {
-          text: "Confirm Attendance",
+          text: "Yes",
           onPress: async () => {
             try {
               const result = await confirmAttendance(
@@ -159,31 +145,43 @@ export default function BubbleView() {
 
   return (
     <View style={styles.generalContainer}>
-      <ScrollView vertical style={styles.bubbleViewScrollView}>
-        <Text style={styles.title}>More info on the Bubble!</Text>
-        {/* Row 1 */}
+      <ScrollView vertical showsVerticalScrollIndicator={false}>
+        {/* Title */}
+        <Text style={styles.title}>
+          More info on {bubbleData?.hostName}'s Bubble!
+        </Text>
+        {/* Row 1: Bubble Name, Icon, Host, and Description */}
         <View style={styles.bubbleDetailsRow}>
-          <View style={[styles.cell, { width: "95%" }]}>
-            <Text style={styles.cardTitle}>{bubbleDetails.bubbleName}</Text>
+          <View style={[styles.cell, { width: "94%" }]}>
+            {/* Bubble Icon */}
             <View
               style={[
                 styles.bubbleIcon,
-                { backgroundColor: bubbleDetails.backgroundColor || "#E89349" },
+                { backgroundColor: bubbleData?.backgroundColor || "#E89349" },
               ]}
             >
               <Feather
-                name={bubbleDetails.icon || "heart"}
+                name={bubbleData?.icon || "heart"}
                 size={30}
                 color="#EEDCAD"
               />
             </View>
+
+            {/* Bubble Name */}
+            <Text style={styles.cardTitle}>{bubbleData?.name}</Text>
+
+            {/* Bubble Description */}
+            <Text style={styles.cardText}>{bubbleData?.description}</Text>
           </View>
         </View>
 
-        {/* Row 2 */}
+        {/* Row 2: Attendance and Guest List */}
         <View style={styles.bubbleDetailsRow}>
+          {/* Attendance */}
           <View style={[styles.cell, { width: "40%", marginLeft: 20 }]}>
-            <Text>3</Text>
+            <Text style={[styles.cardTitle, { textAlign: "right" }]}>
+              Are you coming?
+            </Text>
             <Feather
               name="check-square"
               size={45}
@@ -191,87 +189,95 @@ export default function BubbleView() {
               color="#949D72"
             />
           </View>
+
+          {/* Guest List */}
           <View style={[styles.cell, { flex: 1 }]}>
-            <Text>4</Text>
+            <Text style={[styles.cardTitle, { textAlign: "right" }]}>
+              Guest List
+            </Text>
+
             <Feather
               name="user"
               size={45}
               style={{ position: "absolute", left: 15, top: 15 }}
               color="#E89349"
             />
-            <Text>{bubbleDetails.host}</Text>
+            <Text>{bubbleData?.host}</Text>
+
+            <Text style={styles.cardText}>
+              {bubbleData?.guestList
+                ? Array.isArray(bubbleData.guestList)
+                  ? bubbleData.guestList.length
+                  : bubbleData.guestList.split(",").length
+                : 0}
+            </Text>
+
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("GuestList", {
+                  guestListDetail: {
+                    bubbleData: bubbleData,
+                    userRole: bubbleDetails.userRole,
+                  },
+                })
+              }
+            >
+              <Text style={{ textAlign: "right" }}>
+                View Guest List <Feather name="chevron-right" />
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* Row 3 */}
+        {/* Row 3: Location, Date, and Time */}
         <View style={styles.bubbleDetailsRow}>
           <View style={[styles.cell, { width: "55%" }]}>
-            <Text>5</Text>
             <Feather
               name="map-pin"
               size={45}
               style={{ position: "absolute", right: 15, top: 15 }}
               color="#BD3526"
             />
+            <Text style={styles.cardTitle}>Where?</Text>
+            <Text style={styles.cardText}>{bubbleData?.location}</Text>
           </View>
           <View style={[styles.cell, { flex: 1, marginRight: 20 }]}>
-            <Text>6</Text>
             <Feather
               name="clock"
               size={45}
-              style={{ position: "absolute", right: -25, bottom: 15 }}
+              style={{ position: "absolute", right: -21, bottom: 15 }}
               color="#46462B"
             />
+            <Text style={styles.cardTitle}>When?</Text>
+            <Text style={styles.cardText}>
+              {bubbleData?.schedule?.toDate()?.toLocaleDateString() +
+                " " +
+                "at" +
+                " " +
+                bubbleData?.schedule?.toDate()?.toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }) || "N/A"}
+            </Text>
           </View>
         </View>
 
+        {/* Row 4: Quick Actions; Buttons for BubbleBook and QR Code */}
         <View style={styles.quickActionsContainer}>
+          {/* QR Code Button */}
           <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate("BubbleBook")}
-          >
-            <Feather name="camera" size={30} style={{ paddingBottom: 10 }} />
-            <Text>Add to BubbleBook</Text>
-          </TouchableOpacity>
-
-          {/* Debug button - remove after testing */}
-          {bubbleDetails.userRole === "host" && (
-            <TouchableOpacity
-              style={[styles.button, { backgroundColor: COLORS.reject }]}
-              onPress={() => {
-                console.log("Debug: Forcing QR display");
-                setShowQRCode(true);
-              }}
-            >
-              <Text style={{ color: COLORS.surface }}>
-                DEBUG: Force Show QR
-              </Text>
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity
-            style={[styles.button, bubbleData?.needQR && styles.qrButton]}
+            style={[styles.button, bubbleData?.needQR && styles.button]}
             onPress={handleShowQRCode}
           >
-            {console.log(
-              "Button render - needQR:",
-              bubbleData?.needQR,
-              "userRole:",
-              bubbleDetails.userRole
-            )}
             <Feather
-              name={bubbleDetails.userRole === "host" ? "smartphone" : "camera"}
-              size={30}
-              style={{ paddingBottom: 10 }}
-              color={
-                bubbleData?.needQR ? COLORS.confirm : COLORS.text.secondary
+              name={
+                bubbleDetails.userRole === "host" ? "smartphone" : "user-check"
               }
+              size={30}
+              color={COLORS.primary}
+              style={styles.icon}
             />
-            <Text
-              style={[
-                styles.buttonText,
-                bubbleData?.needQR && styles.qrButtonText,
-              ]}
-            >
+            <Text style={[styles.buttonText]}>
               {bubbleData?.needQR
                 ? bubbleDetails.userRole === "host"
                   ? "Show QR Code"
@@ -279,27 +285,36 @@ export default function BubbleView() {
                 : "No QR Required"}
             </Text>
           </TouchableOpacity>
+
+          {/* QR Code Display Modal (for hosts) */}
+          <QRCodeDisplay
+            qrCodeData={bubbleData?.qrCodeData}
+            bubbleName={bubbleData?.name}
+            isVisible={showQRCode}
+            onClose={() => setShowQRCode(false)}
+          />
+
+          {/* QR Code Scanner Modal (for guests) */}
+          <QRCodeScanner
+            isVisible={showQRScanner}
+            onClose={() => setShowQRScanner(false)}
+            onQRCodeScanned={handleQRCodeScanned}
+          />
+
+          {/* BubbleBook Button */}
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate("BubbleBook")}
+          >
+            <Feather
+              name="camera"
+              size={30}
+              color={COLORS.primary}
+              style={styles.icon}
+            />
+            <Text style={styles.buttonText}>Add to BubbleBook</Text>
+          </TouchableOpacity>
         </View>
-
-        {/* QR Code Display Modal (for hosts) */}
-        <QRCodeDisplay
-          qrCodeData={bubbleData?.qrCodeData}
-          bubbleName={bubbleData?.name || bubbleDetails.bubbleName}
-          isVisible={showQRCode}
-          onClose={() => setShowQRCode(false)}
-        />
-        {console.log("QRCodeDisplay props:", {
-          qrCodeData: bubbleData?.qrCodeData ? "exists" : "null",
-          bubbleName: bubbleData?.name || bubbleDetails.bubbleName,
-          isVisible: showQRCode,
-        })}
-
-        {/* QR Code Scanner Modal (for guests) */}
-        <QRCodeScanner
-          isVisible={showQRScanner}
-          onClose={() => setShowQRScanner(false)}
-          onQRCodeScanned={handleQRCodeScanned}
-        />
       </ScrollView>
       <NavBar page="BubbleView" />
     </View>
@@ -311,18 +326,15 @@ const styles = StyleSheet.create({
   generalContainer: {
     backgroundColor: COLORS.background,
     height: "100%",
-    paddingVertical: 15,
+    paddingTop: 15,
+    paddingHorizontal: 15,
+    paddingBottom: 100,
   },
   title: {
     fontSize: 20,
     fontWeight: "bold",
-    paddingHorizontal: 15,
     paddingBottom: 15,
-  },
-  cardTitle: {
-    fontSize: 15,
-    fontWeight: "bold",
-    paddingBottom: 2,
+    color: COLORS.primary,
   },
   button: {
     padding: 10,
@@ -335,43 +347,47 @@ const styles = StyleSheet.create({
     color: COLORS.text.primary,
     fontSize: 14,
     fontWeight: "500",
+    color: COLORS.primary,
   },
-  qrButton: {
-    backgroundColor: COLORS.surface,
-    borderWidth: 2,
-    borderColor: COLORS.confirm,
-  },
-  qrButtonText: {
-    color: COLORS.confirm,
-    fontWeight: "bold",
-  },
-  quickActionsContainer: {
-    width: "100%",
-    paddingHorizontal: 15,
-  },
-  bubbleViewScrollView: {
-    flex: 1,
-  },
-  bubbleDetailsRow: {
-    flexDirection: "row",
-    height: 150,
-    marginBottom: 15,
-    gap: 15,
-    paddingHorizontal: 15,
-  },
-  cell: {
-    backgroundColor: "rgba(254, 250, 223, 0.5)",
-    borderRadius: 10,
-    padding: 15,
+
+  // Icon properties
+  icon: {
+    paddingBottom: 10,
   },
   bubbleIcon: {
     position: "absolute",
-    right: -20,
+    right: -22,
     top: 15,
     width: 50,
     height: 50,
     borderRadius: 25,
     justifyContent: "center",
     alignItems: "center",
+  },
+
+  // Card properties
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    paddingBottom: 10,
+    color: COLORS.primary,
+  },
+  cardText: {
+    fontSize: 14,
+    paddingBottom: 10,
+    color: COLORS.primary,
+  },
+
+  // Detail properties
+  bubbleDetailsRow: {
+    flexDirection: "row",
+    minHeight: 130,
+    marginBottom: 15,
+    gap: 15,
+  },
+  cell: {
+    backgroundColor: "rgba(254, 250, 223, 0.5)",
+    borderRadius: 10,
+    padding: 15,
   },
 });

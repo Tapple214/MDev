@@ -300,13 +300,8 @@ export default function Home({ navigation }) {
                 action={() =>
                   navigation.navigate("BubbleView", {
                     bubbleDetails: {
-                      bubbleName: bubbleData.name,
-                      host: bubbleData.hostName,
                       bubbleId: bubbleData.id,
                       userRole: bubbleData.userRole,
-                      icon: bubbleData.icon || "heart",
-                      backgroundColor: bubbleData.backgroundColor || "#E89349",
-                      needQR: bubbleData.needQR,
                     },
                   })
                 }
