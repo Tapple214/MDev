@@ -16,6 +16,7 @@ import { db } from "../firebase";
 import NavBar from "../components/navbar";
 import QRCodeDisplay from "../components/qr-code-display";
 import QRCodeScanner from "../components/qr-code-scanner-simple";
+import GuestRespondBtns from "../components/guest-respond-btns";
 
 // Utility function/Hooks imports
 import { COLORS } from "../utils/colors";
@@ -192,14 +193,26 @@ export default function BubbleView() {
         <View style={styles.bubbleDetailsRow}>
           {/* Attendance */}
           <View style={[styles.cell, { width: "40%", marginLeft: 20 }]}>
-            <Text style={[styles.cardTitle, { textAlign: "right" }]}>
-              Are you coming?
-            </Text>
             <Feather
               name="check-square"
               size={45}
               style={{ position: "absolute", left: -25, bottom: 15 }}
               color="#949D72"
+            />
+
+            <Text style={[styles.cardTitle, { textAlign: "right" }]}>
+              Are you coming?
+            </Text>
+
+            <GuestRespondBtns
+              userRole={bubbleDetails.userRole}
+              onAccept={bubbleDetails.onAccept}
+              onDecline={bubbleDetails.onDecline}
+              onRetract={bubbleDetails.onRetract}
+              response={
+                bubbleData?.guestResponses?.[user.email?.toLowerCase()]
+                  ?.response
+              }
             />
           </View>
 

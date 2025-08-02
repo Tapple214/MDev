@@ -322,6 +322,9 @@ export default function Home({ navigation }) {
                     bubbleDetails: {
                       bubbleId: bubbleData.id,
                       userRole: bubbleData.userRole,
+                      onAccept: () => handleAcceptBubble(bubbleData.id),
+                      onDecline: () => handleDeclineBubble(bubbleData.id),
+                      onRetract: () => handleRetractBubble(bubbleData.id),
                     },
                   })
                 }
