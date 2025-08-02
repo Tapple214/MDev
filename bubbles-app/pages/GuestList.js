@@ -22,6 +22,7 @@ export default function GuestList() {
     loadGuestListWithDetails();
   }, [guestListDetail.bubbleData]);
 
+  //   Get guest list with details using params from BubbleView.js
   const loadGuestListWithDetails = async () => {
     if (!guestListDetail.bubbleData?.guestList) {
       setGuestListWithDetails([]);
