@@ -62,12 +62,13 @@ export default function Home({ navigation }) {
   const [currentQuickActionIndex, setCurrentQuickActionIndex] = useState(0);
   const [showQRScanner, setShowQRScanner] = useState(false);
 
+  // Fetch data from firestore
   const fetchData = async () => {
     if (user && user.uid) {
       try {
         setLoading(true);
 
-        // Fetch user data
+        // Fetch user data using firebase's auth user uid (i.e. user.uid)
         const fetchedUserData = await getUser(user.uid);
         setUserData(fetchedUserData);
 
@@ -83,6 +84,10 @@ export default function Home({ navigation }) {
       }
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, [user]);
 
   // Filter bubbles based on selected category
   const filterBubbles = (bubbles, category) => {
@@ -101,8 +106,8 @@ export default function Home({ navigation }) {
           const userResponse = guestResponses[user?.email];
           return userResponse && userResponse.response === "accepted";
         });
-      case 5: // Completed
-        return []; // Leave empty for now as requested
+      case 5: // Completed; shows all bubbles that have ended
+        return bubbles.filter((bubble) => bubble.schedule.endTime < new Date());
       default:
         return bubbles;
     }
@@ -112,10 +117,6 @@ export default function Home({ navigation }) {
   useEffect(() => {
     setFilteredBubbles(filterBubbles(bubblesData, selectedCategory));
   }, [bubblesData, selectedCategory, user]);
-
-  useEffect(() => {
-    fetchData();
-  }, [user]);
 
   // Refresh data when screen comes into focus
   useEffect(() => {
@@ -136,6 +137,9 @@ export default function Home({ navigation }) {
     setSelectedCategory(categoryId);
   };
 
+  // TODO: make into a custom hook??
+  // Guest respond to bubble buttons; used by two different components/pages (i.e. BubbleView and BubbleItem)
+  // Accept, Decline, Retract Buttons
   const handleAcceptBubble = async (bubbleId) => {
     try {
       // Update bubble status in database
@@ -164,6 +168,7 @@ export default function Home({ navigation }) {
 
   const handleRetractBubble = async (bubbleId) => {
     try {
+      // Update bubble status in database
       await updateGuestResponse(bubbleId, user.email, "pending");
       Alert.alert(
         "Retracted",
@@ -175,27 +180,6 @@ export default function Home({ navigation }) {
       console.error("Error retracting bubble:", error);
       Alert.alert("Error", "Failed to retract bubble. Please try again.");
     }
-  };
-
-  const handleQRCodeScanned = (qrData) => {
-    Alert.alert(
-      "QR Code Scanned!",
-      `Bubble: ${qrData.bubbleName}\nHost: ${qrData.hostName}`,
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Join Bubble",
-          onPress: () => {
-            // Here you would implement the logic to join the bubble
-            // For now, just show a success message
-            Alert.alert("Success", "You have joined the bubble!");
-          },
-        },
-      ]
-    );
   };
 
   return (
@@ -212,18 +196,12 @@ export default function Home({ navigation }) {
           />
         }
       >
+        {/* Title */}
         <View style={styles.headerContainer}>
           <Text style={styles.title}>Hi {userData?.name}!</Text>
-          <View style={styles.headerButtons}>
-            <TouchableOpacity
-              style={styles.qrScanButton}
-              onPress={() => setShowQRScanner(true)}
-            >
-              <Feather name="qr-code" size={20} color={COLORS.surface} />
-            </TouchableOpacity>
-          </View>
         </View>
 
+        {/* Quick Actions */}
         <View style={styles.quickActionsWrapper}>
           <ScrollView
             horizontal
@@ -267,6 +245,7 @@ export default function Home({ navigation }) {
           </View>
         </View>
 
+        {/* Categories */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -294,6 +273,7 @@ export default function Home({ navigation }) {
           ))}
         </ScrollView>
 
+        {/* Bubbles */}
         <View style={styles.bubblesContainer}>
           {loading ? (
             <Text style={styles.noBubblesText}>Loading bubbles...</Text>
@@ -335,13 +315,6 @@ export default function Home({ navigation }) {
           )}
         </View>
       </ScrollView>
-
-      {/* QR Code Scanner Modal */}
-      <QRCodeScanner
-        isVisible={showQRScanner}
-        onClose={() => setShowQRScanner(false)}
-        onQRCodeScanned={handleQRCodeScanned}
-      />
 
       <NavBar />
     </View>
