@@ -17,6 +17,7 @@ export const COLORS = {
     orange: "#E89349", // Orange - bubble icon backgrounds (default)
     rust: "#BD6C26", // Rust orange - bubble icon backgrounds
     sage: "#778A31", // Sage green - tags, secondary accents
+    brown: "#9D5E1D", // Brown - tags, secondary accents
   },
 
   // Text Colors

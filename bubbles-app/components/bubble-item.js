@@ -2,6 +2,9 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { COLORS } from "../utils/colors";
 
+// Component imports
+import GuestRespondBtns from "./guest-respond-btns";
+
 export default function BubbleItem({
   cardTitle,
   cardText,
@@ -11,11 +14,36 @@ export default function BubbleItem({
   userRole,
   onAccept,
   onDecline,
+  onRetract,
   icon = "heart",
   backgroundColor = "#E89349",
   tags = [],
+  response = "pending",
   ...props
 }) {
+  const getTagIcon = (tag) => {
+    switch (tag.toLowerCase()) {
+      case "casual":
+        return "smile";
+      case "formal":
+        return "briefcase";
+      case "outdoor":
+        return "sun";
+      case "indoor":
+        return "home";
+      case "creative":
+        return "palette";
+      case "social":
+        return "users";
+      case "cozy":
+        return "heart";
+      case "adventure":
+        return "map-pin";
+      default:
+        return "tag";
+    }
+  };
+
   return (
     <View style={styles.bubbleCardContainer}>
       <TouchableOpacity
@@ -30,35 +58,31 @@ export default function BubbleItem({
         <View style={styles.bubbleContent}>
           <Text style={cardTitle}>{bubbleName}</Text>
           <Text style={cardText}>By {bubbleHost}</Text>
-          {tags && tags.length > 0 && (
-            <View style={styles.tagContainer}>
-              {tags.map((tag, index) => (
-                <View key={index} style={styles.tagItem}>
-                  <Text style={styles.tagText}>{tag}</Text>
-                </View>
-              ))}
-            </View>
-          )}
         </View>
+
+        {/* Tags with icons in top right corner */}
+        {tags && tags.length > 0 && (
+          <View style={styles.tagContainer}>
+            {tags.map((tag, index) => (
+              <View key={index} style={styles.tagItem}>
+                <Feather
+                  name={getTagIcon(tag)}
+                  size={12}
+                  color={COLORS.surface}
+                />
+              </View>
+            ))}
+          </View>
+        )}
       </TouchableOpacity>
 
-      {/* Guest action buttons */}
-      {userRole === "guest" && (
-        <View style={styles.buttons}>
-          <TouchableOpacity
-            style={[styles.button, styles.declineButton]}
-            onPress={onDecline}
-          >
-            <Text style={styles.actionButtonText}>X</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.button, styles.acceptButton]}
-            onPress={onAccept}
-          >
-            <Text style={styles.actionButtonText}>I'm coming!</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      <GuestRespondBtns
+        userRole={userRole}
+        onDecline={onDecline}
+        onAccept={onAccept}
+        onRetract={onRetract}
+        response={response}
+      />
     </View>
   );
 }
@@ -69,26 +93,22 @@ const styles = StyleSheet.create({
   },
   tagContainer: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 5,
+    position: "absolute",
+    top: 10,
+    right: 10,
+    gap: 4,
   },
   tagItem: {
-    backgroundColor: COLORS.elemental.sage,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    backgroundColor: COLORS.elemental.brown,
+    padding: 6,
     borderRadius: 12,
-    marginRight: 5,
-    marginBottom: 3,
-  },
-  tagText: {
-    fontSize: 10,
-    color: COLORS.surface,
-    fontWeight: "500",
+    justifyContent: "center",
+    alignItems: "center",
   },
   bubbleCard: {
     backgroundColor: COLORS.surface,
     borderRadius: 10,
-    minHeight: 120,
+    minHeight: 100,
     paddingTop: 15,
     paddingBottom: 10,
     paddingLeft: 30,
@@ -112,34 +132,5 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: -20,
     top: 15,
-  },
-  buttons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 10,
-    gap: 10,
-    position: "absolute",
-    right: 10,
-    bottom: 10,
-  },
-  button: {
-    flex: 0,
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  acceptButton: {
-    backgroundColor: COLORS.confirm,
-  },
-  declineButton: {
-    backgroundColor: COLORS.reject,
-  },
-  actionButtonText: {
-    color: COLORS.surface,
-    fontSize: 12,
-    fontWeight: "bold",
-    flex: 0,
   },
 });

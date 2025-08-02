@@ -162,6 +162,21 @@ export default function Home({ navigation }) {
     }
   };
 
+  const handleRetractBubble = async (bubbleId) => {
+    try {
+      await updateGuestResponse(bubbleId, user.email, "pending");
+      Alert.alert(
+        "Retracted",
+        "You've retracted your invitation to this bubble."
+      );
+      // Refresh the data to show updated status
+      await fetchData();
+    } catch (error) {
+      console.error("Error retracting bubble:", error);
+      Alert.alert("Error", "Failed to retract bubble. Please try again.");
+    }
+  };
+
   const handleQRCodeScanned = (qrData) => {
     Alert.alert(
       "QR Code Scanned!",
@@ -285,17 +300,22 @@ export default function Home({ navigation }) {
           ) : filteredBubbles && filteredBubbles.length > 0 ? (
             filteredBubbles.map((bubbleData) => (
               <BubbleItem
+                key={bubbleData.id}
                 cardTitle={styles.cardTitle}
                 cardText={styles.cardText}
-                key={bubbleData.id}
                 bubbleName={bubbleData.name}
                 bubbleHost={bubbleData.hostName}
                 userRole={bubbleData.userRole}
                 icon={bubbleData.icon || "heart"}
+                response={
+                  bubbleData.guestResponses?.[user.email?.toLowerCase()]
+                    ?.response || "pending"
+                }
                 backgroundColor={bubbleData.backgroundColor || "#E89349"}
                 tags={bubbleData.tags || []}
                 onAccept={() => handleAcceptBubble(bubbleData.id)}
                 onDecline={() => handleDeclineBubble(bubbleData.id)}
+                onRetract={() => handleRetractBubble(bubbleData.id)}
                 // send as params
                 action={() =>
                   navigation.navigate("BubbleView", {
