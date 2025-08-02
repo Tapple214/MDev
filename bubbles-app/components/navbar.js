@@ -1,17 +1,25 @@
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import { useNavigation } from "@react-navigation/native";
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import React from "react";
+import { View, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
+
+// Utility function/Hooks imports
 import { useAuth } from "../contexts/AuthContext";
 import { COLORS } from "../utils/colors";
+import { useNavigation } from "@react-navigation/native";
 
-export default function NavBar({ page = "default", onAddPerson }) {
+export default function NavBar({
+  page = "default",
+  onAddPerson,
+  handleEditBubble,
+  userRole,
+}) {
+  // Hooks
   const { logout } = useAuth();
   const navigation = useNavigation();
   const state = navigation.getState();
   const currentRoute = state.routes[state.index];
 
+  //   Logout function
   const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
       {
@@ -32,44 +40,42 @@ export default function NavBar({ page = "default", onAddPerson }) {
     ]);
   };
 
-  // Dynamic highlight icon configuration based on page
+  // Dynamic highlight icon that will change based on the page; placed on far right of navbar
   const getHighlightIconConfig = () => {
     switch (page) {
       case "BubbleBuddies":
         return {
           icon: "user-plus",
           onPress: () => {
-            if (onAddPerson) {
-              onAddPerson();
-            } else {
-              Alert.alert(
-                "Add Person",
-                "Add person functionality will be implemented here"
-              );
-            }
+            onAddPerson();
           },
           color: COLORS.background,
-          backgroundColor: COLORS.primary, // Original brown background
+          backgroundColor: COLORS.primary,
         };
-      case "BubbleView":
+      case "BubbleView" && userRole === "host":
         return {
           icon: "edit-3",
           onPress: () => {
-            // Placeholder functionality for editing bubble
-            Alert.alert(
-              "Edit Bubble",
-              "Edit bubble functionality will be implemented here"
-            );
+            handleEditBubble();
           },
           color: COLORS.background,
-          backgroundColor: COLORS.primary, // Original brown background
+          backgroundColor: COLORS.primary,
+        };
+      case "BubbleView" && userRole !== "host":
+        return {
+          icon: "plus",
+          onPress: () => {
+            navigation.navigate("CreateBubble");
+          },
+          color: COLORS.background,
+          backgroundColor: COLORS.primary,
         };
       default:
         return {
           icon: "plus",
           onPress: () => navigation.navigate("CreateBubble"),
           color: COLORS.background,
-          backgroundColor: COLORS.primary, // Original brown background
+          backgroundColor: COLORS.primary,
         };
     }
   };
@@ -78,10 +84,12 @@ export default function NavBar({ page = "default", onAddPerson }) {
 
   return (
     <View style={styles.navbar}>
+      {/* Logout icon */}
       <TouchableOpacity onPress={handleLogout}>
         <Feather name="log-out" size={30} color={COLORS.primary} />
       </TouchableOpacity>
 
+      {/* Home icon */}
       <TouchableOpacity
         onPress={() => {
           if (currentRoute.name !== "Home") {
@@ -92,6 +100,7 @@ export default function NavBar({ page = "default", onAddPerson }) {
         <Feather name="home" size={30} color={COLORS.primary} />
       </TouchableOpacity>
 
+      {/* Bubble Buddies icon */}
       <TouchableOpacity>
         <Feather
           name="users"
@@ -105,19 +114,7 @@ export default function NavBar({ page = "default", onAddPerson }) {
         />
       </TouchableOpacity>
 
-      <TouchableOpacity>
-        <Feather
-          name="image"
-          size={30}
-          color={COLORS.primary}
-          onPress={() => {
-            if (currentRoute.name !== "BubbleBook") {
-              navigation.navigate("BubbleBook");
-            }
-          }}
-        />
-      </TouchableOpacity>
-
+      {/* Highlight icon */}
       <View style={styles.highlightIconContainer}>
         <TouchableOpacity
           style={[

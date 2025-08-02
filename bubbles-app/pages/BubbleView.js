@@ -143,6 +143,19 @@ export default function BubbleView() {
     );
   };
 
+  const handleEditBubble = () => {
+    // Only allow host to edit the bubble
+    if (bubbleDetails.userRole !== "host") {
+      Alert.alert("Error", "Only the host can edit this bubble");
+      return;
+    }
+
+    // Navigate to EditBubble page with bubble data
+    navigation.navigate("EditBubble", {
+      bubbleData: bubbleData,
+    });
+  };
+
   return (
     <View style={styles.generalContainer}>
       <ScrollView vertical showsVerticalScrollIndicator={false}>
@@ -314,9 +327,22 @@ export default function BubbleView() {
             />
             <Text style={styles.buttonText}>Add to BubbleBook</Text>
           </TouchableOpacity>
+
+          {/* Edit Bubble Button (only for host) */}
+          {bubbleDetails.userRole === "host" && (
+            <TouchableOpacity style={styles.button} onPress={handleEditBubble}>
+              <Feather
+                name="edit"
+                size={30}
+                color={COLORS.primary}
+                style={styles.icon}
+              />
+              <Text style={styles.buttonText}>Edit Bubble</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </ScrollView>
-      <NavBar page="BubbleView" />
+      <NavBar page="BubbleView" handleEditBubble={handleEditBubble} />
     </View>
   );
 }

@@ -116,6 +116,70 @@ export const createBubble = async (bubbleData) => {
   }
 };
 
+// Update an existing bubble
+export const updateBubble = async (bubbleData) => {
+  try {
+    const bubbleRef = doc(db, "bubbles", bubbleData.bubbleId);
+
+    // Create a proper date object from the selected date and time
+    const scheduleDate = new Date(bubbleData.selectedDate);
+    scheduleDate.setHours(bubbleData.selectedTime.getHours());
+    scheduleDate.setMinutes(bubbleData.selectedTime.getMinutes());
+    scheduleDate.setSeconds(0);
+    scheduleDate.setMilliseconds(0);
+
+    // Convert guest emails to lowercase
+    const guestList = bubbleData.guestList
+      ? bubbleData.guestList
+          .split(",")
+          .map((email) => email.trim().toLowerCase())
+          .filter((email) => email.length > 0)
+      : [];
+
+    // Generate QR code data if needQR is true
+    let qrCodeData = null;
+    console.log("Updating bubble with needQR:", bubbleData.needQR);
+    if (bubbleData.needQR) {
+      const tempBubbleData = {
+        id: bubbleData.bubbleId,
+        name: bubbleData.name,
+        hostName: bubbleData.hostName,
+        schedule: scheduleDate,
+      };
+      qrCodeData = generateEntryQRCode(tempBubbleData);
+      console.log("Generated QR code data:", qrCodeData);
+    }
+
+    const bubbleDoc = {
+      name: bubbleData.name,
+      description: bubbleData.description,
+      location: bubbleData.location,
+      schedule: scheduleDate,
+      guestList: guestList,
+      needQR: bubbleData.needQR,
+      qrCodeData: qrCodeData,
+      icon: bubbleData.icon || "heart",
+      backgroundColor: bubbleData.backgroundColor || "#E89349",
+      tags: bubbleData.tags || [],
+      hostName: bubbleData.hostName,
+      hostUid: bubbleData.hostUid,
+      updatedAt: serverTimestamp(),
+    };
+
+    console.log("Final bubbleDoc to update:", {
+      name: bubbleDoc.name,
+      needQR: bubbleDoc.needQR,
+      qrCodeData: bubbleDoc.qrCodeData ? "exists" : "null",
+    });
+
+    await updateDoc(bubbleRef, bubbleDoc);
+    return { id: bubbleData.bubbleId, ...bubbleDoc };
+  } catch (error) {
+    console.error("Error updating bubble in Firestore:", error);
+    throw error;
+  }
+};
+
 // Get all bubbles that a user is involved with (as host or guest)
 export const getUserBubbles = async (userId, userEmail) => {
   try {
