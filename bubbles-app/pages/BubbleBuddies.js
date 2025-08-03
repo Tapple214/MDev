@@ -7,8 +7,6 @@ import {
   TouchableOpacity,
   Modal,
   Alert,
-  ActivityIndicator,
-  ScrollView,
 } from "react-native";
 import NavBar from "../components/navbar";
 import { useAuth } from "../contexts/AuthContext";
@@ -16,8 +14,6 @@ import {
   getUser,
   validateGuestEmails,
   addBubbleBuddies,
-  searchUsersInDatabase,
-  getBubbleBuddiesForSelection,
 } from "../utils/firestore";
 import Feather from "react-native-vector-icons/Feather";
 import { COLORS } from "../utils/colors";
@@ -32,14 +28,10 @@ export default function BubbleBuddies() {
     invalid: [],
     notFound: [],
   });
-  const [isValidatingEmails, setIsValidatingEmails] = useState(false);
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [selectionMode, setSelectionMode] = useState("text"); // "text" or "emoji"
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (user && user.uid) {
+      if (user?.uid) {
         const fetchedUserData = await getUser(user.uid);
         setUserData(fetchedUserData);
       }
@@ -47,183 +39,83 @@ export default function BubbleBuddies() {
     fetchUserData();
   }, [user]);
 
-  // Handle manual text input - check against ALL users in database
   const handleSearchQueryChange = async (text) => {
     setSearchQuery(text);
-    setSelectionMode("text");
 
     if (text.trim()) {
-      setIsValidatingEmails(true);
       try {
-        // Check if input contains email format
-        if (text.includes("@")) {
-          // Email validation approach - check against ALL users
-          const validation = await validateGuestEmails(text);
-          setEmailValidation(validation);
-          setSearchResults([]);
-        } else {
-          // Name search approach - search across ENTIRE database
-          const results = await searchUsersInDatabase(text);
-          setSearchResults(results);
-          setEmailValidation({ valid: [], invalid: [], notFound: [] });
-        }
+        const validation = await validateGuestEmails(text);
+        setEmailValidation(validation);
       } catch (error) {
         console.error("Error validating emails:", error);
         setEmailValidation({ valid: [], invalid: [], notFound: [] });
-        setSearchResults([]);
-      } finally {
-        setIsValidatingEmails(false);
       }
     } else {
       setEmailValidation({ valid: [], invalid: [], notFound: [] });
-      setSearchResults([]);
-    }
-  };
-
-  // Handle emoji/icon selection - ONLY show bubble buddies
-  const handleEmojiSelection = async () => {
-    setSelectionMode("emoji");
-    setIsSearching(true);
-    try {
-      if (!user?.uid) {
-        Alert.alert("Error", "User not authenticated");
-        return;
-      }
-      // Only get user's bubble buddies
-      const bubbleBuddies = await getBubbleBuddiesForSelection(user.uid);
-      setSearchResults(bubbleBuddies);
-      setEmailValidation({ valid: [], invalid: [], notFound: [] });
-    } catch (error) {
-      console.error("Error loading bubble buddies:", error);
-      Alert.alert("Error", "Failed to load bubble buddies");
-    } finally {
-      setIsSearching(false);
     }
   };
 
   const handleAddBuddy = async () => {
-    if (!searchQuery.trim() && searchResults.length === 0) {
-      Alert.alert("Error", "Please enter an email address or select users");
+    if (!searchQuery.trim()) {
+      Alert.alert("Error", "Please enter an email address");
+      return;
+    }
+
+    if (emailValidation.invalid.length > 0) {
+      Alert.alert("Error", "Please fix invalid email formats");
+      return;
+    }
+
+    if (emailValidation.notFound.length > 0) {
+      Alert.alert("Error", "Some emails are not registered users");
+      return;
+    }
+
+    if (emailValidation.valid.length === 0) {
+      Alert.alert("Error", "Please enter a valid email address");
       return;
     }
 
     try {
-      let emailsToAdd = [];
+      const emailsToAdd = emailValidation.valid;
 
-      if (selectionMode === "text") {
-        // Handle text input validation
-        if (emailValidation.invalid.length > 0) {
-          Alert.alert("Error", "Please fix invalid email formats");
-          return;
-        }
-
-        if (emailValidation.notFound.length > 0) {
-          Alert.alert(
-            "Error",
-            "Some emails are not registered users. Please check the email addresses."
-          );
-          return;
-        }
-
-        if (emailValidation.valid.length === 0 && searchResults.length === 0) {
-          Alert.alert("Error", "Please enter a valid email address or name");
-          return;
-        }
-
-        // Add valid emails and search results
-        emailsToAdd = [
-          ...emailValidation.valid,
-          ...searchResults.map((user) => user.email),
-        ];
-      } else {
-        // Handle emoji selection - only bubble buddies
-        if (searchResults.length === 0) {
-          Alert.alert("Error", "No bubble buddies found");
-          return;
-        }
-        emailsToAdd = searchResults.map((user) => user.email);
-      }
-
-      if (!user?.uid) {
-        Alert.alert("Error", "User not authenticated");
-        return;
-      }
-      // Add the emails to bubble buddies
       await addBubbleBuddies(user.uid, emailsToAdd);
 
-      const successMessage = `${emailsToAdd.join(
-        ", "
-      )} has been added to your bubble buddies!`;
-      Alert.alert("Success", successMessage);
+      Alert.alert(
+        "Success",
+        `${emailsToAdd.join(", ")} added to bubble buddies!`
+      );
       setShowAddModal(false);
       setSearchQuery("");
       setEmailValidation({ valid: [], invalid: [], notFound: [] });
       setSearchResults([]);
 
       // Refresh user data
-      if (user && user.uid) {
-        const fetchedUserData = await getUser(user.uid);
-        setUserData(fetchedUserData);
-      }
+      const fetchedUserData = await getUser(user.uid);
+      setUserData(fetchedUserData);
     } catch (error) {
       console.error("Error adding buddy:", error);
       Alert.alert("Error", "Failed to add buddy");
     }
   };
 
-  const renderSearchValidationStatus = () => {
-    if (!searchQuery.trim() && searchResults.length === 0) return null;
-
-    return (
-      <View style={styles.validationContainer}>
-        {selectionMode === "text" && emailValidation.valid.length > 0 && (
-          <View style={styles.validationItem}>
-            <Text style={styles.validEmail}>
-              ✓ Valid emails: {emailValidation.valid.join(", ")}
-            </Text>
-          </View>
-        )}
-
-        {selectionMode === "text" && emailValidation.invalid.length > 0 && (
-          <View style={styles.validationItem}>
-            <Text style={styles.invalidEmail}>
-              ✗ Invalid format: {emailValidation.invalid.join(", ")}
-            </Text>
-          </View>
-        )}
-
-        {selectionMode === "text" && emailValidation.notFound.length > 0 && (
-          <View style={styles.validationItem}>
-            <Text style={styles.notFoundEmail}>
-              ⚠ Not registered: {emailValidation.notFound.join(", ")}
-            </Text>
-          </View>
-        )}
-
-        {searchResults.length > 0 && (
-          <View style={styles.validationItem}>
-            <Text style={styles.validEmail}>
-              ✓ Found {searchResults.length} user(s):{" "}
-              {searchResults.map((u) => u.name).join(", ")}
-            </Text>
-          </View>
-        )}
-      </View>
-    );
+  const resetModal = () => {
+    setShowAddModal(false);
+    setSearchQuery("");
+    setEmailValidation({ valid: [], invalid: [], notFound: [] });
   };
 
   return (
     <View style={styles.generalContainer}>
       <Text style={styles.subTitle}>
-        A list of your go-to invitees ready for your next bubble!{" "}
+        A list of your go-to invitees ready for your next bubble!
       </Text>
 
       <View style={styles.bubbleBuddiesContainer}>
-        {userData?.bubbleBuddies && userData.bubbleBuddies.length > 0 ? (
+        {userData?.bubbleBuddies?.length > 0 ? (
           userData.bubbleBuddies.map((buddy, index) => (
             <View key={index} style={styles.bubbleBuddyNameContainer}>
               <Feather name="user" size={24} color={COLORS.primary} />
-
               <Text>{buddy}</Text>
             </View>
           ))
@@ -232,35 +124,33 @@ export default function BubbleBuddies() {
         )}
       </View>
 
-      {/* Add Buddy Modal */}
-
-      {/* User selector modal */}
       <Modal
         visible={showAddModal}
         transparent={true}
         animationType="fade"
-        onRequestClose={() => setShowAddModal(false)}
+        onRequestClose={resetModal}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Add a new bubble buddy</Text>
 
-            <View style={styles.pickerContainer}>
-              <View style={styles.input}>
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder="Enter email addresses or names to search all users"
-                  value={searchQuery}
-                  onChangeText={handleSearchQueryChange}
-                  autoCapitalize="words"
-                  autoCorrect={false}
-                  multiline
-                  numberOfLines={3}
-                />
-              </View>
-            </View>
+            <Text style={styles.inputTitle}>
+              Type in email addresses of your buddies you'd like to add! (comma
+              separated)
+            </Text>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Enter email addresses (comma separated)"
+              value={searchQuery}
+              onChangeText={handleSearchQueryChange}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              multiline
+              numberOfLines={3}
+            />
 
-            {/* Validation properties */}
+            {/* Validation display */}
             <View style={styles.validationContainer}>
               {emailValidation.valid.length > 0 && (
                 <View style={styles.validationItem}>
@@ -288,13 +178,7 @@ export default function BubbleBuddies() {
             </View>
 
             <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={() => {
-                  setSelectedUsers([]);
-                  setShowUserSelector(false);
-                }}
-              >
+              <TouchableOpacity style={styles.modalButton} onPress={resetModal}>
                 <Text style={styles.modalButtonTextCancel}>Cancel</Text>
               </TouchableOpacity>
 
@@ -302,7 +186,7 @@ export default function BubbleBuddies() {
                 style={styles.addButton}
                 onPress={handleAddBuddy}
               >
-                <Text style={styles.addButtonText}>Add to Bubble Buddies</Text>
+                <Text style={styles.addButtonText}>Add Buddy</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -316,30 +200,27 @@ export default function BubbleBuddies() {
 
 const styles = StyleSheet.create({
   generalContainer: {
-    backgroundColor: "#EEDCAD",
+    backgroundColor: COLORS.background,
     height: "100%",
     paddingVertical: 15,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
+  inputTitle: {
+    paddingBottom: 10,
+    color: COLORS.text.primary,
+  },
+  subTitle: {
     paddingHorizontal: 15,
-    paddingBottom: 15,
+    color: COLORS.text.primary,
   },
-  subTitle: { paddingHorizontal: 15 },
-  input: {
-    borderRadius: 5,
-    padding: 10,
-    marginHorizontal: 15,
-    marginBottom: 15,
-    backgroundColor: "#FEFADF",
+  bubbleBuddiesContainer: {
+    paddingVertical: 15,
+    paddingHorizontal: 15,
   },
-  bubbleBuddiesContainer: { paddingVertical: 15, paddingHorizontal: 15 },
   bubbleBuddyNameContainer: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    backgroundColor: "#FEFADF",
+    backgroundColor: COLORS.surface,
     borderRadius: 10,
     paddingVertical: 15,
     paddingHorizontal: 15,
@@ -348,7 +229,7 @@ const styles = StyleSheet.create({
   noBuddiesText: {
     textAlign: "center",
     fontSize: 16,
-    color: "#452A17",
+    color: COLORS.text.primary,
     marginTop: 20,
   },
   modalOverlay: {
@@ -358,139 +239,78 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    backgroundColor: "#EEDCAD",
+    backgroundColor: COLORS.background,
     borderRadius: 10,
     padding: 20,
     margin: 20,
     width: "90%",
     maxHeight: "80%",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 10,
-    color: "#452A17",
+    marginBottom: 15,
+    color: COLORS.text.primary,
     textAlign: "center",
-  },
-  modalSubtitle: {
-    fontSize: 14,
-    color: "#452A17",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  searchContainer: {
-    flexDirection: "row",
-    marginBottom: 20,
   },
   searchInput: {
-    flex: 1,
-    backgroundColor: "#FEFADF",
+    backgroundColor: COLORS.surface,
     borderRadius: 8,
     padding: 12,
-    marginRight: 10,
-    borderWidth: 1,
-    borderColor: "#ddd",
-  },
-  emojiButton: {
-    backgroundColor: "#606B38",
-    padding: 10,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: 10,
-  },
-  emojiButtonText: {
-    fontSize: 24,
-    color: "#FEFADF",
-  },
-  addButton: {
-    backgroundColor: "#606B38",
-    padding: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  addButtonText: {
-    color: "#FEFADF",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  cancelButton: {
-    backgroundColor: "#FEFADF",
-    padding: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#452A17",
-    marginTop: 10,
-  },
-  cancelButtonText: {
-    color: "#452A17",
-    fontSize: 16,
-    fontWeight: "bold",
+    marginBottom: 15,
+
+    color: COLORS.text.primary,
   },
   validationContainer: {
     marginBottom: 15,
+    minHeight: 50,
   },
   validationItem: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 5,
   },
-  validationText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: "#606B38",
-  },
   validEmail: {
     fontSize: 14,
-    color: "#4CAF50",
+    color: COLORS.status.success,
   },
   invalidEmail: {
     fontSize: 14,
-    color: "#F44336",
+    color: COLORS.status.error,
   },
   notFoundEmail: {
     fontSize: 14,
-    color: "#FF9800",
+    color: COLORS.status.warning,
   },
-  searchResultsContainer: {
-    marginTop: 10,
-    paddingHorizontal: 10,
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
   },
-  searchResultsTitle: {
+  modalButton: {
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: COLORS.surface,
+    alignItems: "center",
+    flex: 1,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+  },
+  addButton: {
+    backgroundColor: COLORS.primary,
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    flex: 1,
+  },
+  modalButtonTextCancel: {
+    color: COLORS.primary,
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 10,
-    color: "#452A17",
   },
-  searchResultsList: {
-    maxHeight: 150, // Limit height for scrolling
-  },
-  searchResultItem: {
-    backgroundColor: "#FEFADF",
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
-  },
-  searchResultName: {
-    fontSize: 14,
+  addButtonText: {
+    color: COLORS.surface,
+    fontSize: 16,
     fontWeight: "bold",
-    color: "#452A17",
-  },
-  searchResultEmail: {
-    fontSize: 12,
-    color: "#606B38",
-    marginTop: 2,
   },
 });
