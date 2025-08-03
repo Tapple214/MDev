@@ -16,7 +16,7 @@ export default function GuestList() {
 
   // State variables
   const [guestListWithDetails, setGuestListWithDetails] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     loadGuestListWithDetails();
@@ -107,77 +107,69 @@ export default function GuestList() {
     return attended ? COLORS.confirm : COLORS.text.secondary;
   };
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading guest list...</Text>
-      </View>
-    );
-  }
-
-  if (!guestListWithDetails.length) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.noGuestsText}>
-          No guests invited to this bubble
-        </Text>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.generalContainer}>
       <Text style={styles.title}>Guest List</Text>
-      <ScrollView vertical>
-        {guestListWithDetails.map((guest, index) => (
-          <View key={index} style={styles.guestListItem}>
-            {/* Guest name and email */}
-            <View>
-              <Text style={styles.cardTitle}>{guest.name}</Text>
-              <Text style={styles.cardText}>{guest.email}</Text>
-            </View>
-
-            <View style={styles.guestStatus}>
-              {/* Response Status */}
-              <View style={styles.statusItem}>
-                <Feather
-                  name={getResponseIcon(guest.response)}
-                  size={16}
-                  color={getResponseColor(guest.response)}
-                />
-                <Text
-                  style={[
-                    styles.statusText,
-                    { color: getResponseColor(guest.response) },
-                  ]}
-                >
-                  {guest.response.charAt(0).toUpperCase() +
-                    guest.response.slice(1)}
-                </Text>
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading guest list...</Text>
+        </View>
+      ) : guestListWithDetails.length > 0 ? (
+        <ScrollView vertical>
+          {guestListWithDetails.map((guest, index) => (
+            <View key={index} style={styles.guestListItem}>
+              {/* Guest name and email */}
+              <View>
+                <Text style={styles.cardTitle}>{guest.name}</Text>
+                <Text style={styles.cardText}>{guest.email}</Text>
               </View>
 
-              {/* Attendance Status; Only show if bubble requires QR */}
-              {guestListDetail.bubbleData?.needQR && (
-                <View style={[styles.statusItem, { marginLeft: 15 }]}>
+              <View style={styles.guestStatus}>
+                {/* Response Status */}
+                <View style={styles.statusItem}>
                   <Feather
-                    name={getAttendanceIcon(guest.attended)}
+                    name={getResponseIcon(guest.response)}
                     size={16}
-                    color={getAttendanceColor(guest.attended)}
+                    color={getResponseColor(guest.response)}
                   />
                   <Text
                     style={[
                       styles.statusText,
-                      { color: getAttendanceColor(guest.attended) },
+                      { color: getResponseColor(guest.response) },
                     ]}
                   >
-                    Attended
+                    {guest.response.charAt(0).toUpperCase() +
+                      guest.response.slice(1)}
                   </Text>
                 </View>
-              )}
+
+                {/* Attendance Status; Only show if bubble requires QR */}
+                {guestListDetail.bubbleData?.needQR && (
+                  <View style={[styles.statusItem, { marginLeft: 15 }]}>
+                    <Feather
+                      name={getAttendanceIcon(guest.attended)}
+                      size={16}
+                      color={getAttendanceColor(guest.attended)}
+                    />
+                    <Text
+                      style={[
+                        styles.statusText,
+                        { color: getAttendanceColor(guest.attended) },
+                      ]}
+                    >
+                      Attended
+                    </Text>
+                  </View>
+                )}
+              </View>
             </View>
-          </View>
-        ))}
-      </ScrollView>
+          ))}
+        </ScrollView>
+      ) : (
+        <Text style={styles.noGuestsText}>
+          No guests invited to this bubble
+        </Text>
+      )}
     </View>
   );
 }
@@ -201,6 +193,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: COLORS.text.secondary,
     fontSize: 14,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   // Guest list item properties
