@@ -199,19 +199,26 @@ export default function BubbleBuddies() {
 }
 
 const styles = StyleSheet.create({
+  // general properties
   generalContainer: {
     backgroundColor: COLORS.background,
     height: "100%",
     paddingVertical: 15,
   },
-  inputTitle: {
-    paddingBottom: 10,
-    color: COLORS.text.primary,
-  },
+
+  // Text properties
   subTitle: {
     paddingHorizontal: 15,
     color: COLORS.text.primary,
   },
+  noBuddiesText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: COLORS.text.primary,
+    marginTop: 20,
+  },
+
+  // Bubble buddies list properties
   bubbleBuddiesContainer: {
     paddingVertical: 15,
     paddingHorizontal: 15,
@@ -226,41 +233,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 10,
   },
-  noBuddiesText: {
-    textAlign: "center",
-    fontSize: 16,
-    color: COLORS.text.primary,
-    marginTop: 20,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    backgroundColor: COLORS.background,
-    borderRadius: 10,
-    padding: 20,
-    margin: 20,
-    width: "90%",
-    maxHeight: "80%",
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 15,
-    color: COLORS.text.primary,
-    textAlign: "center",
-  },
+
+  // Input properties
   searchInput: {
     backgroundColor: COLORS.surface,
     borderRadius: 8,
     padding: 12,
     marginBottom: 15,
-
+    borderWidth: 1,
+    borderColor: "#ddd",
     color: COLORS.text.primary,
   },
+
+  // Validation properties
   validationContainer: {
     marginBottom: 15,
     minHeight: 50,
@@ -282,6 +267,39 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.status.warning,
   },
+
+  // Modal properties
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: COLORS.background,
+    borderRadius: 10,
+    padding: 20,
+    margin: 20,
+    width: "90%",
+    maxHeight: "80%",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 15,
+    color: COLORS.text.primary,
+    textAlign: "center",
+  },
+
+  // Modal button properties
   modalButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
