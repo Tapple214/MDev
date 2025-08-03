@@ -208,8 +208,10 @@ export default function GuestSelector({
                 onPress={handleConfirmSelection}
               >
                 <Text style={styles.modalButtonTextConfirm}>
-                  Add{" "}
-                  {selectedUsers.length > 0 ? `(${selectedUsers.length})` : ""}{" "}
+                  Add
+                  {selectedUsers.length > 0
+                    ? `(${selectedUsers.length})`
+                    : ""}{" "}
                   Users
                 </Text>
               </TouchableOpacity>

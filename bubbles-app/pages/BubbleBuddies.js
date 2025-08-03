@@ -176,17 +176,6 @@ export default function BubbleBuddies() {
 
     return (
       <View style={styles.validationContainer}>
-        {isValidatingEmails && (
-          <View style={styles.validationItem}>
-            <ActivityIndicator size="small" color="#606B38" />
-            <Text style={styles.validationText}>
-              {selectionMode === "text"
-                ? "Searching all users..."
-                : "Loading bubble buddies..."}
-            </Text>
-          </View>
-        )}
-
         {selectionMode === "text" && emailValidation.valid.length > 0 && (
           <View style={styles.validationItem}>
             <Text style={styles.validEmail}>
@@ -223,26 +212,6 @@ export default function BubbleBuddies() {
     );
   };
 
-  const renderSearchResults = () => {
-    if (searchResults.length === 0) return null;
-
-    return (
-      <View style={styles.searchResultsContainer}>
-        <Text style={styles.searchResultsTitle}>
-          {selectionMode === "emoji" ? "Your Bubble Buddies:" : "Found Users:"}
-        </Text>
-        <ScrollView style={styles.searchResultsList}>
-          {searchResults.map((user) => (
-            <View key={user.id} style={styles.searchResultItem}>
-              <Text style={styles.searchResultName}>{user.name}</Text>
-              <Text style={styles.searchResultEmail}>{user.email}</Text>
-            </View>
-          ))}
-        </ScrollView>
-      </View>
-    );
-  };
-
   return (
     <View style={styles.generalContainer}>
       <Text style={styles.subTitle}>
@@ -264,6 +233,8 @@ export default function BubbleBuddies() {
       </View>
 
       {/* Add Buddy Modal */}
+
+      {/* User selector modal */}
       <Modal
         visible={showAddModal}
         transparent={true}
@@ -272,49 +243,68 @@ export default function BubbleBuddies() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add Bubble Buddy</Text>
+            <Text style={styles.modalTitle}>Add a new bubble buddy</Text>
 
-            <Text style={styles.modalSubtitle}>
-              Type to search ALL users, or click 👥 for your bubble buddies only
-            </Text>
-
-            <View style={styles.searchContainer}>
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Enter email addresses or names to search all users"
-                value={searchQuery}
-                onChangeText={handleSearchQueryChange}
-                autoCapitalize="words"
-                autoCorrect={false}
-                multiline
-                numberOfLines={3}
-              />
+            <View style={styles.pickerContainer}>
+              <View style={styles.input}>
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Enter email addresses or names to search all users"
+                  value={searchQuery}
+                  onChangeText={handleSearchQueryChange}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  multiline
+                  numberOfLines={3}
+                />
+              </View>
             </View>
 
-            {renderSearchValidationStatus()}
-            {renderSearchResults()}
+            {/* Validation properties */}
+            <View style={styles.validationContainer}>
+              {emailValidation.valid.length > 0 && (
+                <View style={styles.validationItem}>
+                  <Text style={styles.validEmail}>
+                    ✓ Valid emails: {emailValidation.valid.join(", ")}
+                  </Text>
+                </View>
+              )}
 
-            {(emailValidation.valid.length > 0 || searchResults.length > 0) && (
+              {emailValidation.invalid.length > 0 && (
+                <View style={styles.validationItem}>
+                  <Text style={styles.invalidEmail}>
+                    ✗ Invalid format: {emailValidation.invalid.join(", ")}
+                  </Text>
+                </View>
+              )}
+
+              {emailValidation.notFound.length > 0 && (
+                <View style={styles.validationItem}>
+                  <Text style={styles.notFoundEmail}>
+                    ⚠ Not registered: {emailValidation.notFound.join(", ")}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => {
+                  setSelectedUsers([]);
+                  setShowUserSelector(false);
+                }}
+              >
+                <Text style={styles.modalButtonTextCancel}>Cancel</Text>
+              </TouchableOpacity>
+
               <TouchableOpacity
                 style={styles.addButton}
                 onPress={handleAddBuddy}
               >
                 <Text style={styles.addButtonText}>Add to Bubble Buddies</Text>
               </TouchableOpacity>
-            )}
-
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => {
-                setShowAddModal(false);
-                setSearchQuery("");
-                setEmailValidation({ valid: [], invalid: [], notFound: [] });
-                setSearchResults([]);
-                setSelectionMode("text");
-              }}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
