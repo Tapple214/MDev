@@ -136,6 +136,7 @@ export default function GuestRespondBtns({
 }
 
 const styles = StyleSheet.create({
+  // General properties
   buttons: {
     flexDirection: "row",
     justifyContent: "flex-end",

@@ -17,6 +17,8 @@ import GuestList from "./pages/GuestList";
 
 const Stack = createStackNavigator();
 
+// TODO: add a navbar component that will be used on all pages
+
 function NavigationContent() {
   // Custom Hook
   const { user } = useAuth();

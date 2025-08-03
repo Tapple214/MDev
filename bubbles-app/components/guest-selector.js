@@ -13,7 +13,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { getBubbleBuddiesForSelection } from "../utils/firestore";
 import { COLORS } from "../utils/colors";
 import { validateGuestEmails } from "../utils/firestore";
-import { ActivityIndicator } from "react-native";
+import Feather from "react-native-vector-icons/Feather";
 
 export default function GuestSelector({
   value,
@@ -130,10 +130,11 @@ export default function GuestSelector({
           onPress={() => setShowUserSelector(true)}
           disabled={!editable}
         >
-          <Text>👥</Text>
+          <Feather name="users" size={24} color={COLORS.primary} />
         </TouchableOpacity>
       </View>
 
+      {/* Validation properties */}
       <View style={styles.validationContainer}>
         {emailValidation.valid.length > 0 && (
           <View style={styles.validationItem}>
@@ -160,6 +161,7 @@ export default function GuestSelector({
         )}
       </View>
 
+      {/* User selector modal */}
       <Modal
         visible={showUserSelector}
         transparent={true}
@@ -168,63 +170,42 @@ export default function GuestSelector({
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Select Bubble Buddies</Text>
+            <Text style={styles.modalTitle}>Select from BubbleBuddies</Text>
 
-            {selectedUsers.length > 0 && (
-              <View style={styles.selectedUsersContainer}>
-                <Text style={styles.selectedUsersTitle}>
-                  Selected ({selectedUsers.length}):
-                </Text>
-                <ScrollView horizontal style={styles.selectedUsersList}>
-                  {selectedUsers.map((user) => (
-                    <View key={user.id} style={styles.selectedUserChip}>
-                      <Text style={styles.selectedUserChipText}>
-                        {user.name}
-                      </Text>
-                    </View>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
-
-            {loading ? (
-              <Text style={styles.loadingText}>Loading bubble buddies...</Text>
-            ) : (
-              <ScrollView>
-                {users.map((user) => (
-                  <TouchableOpacity
-                    key={user.id}
+            <ScrollView style={styles.userListContainer}>
+              {users.map((user) => (
+                <TouchableOpacity
+                  key={user.id}
+                  style={[
+                    styles.userItem,
+                    isUserSelected(user.id) && styles.selectedUserItem,
+                  ]}
+                  onPress={() => handleUserSelect(user)}
+                >
+                  <Text
                     style={[
-                      styles.userItem,
-                      isUserSelected(user.id) && styles.selectedUserItem,
+                      styles.userName,
+                      isUserSelected(user.id) && styles.selectedUserName,
                     ]}
-                    onPress={() => handleUserSelect(user)}
                   >
-                    <Text
-                      style={[
-                        styles.userName,
-                        isUserSelected(user.id) && styles.selectedUserName,
-                      ]}
-                    >
-                      {user.name}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.userEmail,
-                        isUserSelected(user.id) && styles.selectedUserEmail,
-                      ]}
-                    >
-                      {user.email}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-                {users.length === 0 && (
-                  <Text style={styles.noUsersText}>
-                    No bubble buddies available
+                    {user.name}
                   </Text>
-                )}
-              </ScrollView>
-            )}
+                  <Text
+                    style={[
+                      styles.userEmail,
+                      isUserSelected(user.id) && styles.selectedUserEmail,
+                    ]}
+                  >
+                    {user.email}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+              {users.length === 0 && (
+                <Text style={styles.noUsersText}>
+                  No bubble buddies available
+                </Text>
+              )}
+            </ScrollView>
 
             <View style={styles.modalButtons}>
               <TouchableOpacity
@@ -255,40 +236,32 @@ export default function GuestSelector({
 }
 
 const styles = StyleSheet.create({
-  generalContainer: {
-    backgroundColor: COLORS.background,
-    height: "100%",
-    paddingVertical: 15,
-    paddingHorizontal: 15,
-    paddingBottom: 100,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    paddingBottom: 15,
-    color: COLORS.text.primary,
-  },
-  inputTitle: {
-    paddingBottom: 10,
-    color: COLORS.text.primary,
-  },
+  // Input properties
   input: {
     borderRadius: 5,
     padding: 10,
     backgroundColor: COLORS.surface,
     flex: 1,
   },
+
+  // Picker properties
   pickerContainer: {
     flexDirection: "row",
   },
   pickerButton: {
     paddingHorizontal: 15,
     backgroundColor: COLORS.surface,
-    borderRadius: 10,
+    borderRadius: 5,
     alignItems: "center",
     justifyContent: "center",
     marginLeft: 10,
   },
+  pickerValueText: {
+    fontSize: 16,
+    color: COLORS.text.primary,
+  },
+
+  // Validation properties
   validationContainer: {
     height: 50,
     justifyContent: "center",
@@ -297,11 +270,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 5,
-  },
-  validationText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: COLORS.elemental.sage,
   },
   validEmail: {
     fontSize: 14,
@@ -315,27 +283,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.status.warning,
   },
-  switchContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  createButton: {
-    backgroundColor: COLORS.primary,
-    padding: 15,
-    marginVertical: 15,
-    alignItems: "center",
-    borderRadius: 10,
-  },
-  createButtonDisabled: {
-    backgroundColor: "#cccccc",
-  },
-  createButtonText: {
-    color: COLORS.surface,
-    fontSize: 16,
-    fontWeight: "bold",
-  },
+
+  // Modal properties
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
@@ -346,234 +295,50 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     borderRadius: 10,
     padding: 20,
-    margin: 20,
-    alignItems: "center",
-    maxWidth: "90%",
+    alignItems: "stretch",
+    width: "90%",
     height: "40%",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  iconModalContent: {
-    backgroundColor: COLORS.background,
-    borderRadius: 10,
-    padding: 20,
-    margin: 20,
-    alignItems: "center",
-    width: 320,
-    maxWidth: "90%",
-    minHeight: 300,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  colorModalContent: {
-    backgroundColor: COLORS.background,
-    borderRadius: 10,
-    padding: 20,
-    margin: 20,
-    alignItems: "center",
-    width: 300,
-    maxWidth: "90%",
-    minHeight: 280,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  modalContentWrapper: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 15,
-    color: "#452A17",
+    color: COLORS.primary,
+    textAlign: "center",
   },
-  dateTimePicker: {
-    width: 200,
-    height: 200,
-  },
+
+  // Modal button properties
   modalButtons: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-    marginTop: 20,
+    justifyContent: "center",
+    gap: 10,
   },
   modalButton: {
     padding: 12,
-    marginHorizontal: 5,
     borderRadius: 5,
-    backgroundColor: "#FEFADF",
+    backgroundColor: COLORS.surface,
     alignItems: "center",
     minWidth: 100,
-    marginTop: 10,
+    flex: 1,
   },
   modalButtonConfirm: {
-    backgroundColor: "#606B38",
+    backgroundColor: COLORS.primary,
   },
   modalButtonTextCancel: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#452A17",
+    color: COLORS.primary,
   },
   modalButtonTextConfirm: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#FEFADF",
-  },
-  iconPreviewContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  iconPreview: {
-    width: 30,
-    height: 30,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 10,
-  },
-  colorPreviewContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  colorPreview: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    marginRight: 10,
-    borderWidth: 1,
-    borderColor: "#ddd",
-  },
-  iconGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-around",
-    marginBottom: 20,
-    width: "100%",
-  },
-  iconOption: {
-    alignItems: "center",
-    margin: 10,
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: "#FEFADF",
-    minWidth: 80,
-  },
-  selectedIconOption: {
-    backgroundColor: "#606B38",
-  },
-  iconOptionBackground: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 5,
-  },
-  iconOptionText: {
-    fontSize: 12,
-    textAlign: "center",
-    color: "#452A17",
-  },
-  colorGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-around",
-    marginBottom: 20,
-    width: "100%",
-  },
-  colorOption: {
-    alignItems: "center",
-    margin: 10,
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: "#FEFADF",
-    minWidth: 80,
-  },
-  selectedColorOption: {
-    backgroundColor: "#606B38",
-  },
-  colorOptionText: {
-    fontSize: 12,
-    textAlign: "center",
-    color: "#452A17",
-    marginTop: 5,
-  },
-  tagContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  tagOption: {
-    backgroundColor: COLORS.surface,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginBottom: 8,
-    marginRight: 8,
-    minWidth: 80,
-    alignItems: "center",
-  },
-  selectedTagOption: {
-    backgroundColor: COLORS.confirm,
-  },
-  selectedTagText: {
     color: COLORS.surface,
-  },
-  pickerValueText: {
-    fontSize: 16,
-    color: COLORS.text.primary,
   },
 
-  selectedUsersContainer: {
-    marginBottom: 15,
-    padding: 10,
-    backgroundColor: COLORS.surface,
-    borderRadius: 8,
-  },
-  selectedUsersTitle: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: COLORS.text.primary,
-    marginBottom: 8,
-  },
-  selectedUsersList: {
-    maxHeight: 40,
-  },
-  selectedUserChip: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
-    marginRight: 8,
-  },
-  selectedUserChipText: {
-    color: COLORS.surface,
-    fontSize: 12,
-    fontWeight: "bold",
-  },
-  userList: {
-    maxHeight: 300,
-    minHeight: 100,
+  // User list properties
+  userListContainer: {
+    flex: 1,
+    marginVertical: 10,
   },
   userItem: {
     backgroundColor: COLORS.surface,
@@ -582,34 +347,24 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderWidth: 2,
     borderColor: "transparent",
-    width: "100%",
   },
+
+  // Selected user UI properties
   selectedUserItem: {
-    borderColor: COLORS.confirm,
-    backgroundColor: "#E8F5E8",
+    borderColor: COLORS.primary,
   },
   userName: {
     fontSize: 16,
     fontWeight: "bold",
     color: COLORS.text.primary,
   },
-  selectedUserName: {
-    color: COLORS.confirm,
-  },
   userEmail: {
     fontSize: 14,
     color: COLORS.text.secondary,
     marginTop: 2,
   },
-  selectedUserEmail: {
-    color: COLORS.confirm,
-  },
-  loadingText: {
-    textAlign: "center",
-    fontSize: 16,
-    color: COLORS.text.secondary,
-    padding: 20,
-  },
+
+  // No users text properties
   noUsersText: {
     textAlign: "center",
     fontSize: 16,
