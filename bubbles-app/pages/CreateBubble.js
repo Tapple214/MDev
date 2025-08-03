@@ -186,8 +186,8 @@ export default function CreateBubble() {
         icon: selectedIcon,
         backgroundColor: selectedBackgroundColor,
         tags: selectedTags,
-        hostName: userData?.name || user.email,
-        hostUid: user.uid,
+        hostName: userData?.name || user?.email || "Unknown User",
+        hostUid: user?.uid || "",
       };
 
       await createBubble(bubbleData);

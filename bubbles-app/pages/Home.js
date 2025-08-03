@@ -101,9 +101,10 @@ export default function Home({ navigation }) {
       case 4: // Attending
         return bubbles.filter((bubble) => {
           if (bubble.userRole !== "guest") return false;
+          if (!user?.email) return false;
           // Check if user has accepted the invitation
           const guestResponses = bubble.guestResponses || {};
-          const userResponse = guestResponses[user?.email];
+          const userResponse = guestResponses[user.email];
           return userResponse && userResponse.response === "accepted";
         });
       case 5: // Completed; shows all bubbles that have ended
@@ -142,6 +143,10 @@ export default function Home({ navigation }) {
   // Accept, Decline, Retract Buttons
   const handleAcceptBubble = async (bubbleId) => {
     try {
+      if (!user?.email) {
+        Alert.alert("Error", "User not authenticated");
+        return;
+      }
       // Update bubble status in database
       await updateGuestResponse(bubbleId, user.email, "accepted");
       Alert.alert("Success!", "You've confirmed you're coming to this bubble!");
@@ -155,6 +160,10 @@ export default function Home({ navigation }) {
 
   const handleDeclineBubble = async (bubbleId) => {
     try {
+      if (!user?.email) {
+        Alert.alert("Error", "User not authenticated");
+        return;
+      }
       // Update bubble status in database
       await updateGuestResponse(bubbleId, user.email, "declined");
       Alert.alert("Declined", "You've declined this bubble invitation.");
@@ -168,6 +177,10 @@ export default function Home({ navigation }) {
 
   const handleRetractBubble = async (bubbleId) => {
     try {
+      if (!user?.email) {
+        Alert.alert("Error", "User not authenticated");
+        return;
+      }
       // Update bubble status in database
       await updateGuestResponse(bubbleId, user.email, "pending");
       Alert.alert(
@@ -288,8 +301,10 @@ export default function Home({ navigation }) {
                 userRole={bubbleData.userRole}
                 icon={bubbleData.icon || "heart"}
                 response={
-                  bubbleData.guestResponses?.[user.email?.toLowerCase()]
-                    ?.response || "pending"
+                  (user &&
+                    bubbleData.guestResponses?.[user.email?.toLowerCase()]
+                      ?.response) ||
+                  "pending"
                 }
                 backgroundColor={bubbleData.backgroundColor || "#E89349"}
                 tags={bubbleData.tags || []}

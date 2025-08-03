@@ -85,6 +85,10 @@ export default function BubbleBuddies() {
     setSelectionMode("emoji");
     setIsSearching(true);
     try {
+      if (!user?.uid) {
+        Alert.alert("Error", "User not authenticated");
+        return;
+      }
       // Only get user's bubble buddies
       const bubbleBuddies = await getBubbleBuddiesForSelection(user.uid);
       setSearchResults(bubbleBuddies);
@@ -140,6 +144,10 @@ export default function BubbleBuddies() {
         emailsToAdd = searchResults.map((user) => user.email);
       }
 
+      if (!user?.uid) {
+        Alert.alert("Error", "User not authenticated");
+        return;
+      }
       // Add the emails to bubble buddies
       await addBubbleBuddies(user.uid, emailsToAdd);
 

@@ -75,7 +75,7 @@ export default function BubbleBook() {
         fetchedPhotos.push(photoData);
 
         // Count photos by current user
-        if (photoData.addedBy === user.email) {
+        if (user?.email && photoData.addedBy === user.email) {
           currentUserCount++;
         }
       });
@@ -188,6 +188,10 @@ export default function BubbleBook() {
   const addPhotoToCollection = async (imageUri, source) => {
     try {
       const photosRef = collection(db, "bubbleBook");
+      if (!user?.email) {
+        Alert.alert("Error", "User not authenticated");
+        return;
+      }
       const photoData = {
         imageUri: imageUri,
         source: source,
@@ -224,7 +228,7 @@ export default function BubbleBook() {
 
       // Update user photo count if the deleted photo was by current user
       const deletedPhoto = photos.find((photo) => photo.id === photoId);
-      if (deletedPhoto && deletedPhoto.addedBy === user.email) {
+      if (deletedPhoto && user?.email && deletedPhoto.addedBy === user.email) {
         setUserPhotoCount((prev) => prev - 1);
       }
 
@@ -406,7 +410,7 @@ export default function BubbleBook() {
                   )}
                 </View>
 
-                {selectedPhoto.addedBy === user.email && (
+                {user?.email && selectedPhoto.addedBy === user.email && (
                   <TouchableOpacity
                     style={styles.deleteButton}
                     onPress={() => {

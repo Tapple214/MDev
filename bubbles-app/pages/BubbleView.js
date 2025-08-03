@@ -120,6 +120,10 @@ export default function BubbleView() {
           text: "Yes",
           onPress: async () => {
             try {
+              if (!user?.email) {
+                Alert.alert("Error", "User not authenticated");
+                return;
+              }
               const result = await confirmAttendance(
                 bubbleDetails.bubbleId,
                 user.email,
@@ -210,6 +214,7 @@ export default function BubbleView() {
               onDecline={bubbleDetails.onDecline}
               onRetract={bubbleDetails.onRetract}
               response={
+                user &&
                 bubbleData?.guestResponses?.[user.email?.toLowerCase()]
                   ?.response
               }
@@ -291,31 +296,32 @@ export default function BubbleView() {
         {/* Row 4: Quick Actions; Buttons for BubbleBook and QR Code */}
         <View style={styles.quickActionsContainer}>
           {/* QR Code Button; will only show if user has accepted the bubble */}
-          {bubbleData?.guestResponses?.[user.email?.toLowerCase()]?.response ===
-            "accepted" && (
-            <TouchableOpacity
-              style={[styles.button, bubbleData?.needQR && styles.button]}
-              onPress={handleShowQRCode}
-            >
-              <Feather
-                name={
-                  bubbleDetails.userRole === "host"
-                    ? "smartphone"
-                    : "user-check"
-                }
-                size={30}
-                color={COLORS.primary}
-                style={styles.icon}
-              />
-              <Text style={[styles.buttonText]}>
-                {bubbleData?.needQR
-                  ? bubbleDetails.userRole === "host"
-                    ? "Show QR Code"
-                    : "Scan QR Code"
-                  : "No QR Required"}
-              </Text>
-            </TouchableOpacity>
-          )}
+          {user &&
+            bubbleData?.guestResponses?.[user.email?.toLowerCase()]
+              ?.response === "accepted" && (
+              <TouchableOpacity
+                style={[styles.button, bubbleData?.needQR && styles.button]}
+                onPress={handleShowQRCode}
+              >
+                <Feather
+                  name={
+                    bubbleDetails.userRole === "host"
+                      ? "smartphone"
+                      : "user-check"
+                  }
+                  size={30}
+                  color={COLORS.primary}
+                  style={styles.icon}
+                />
+                <Text style={[styles.buttonText]}>
+                  {bubbleData?.needQR
+                    ? bubbleDetails.userRole === "host"
+                      ? "Show QR Code"
+                      : "Scan QR Code"
+                    : "No QR Required"}
+                </Text>
+              </TouchableOpacity>
+            )}
 
           {/* QR Code Display Modal (for hosts) */}
           <QRCodeDisplay
