@@ -22,6 +22,7 @@ import {
   orderBy,
   serverTimestamp,
   deleteDoc,
+  where,
 } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -31,34 +32,56 @@ import NavBar from "../components/navbar";
 // Utility function/Hooks imports
 import { COLORS } from "../utils/colors";
 import { useAuth } from "../contexts/AuthContext";
+import { useRoute } from "@react-navigation/native";
 
 const { width: screenWidth } = Dimensions.get("window");
 
 export default function BubbleBook() {
+  // Hooks
   const { user } = useAuth();
+  const route = useRoute();
+
+  // Extract bubbleId from route params
+  const { bubbleId, bubbleName } = route.params || {};
+
+  // State
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [userPhotoCount, setUserPhotoCount] = useState(0);
 
-  // Fetch photos from Firestore
+  // Fetch photos from Firestore for this specific bubble
   const fetchPhotos = async () => {
     try {
       setLoading(true);
       const photosRef = collection(db, "bubbleBook");
-      const q = query(photosRef, orderBy("createdAt", "desc"));
+      const q = query(
+        photosRef,
+        where("bubbleId", "==", bubbleId),
+        orderBy("createdAt", "desc")
+      );
       const querySnapshot = await getDocs(q);
 
       const fetchedPhotos = [];
+      let currentUserCount = 0;
+
       querySnapshot.forEach((doc) => {
-        fetchedPhotos.push({
+        const photoData = {
           id: doc.id,
           ...doc.data(),
-        });
+        };
+        fetchedPhotos.push(photoData);
+
+        // Count photos by current user
+        if (photoData.addedBy === user.email) {
+          currentUserCount++;
+        }
       });
 
       setPhotos(fetchedPhotos);
+      setUserPhotoCount(currentUserCount);
     } catch (error) {
       console.error("Error fetching photos:", error);
       Alert.alert("Error", "Failed to load photos. Please try again.");
@@ -68,8 +91,10 @@ export default function BubbleBook() {
   };
 
   useEffect(() => {
-    fetchPhotos();
-  }, []);
+    if (bubbleId) {
+      fetchPhotos();
+    }
+  }, [bubbleId]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -94,8 +119,21 @@ export default function BubbleBook() {
     return true;
   };
 
+  // Check if user can add more photos
+  const canAddPhoto = () => {
+    return userPhotoCount < 3;
+  };
+
   // Add photo from camera
   const takePhoto = async () => {
+    if (!canAddPhoto()) {
+      Alert.alert(
+        "Photo Limit Reached",
+        "You have already added 3 photos to this bubble's BubbleBook. You cannot add more photos."
+      );
+      return;
+    }
+
     const hasPermission = await requestPermissions();
     if (!hasPermission) return;
 
@@ -118,6 +156,14 @@ export default function BubbleBook() {
 
   // Add photo from gallery
   const pickImage = async () => {
+    if (!canAddPhoto()) {
+      Alert.alert(
+        "Photo Limit Reached",
+        "You have already added 3 photos to this bubble's BubbleBook. You cannot add more photos."
+      );
+      return;
+    }
+
     const hasPermission = await requestPermissions();
     if (!hasPermission) return;
 
@@ -147,6 +193,8 @@ export default function BubbleBook() {
         source: source,
         addedBy: user.email,
         addedByName: user.displayName || user.email,
+        bubbleId: bubbleId,
+        bubbleName: bubbleName,
         createdAt: serverTimestamp(),
         description: "",
       };
@@ -158,6 +206,7 @@ export default function BubbleBook() {
       };
 
       setPhotos((prevPhotos) => [newPhoto, ...prevPhotos]);
+      setUserPhotoCount((prev) => prev + 1);
       Alert.alert("Success", "Photo added to BubbleBook!");
     } catch (error) {
       console.error("Error adding photo:", error);
@@ -172,6 +221,13 @@ export default function BubbleBook() {
       setPhotos((prevPhotos) =>
         prevPhotos.filter((photo) => photo.id !== photoId)
       );
+
+      // Update user photo count if the deleted photo was by current user
+      const deletedPhoto = photos.find((photo) => photo.id === photoId);
+      if (deletedPhoto && deletedPhoto.addedBy === user.email) {
+        setUserPhotoCount((prev) => prev - 1);
+      }
+
       setShowPhotoModal(false);
       setSelectedPhoto(null);
       Alert.alert("Success", "Photo deleted from BubbleBook!");
@@ -227,10 +283,64 @@ export default function BubbleBook() {
     );
   };
 
+  // Add photo buttons with limit indicator
+  const renderAddPhotoButtons = () => {
+    const canAdd = canAddPhoto();
+
+    return (
+      <View style={styles.addPhotoContainer}>
+        <TouchableOpacity
+          style={[styles.addPhotoButton, !canAdd && styles.disabledButton]}
+          onPress={takePhoto}
+          disabled={!canAdd}
+        >
+          <Feather
+            name="camera"
+            size={24}
+            color={canAdd ? COLORS.surface : COLORS.text.secondary}
+          />
+          <Text style={[styles.addPhotoText, !canAdd && styles.disabledText]}>
+            Take Photo
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.addPhotoButton, !canAdd && styles.disabledButton]}
+          onPress={pickImage}
+          disabled={!canAdd}
+        >
+          <Feather
+            name="image"
+            size={24}
+            color={canAdd ? COLORS.surface : COLORS.text.secondary}
+          />
+          <Text style={[styles.addPhotoText, !canAdd && styles.disabledText]}>
+            Choose Photo
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  // Render photo limit indicator
+  const renderPhotoLimitIndicator = () => {
+    return (
+      <View style={styles.limitContainer}>
+        <Text style={styles.limitText}>Your photos: {userPhotoCount}/3</Text>
+        {userPhotoCount >= 3 && (
+          <Text style={styles.limitWarning}>
+            You've reached the maximum of 3 photos for this bubble
+          </Text>
+        )}
+      </View>
+    );
+  };
+
   return (
     <View style={styles.generalContainer}>
       <ScrollView
         vertical
+        // stickyHeaderIndices={[1]}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -242,20 +352,15 @@ export default function BubbleBook() {
       >
         <View style={styles.headerContainer}>
           <Text style={styles.title}>BubbleBook</Text>
-          <Text style={styles.subtitle}>Collective Photo Album</Text>
+          <Text style={styles.subtitle}>
+            {bubbleName
+              ? `${bubbleName}'s Photo Album`
+              : "Collective Photo Album"}
+          </Text>
         </View>
 
-        <View style={styles.addPhotoContainer}>
-          <TouchableOpacity style={styles.addPhotoButton} onPress={takePhoto}>
-            <Feather name="camera" size={24} color={COLORS.surface} />
-            <Text style={styles.addPhotoText}>Take Photo</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.addPhotoButton} onPress={pickImage}>
-            <Feather name="image" size={24} color={COLORS.surface} />
-            <Text style={styles.addPhotoText}>Choose Photo</Text>
-          </TouchableOpacity>
-        </View>
+        {renderPhotoLimitIndicator()}
+        {renderAddPhotoButtons()}
 
         <View style={styles.photosContainer}>{renderPhotoGrid()}</View>
       </ScrollView>
@@ -356,6 +461,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.text.secondary,
   },
+  limitContainer: {
+    paddingHorizontal: 15,
+    paddingBottom: 15,
+  },
+  limitText: {
+    fontSize: 14,
+    color: COLORS.text.secondary,
+    textAlign: "center",
+  },
+  limitWarning: {
+    fontSize: 12,
+    color: COLORS.reject,
+    textAlign: "center",
+    marginTop: 5,
+    fontStyle: "italic",
+  },
   addPhotoContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -373,10 +494,18 @@ const styles = StyleSheet.create({
     minWidth: 120,
     justifyContent: "center",
   },
+  disabledButton: {
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.text.secondary,
+  },
   addPhotoText: {
     color: COLORS.surface,
     fontSize: 14,
     fontWeight: "600",
+  },
+  disabledText: {
+    color: COLORS.text.secondary,
   },
   photosContainer: {
     flex: 1,

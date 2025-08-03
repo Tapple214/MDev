@@ -9,19 +9,29 @@ import {
   Alert,
   TouchableOpacity,
   ActivityIndicator,
-  Platform,
   Modal,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+
+// Components
 import NavBar from "../components/navbar";
 import GuestSelector from "../components/guest-selector";
+
+// Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
 import { createBubble, validateGuestEmails } from "../utils/firestore";
+
+// TODO: create a date util file
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { COLORS } from "../utils/colors";
 
 export default function CreateBubble() {
+  // Hooks
   const { user, userData } = useAuth();
+
+  // State
+  // General Details
+  const [isLoading, setIsLoading] = useState(false);
   const [bubbleName, setBubbleName] = useState("");
   const [bubbleDescription, setBubbleDescription] = useState("");
   const [bubbleLocation, setBubbleLocation] = useState("");
@@ -29,7 +39,6 @@ export default function CreateBubble() {
   const [selectedTime, setSelectedTime] = useState(new Date());
   const [guestList, setGuestList] = useState("");
   const [needQR, setNeedQR] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [emailValidation, setEmailValidation] = useState({
@@ -38,16 +47,12 @@ export default function CreateBubble() {
     notFound: [],
   });
   const [isValidatingEmails, setIsValidatingEmails] = useState(false);
-
-  // Icon and background color selection
   const [selectedIcon, setSelectedIcon] = useState("heart");
   const [selectedBackgroundColor, setSelectedBackgroundColor] = useState(
     COLORS.elemental.orange
   );
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
-
-  // Tag selection
   const [selectedTags, setSelectedTags] = useState([]);
 
   // Available options
@@ -93,13 +98,13 @@ export default function CreateBubble() {
     });
   };
 
-  const onDateChange = (event, selectedDate) => {
+  const onDateChange = (selectedDate) => {
     if (selectedDate) {
       setSelectedDate(selectedDate);
     }
   };
 
-  const onTimeChange = (event, selectedTime) => {
+  const onTimeChange = (selectedTime) => {
     if (selectedTime) {
       setSelectedTime(selectedTime);
     }
@@ -234,6 +239,7 @@ export default function CreateBubble() {
     }
   };
 
+  // TODO: create a separate util file for this
   const renderEmailValidationStatus = () => {
     if (!guestList.trim()) return null;
 
@@ -276,151 +282,30 @@ export default function CreateBubble() {
   return (
     <View style={styles.generalContainer}>
       <ScrollView>
-        <Text style={styles.title}>Fill the deets to get your bubble set!</Text>
+        {/* Title; For bubble name, description, and tags */}
+        <Text style={[styles.title, { textAlign: "center" }]}>
+          Name it & Frame it!
+        </Text>
 
         <Text style={styles.inputTitle}>What is your bubble's name?</Text>
         <TextInput
           value={bubbleName}
           onChangeText={setBubbleName}
-          placeholder="Enter bubble name"
+          placeholder="Bubble name"
           style={styles.input}
           editable={!isLoading}
         />
 
-        <Text style={styles.inputTitle}>
-          Describe your bubble. What is the dresscode, etc?
-        </Text>
+        <Text style={styles.inputTitle}>Describe your bubble.</Text>
         <TextInput
           value={bubbleDescription}
           onChangeText={setBubbleDescription}
-          placeholder="Enter bubble description"
+          placeholder="Dresscode, notes, etc."
           style={styles.input}
           multiline
           numberOfLines={3}
           editable={!isLoading}
         />
-
-        <Text style={styles.inputTitle}>Where will your bubble be held?</Text>
-        <TextInput
-          value={bubbleLocation}
-          onChangeText={setBubbleLocation}
-          placeholder="Enter bubble location"
-          style={styles.input}
-          editable={!isLoading}
-        />
-
-        <Text style={styles.inputTitle}>When is your bubble?</Text>
-        <View style={styles.pickerContainer}>
-          <View style={styles.pickerValueContainer}>
-            <Text style={styles.pickerValueText}>
-              {formatDate(selectedDate)}
-            </Text>
-          </View>
-          <TouchableOpacity
-            style={styles.pickerButton}
-            onPress={() => setShowDatePicker(true)}
-            disabled={isLoading}
-          >
-            <Text style={styles.pickerButtonText}>📅</Text>
-          </TouchableOpacity>
-        </View>
-
-        <Text style={styles.inputTitle}>What time is your bubble?</Text>
-        <View style={styles.pickerContainer}>
-          <View style={styles.pickerValueContainer}>
-            <Text style={styles.pickerValueText}>
-              {formatTime(selectedTime)}
-            </Text>
-          </View>
-          <TouchableOpacity
-            style={styles.pickerButton}
-            onPress={() => setShowTimePicker(true)}
-            disabled={isLoading}
-          >
-            <Text style={styles.pickerButtonText}>🕐</Text>
-          </TouchableOpacity>
-        </View>
-
-        <Text style={styles.inputTitle}>
-          Guest List (comma separated emails)
-        </Text>
-        <GuestSelector
-          value={guestList}
-          onChangeText={handleGuestListChange}
-          placeholder="Enter guest emails or tap 👥 to select from users"
-          style={styles.input}
-          multiline
-          numberOfLines={5}
-          editable={!isLoading}
-        />
-
-        {renderEmailValidationStatus()}
-
-        <View style={styles.switchContainer}>
-          <Text style={styles.inputTitle}>Need QR Code for entry?</Text>
-          <Switch
-            value={needQR}
-            onValueChange={setNeedQR}
-            trackColor={{ false: "#767577", true: "#81b0ff" }}
-            thumbColor={needQR ? "#f5dd4b" : "#f4f3f4"}
-            disabled={isLoading}
-          />
-        </View>
-
-        <Text style={styles.inputTitle}>Choose your bubble icon</Text>
-        <View style={styles.pickerContainer}>
-          <View style={styles.pickerValueContainer}>
-            <View style={styles.iconPreviewContainer}>
-              <View
-                style={[
-                  styles.iconPreview,
-                  { backgroundColor: selectedBackgroundColor },
-                ]}
-              >
-                <Feather name={selectedIcon} size={20} color="#EEDCAD" />
-              </View>
-              <Text style={styles.pickerValueText}>
-                {iconOptions.find((option) => option.icon === selectedIcon)
-                  ?.name || "Heart"}
-              </Text>
-            </View>
-          </View>
-          <TouchableOpacity
-            style={styles.pickerButton}
-            onPress={() => setShowIconPicker(true)}
-            disabled={isLoading}
-          >
-            <Text style={styles.pickerButtonText}>🎨</Text>
-          </TouchableOpacity>
-        </View>
-
-        <Text style={styles.inputTitle}>
-          Choose your bubble background color
-        </Text>
-        <View style={styles.pickerContainer}>
-          <View style={styles.pickerValueContainer}>
-            <View style={styles.colorPreviewContainer}>
-              <View
-                style={[
-                  styles.colorPreview,
-                  { backgroundColor: selectedBackgroundColor },
-                ]}
-              />
-              <Text style={styles.pickerValueText}>
-                {colorOptions.find(
-                  (option) => option.value === selectedBackgroundColor
-                )?.name || "Orange"}
-              </Text>
-            </View>
-          </View>
-          <TouchableOpacity
-            style={styles.pickerButton}
-            onPress={() => setShowColorPicker(true)}
-            disabled={isLoading}
-          >
-            <Text style={styles.pickerButtonText}>🎨</Text>
-          </TouchableOpacity>
-        </View>
 
         <Text style={styles.inputTitle}>
           Choose tags for your bubble (up to 3)
@@ -445,6 +330,141 @@ export default function CreateBubble() {
               </Text>
             </TouchableOpacity>
           ))}
+        </View>
+
+        {/* Title; For location, date, and time */}
+        <Text style={[styles.title, { textAlign: "center", paddingTop: 15 }]}>
+          When and Where is your Bubble?
+        </Text>
+
+        <Text style={styles.inputTitle}>Location</Text>
+        <TextInput
+          value={bubbleLocation}
+          onChangeText={setBubbleLocation}
+          placeholder="(Postal Code, Address, etc.)"
+          style={styles.input}
+          editable={!isLoading}
+        />
+
+        <Text style={styles.inputTitle}>
+          Date (Click on the calendar to select)
+        </Text>
+        <View style={styles.pickerContainer}>
+          <View style={styles.pickerValueContainer}>
+            <Text style={styles.pickerValueText}>
+              {formatDate(selectedDate)}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.pickerButton}
+            onPress={() => setShowDatePicker(true)}
+            disabled={isLoading}
+          >
+            <Text style={styles.pickerButtonText}>📅</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.inputTitle}>
+          Time (Click on the clock to select)
+        </Text>
+        <View style={styles.pickerContainer}>
+          <View style={styles.pickerValueContainer}>
+            <Text style={styles.pickerValueText}>
+              {formatTime(selectedTime)}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.pickerButton}
+            onPress={() => setShowTimePicker(true)}
+            disabled={isLoading}
+          >
+            <Text style={styles.pickerButtonText}>🕐</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Title; For guest list */}
+        <Text style={[styles.title, { textAlign: "center", paddingTop: 15 }]}>
+          Who's Poppin' in?
+        </Text>
+
+        <View style={styles.switchContainer}>
+          <Text style={styles.inputTitle}>Need QR Code for attendance?</Text>
+          <Switch
+            value={needQR}
+            onValueChange={setNeedQR}
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={needQR ? "#f5dd4b" : "#f4f3f4"}
+            disabled={isLoading}
+          />
+        </View>
+
+        <Text style={styles.inputTitle}>
+          Guest List (comma separated emails)
+        </Text>
+        <GuestSelector
+          value={guestList}
+          onChangeText={handleGuestListChange}
+          placeholder="Type or tap 👥"
+          style={styles.input}
+          multiline
+          numberOfLines={5}
+          editable={!isLoading}
+        />
+
+        {renderEmailValidationStatus()}
+
+        {/* Title; For customizing your bubble */}
+        <Text style={[styles.title, { textAlign: "center", paddingTop: 15 }]}>
+          Make it your own!
+        </Text>
+
+        <Text style={styles.inputTitle}>
+          Choose your bubble icon and color!
+        </Text>
+
+        <View style={styles.pickerContainer}>
+          <View style={[styles.pickerValueContainer, { marginRight: 10 }]}>
+            <TouchableOpacity
+              onPress={() => setShowIconPicker(true)}
+              disabled={isLoading}
+            >
+              <View style={styles.iconPreviewContainer}>
+                <View
+                  style={[
+                    styles.iconPreview,
+                    { backgroundColor: selectedBackgroundColor },
+                  ]}
+                >
+                  <Feather name={selectedIcon} size={15} color="#EEDCAD" />
+                </View>
+                <Text style={styles.pickerValueText}>
+                  {iconOptions.find((option) => option.icon === selectedIcon)
+                    ?.name || "Heart"}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.pickerValueContainer}>
+            <TouchableOpacity
+              onPress={() => setShowColorPicker(true)}
+              disabled={isLoading}
+            >
+              <View style={styles.colorPreviewContainer}>
+                <View
+                  style={[
+                    styles.colorPreview,
+                    { backgroundColor: selectedBackgroundColor },
+                  ]}
+                />
+                <Text style={styles.pickerValueText}>
+                  {colorOptions.find(
+                    (option) => option.value === selectedBackgroundColor
+                  )?.name || "Orange"}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <TouchableOpacity
@@ -644,6 +664,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     paddingHorizontal: 15,
     paddingBottom: 15,
+    color: COLORS.text.primary,
   },
   inputTitle: {
     paddingHorizontal: 15,
@@ -715,8 +736,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 15,
-    marginBottom: 15,
+    marginBottom: 10,
   },
   createButton: {
     backgroundColor: COLORS.confirm,
@@ -840,8 +860,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   iconPreview: {
-    width: 40,
-    height: 40,
+    width: 30,
+    height: 30,
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",

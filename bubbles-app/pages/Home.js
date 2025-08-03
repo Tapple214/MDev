@@ -15,6 +15,7 @@ import {
 // Components
 import NavBar from "../components/navbar";
 import BubbleItem from "../components/bubble-item";
+
 // Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
 import {

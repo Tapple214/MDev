@@ -335,7 +335,12 @@ export default function BubbleView() {
           {/* BubbleBook Button */}
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate("BubbleBook")}
+            onPress={() =>
+              navigation.navigate("BubbleBook", {
+                bubbleId: bubbleDetails.bubbleId,
+                bubbleName: bubbleData?.name || bubbleDetails.name,
+              })
+            }
           >
             <Feather
               name="camera"
