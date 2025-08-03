@@ -346,40 +346,31 @@ export default function CreateBubble() {
           editable={!isLoading}
         />
 
-        <Text style={styles.inputTitle}>
-          Date (Click on the calendar to select)
-        </Text>
+        <Text style={styles.inputTitle}>Date and Time</Text>
         <View style={styles.pickerContainer}>
-          <View style={styles.pickerValueContainer}>
-            <Text style={styles.pickerValueText}>
-              {formatDate(selectedDate)}
-            </Text>
+          <View style={[styles.input, { marginRight: 10 }]}>
+            <TouchableOpacity
+              onPress={() => setShowDatePicker(true)}
+              disabled={isLoading}
+            >
+              <Text style={styles.pickerValueText}>
+                {formatDate(selectedDate)}
+              </Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            style={styles.pickerButton}
-            onPress={() => setShowDatePicker(true)}
-            disabled={isLoading}
-          >
-            <Text style={styles.pickerButtonText}>📅</Text>
-          </TouchableOpacity>
-        </View>
 
-        <Text style={styles.inputTitle}>
-          Time (Click on the clock to select)
-        </Text>
-        <View style={styles.pickerContainer}>
-          <View style={styles.pickerValueContainer}>
-            <Text style={styles.pickerValueText}>
-              {formatTime(selectedTime)}
-            </Text>
+          <View style={styles.input}>
+            <TouchableOpacity
+              onPress={() => setShowTimePicker(true)}
+              disabled={isLoading}
+            >
+              <View style={styles.colorPreviewContainer}>
+                <Text style={styles.pickerValueText}>
+                  {formatTime(selectedTime)}
+                </Text>
+              </View>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            style={styles.pickerButton}
-            onPress={() => setShowTimePicker(true)}
-            disabled={isLoading}
-          >
-            <Text style={styles.pickerButtonText}>🕐</Text>
-          </TouchableOpacity>
         </View>
 
         {/* Title; For guest list */}
@@ -392,8 +383,8 @@ export default function CreateBubble() {
           <Switch
             value={needQR}
             onValueChange={setNeedQR}
-            trackColor={{ false: "#767577", true: "#81b0ff" }}
-            thumbColor={needQR ? "#f5dd4b" : "#f4f3f4"}
+            trackColor={{ false: "#767577", true: COLORS.confirm }}
+            thumbColor={needQR ? COLORS.background : "#f4f3f4"}
             disabled={isLoading}
           />
         </View>
@@ -404,8 +395,7 @@ export default function CreateBubble() {
         <GuestSelector
           value={guestList}
           onChangeText={handleGuestListChange}
-          placeholder="Type or tap 👥"
-          style={styles.input}
+          placeholder="Type or tap or the icon on the right"
           multiline
           numberOfLines={5}
           editable={!isLoading}
@@ -423,7 +413,7 @@ export default function CreateBubble() {
         </Text>
 
         <View style={styles.pickerContainer}>
-          <View style={[styles.pickerValueContainer, { marginRight: 10 }]}>
+          <View style={[styles.input, { marginRight: 10 }]}>
             <TouchableOpacity
               onPress={() => setShowIconPicker(true)}
               disabled={isLoading}
@@ -445,7 +435,7 @@ export default function CreateBubble() {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.pickerValueContainer}>
+          <View style={styles.input}>
             <TouchableOpacity
               onPress={() => setShowColorPicker(true)}
               disabled={isLoading}
@@ -657,54 +647,28 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     height: "100%",
     paddingVertical: 15,
+    paddingHorizontal: 15,
     paddingBottom: 100,
   },
   title: {
     fontSize: 20,
     fontWeight: "bold",
-    paddingHorizontal: 15,
     paddingBottom: 15,
     color: COLORS.text.primary,
   },
   inputTitle: {
-    paddingHorizontal: 15,
     paddingBottom: 10,
+    color: COLORS.text.primary,
   },
   input: {
     borderRadius: 5,
     padding: 10,
-    marginHorizontal: 15,
-    marginBottom: 15,
+    marginBottom: 10,
     backgroundColor: COLORS.surface,
+    flex: 1,
   },
   pickerContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 15,
-    marginBottom: 15,
-  },
-  pickerValueContainer: {
-    flex: 1,
-    padding: 10,
-    backgroundColor: COLORS.surface,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: "#ddd",
-  },
-  pickerValueText: {
-    fontSize: 16,
-    color: COLORS.text.primary,
-  },
-  pickerButton: {
-    padding: 10,
-    backgroundColor: COLORS.surface,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: "#ddd",
-  },
-  pickerButtonText: {
-    fontSize: 20,
   },
   validationContainer: {
     marginHorizontal: 15,
@@ -739,12 +703,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   createButton: {
-    backgroundColor: COLORS.confirm,
+    backgroundColor: COLORS.primary,
     padding: 15,
-    borderRadius: 5,
-    marginHorizontal: 15,
-    marginBottom: 20,
+    marginVertical: 15,
     alignItems: "center",
+    borderRadius: 10,
   },
   createButtonDisabled: {
     backgroundColor: "#cccccc",
@@ -938,32 +901,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    paddingHorizontal: 15,
-    marginBottom: 15,
   },
   tagOption: {
-    backgroundColor: "#FEFADF",
+    backgroundColor: COLORS.surface,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
     marginBottom: 8,
     marginRight: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
     minWidth: 80,
     alignItems: "center",
   },
   selectedTagOption: {
-    backgroundColor: "#606B38",
-    borderColor: "#606B38",
-  },
-  tagText: {
-    fontSize: 14,
-    color: "#452A17",
-    fontWeight: "500",
+    backgroundColor: COLORS.confirm,
   },
   selectedTagText: {
-    color: "#FEFADF",
-    fontWeight: "bold",
+    color: COLORS.surface,
   },
 });

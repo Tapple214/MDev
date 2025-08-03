@@ -267,7 +267,7 @@ export default function BubbleBook() {
 
     return (
       <View style={styles.photoGrid}>
-        {photos.map((photo, index) => (
+        {photos.map((photo) => (
           <TouchableOpacity
             key={photo.id}
             style={styles.photoContainer}
@@ -340,7 +340,6 @@ export default function BubbleBook() {
     <View style={styles.generalContainer}>
       <ScrollView
         vertical
-        // stickyHeaderIndices={[1]}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

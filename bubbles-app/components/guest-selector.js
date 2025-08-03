@@ -5,8 +5,6 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  ScrollView,
-  Modal,
   Alert,
 } from "react-native";
 import { useAuth } from "../contexts/AuthContext";
@@ -14,6 +12,7 @@ import {
   getBubbleBuddiesForSelection,
   searchUsersInDatabase,
 } from "../utils/firestore";
+import { COLORS } from "../utils/colors";
 
 export default function GuestSelector({
   value,
@@ -27,11 +26,8 @@ export default function GuestSelector({
   const { user } = useAuth();
   const [showUserSelector, setShowUserSelector] = useState(false);
   const [users, setUsers] = useState([]);
-  const [selectedUsers, setSelectedUsers] = useState([]);
+
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     if (showUserSelector) {
@@ -54,78 +50,10 @@ export default function GuestSelector({
     }
   };
 
-  const handleSearchQueryChange = async (text) => {
-    setSearchQuery(text);
-
-    if (text.trim()) {
-      setIsSearching(true);
-      try {
-        const results = await searchUsersInDatabase(text);
-        setSearchResults(results);
-      } catch (error) {
-        console.error("Error searching users:", error);
-        setSearchResults([]);
-      } finally {
-        setIsSearching(false);
-      }
-    } else {
-      setSearchResults([]);
-    }
-  };
-
-  const handleUserSelect = (selectedUser) => {
-    const isSelected = selectedUsers.find(
-      (user) => user.id === selectedUser.id
-    );
-
-    if (isSelected) {
-      setSelectedUsers(
-        selectedUsers.filter((user) => user.id !== selectedUser.id)
-      );
-    } else {
-      setSelectedUsers([...selectedUsers, selectedUser]);
-    }
-  };
-
-  const handleConfirmSelection = () => {
-    if (selectedUsers.length === 0) {
-      setShowUserSelector(false);
-      return;
-    }
-
-    const selectedEmails = selectedUsers.map((user) => user.email);
-    const currentEmails = value
-      ? value
-          .split(",")
-          .map((email) => email.trim())
-          .filter((email) => email)
-      : [];
-
-    const allEmails = [...new Set([...currentEmails, ...selectedEmails])];
-    const emailString = allEmails.join(", ");
-
-    onChangeText(emailString);
-    setSelectedUsers([]);
-    setShowUserSelector(false);
-    setSearchQuery("");
-    setSearchResults([]);
-  };
-
-  const isUserSelected = (userId) => {
-    return selectedUsers.find((user) => user.id === userId);
-  };
-
-  const getDisplayUsers = () => {
-    if (searchResults.length > 0) {
-      return searchResults;
-    }
-    return users;
-  };
-
   return (
     <View>
       <View style={styles.pickerContainer}>
-        <View style={styles.pickerValueContainer}>
+        <View style={styles.input}>
           <TextInput
             value={value}
             onChangeText={onChangeText}
@@ -136,151 +64,100 @@ export default function GuestSelector({
             editable={editable}
           />
         </View>
+
         <TouchableOpacity
           style={styles.pickerButton}
           onPress={() => setShowUserSelector(true)}
           disabled={!editable}
         >
-          <Text style={styles.pickerButtonText}>👥</Text>
+          <Text>👥</Text>
         </TouchableOpacity>
       </View>
-
-      <Modal
-        visible={showUserSelector}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowUserSelector(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Select Users</Text>
-
-            <View style={styles.searchContainer}>
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search users by name or email..."
-                value={searchQuery}
-                onChangeText={handleSearchQueryChange}
-                autoCapitalize="words"
-                autoCorrect={false}
-              />
-            </View>
-
-            {selectedUsers.length > 0 && (
-              <View style={styles.selectedUsersContainer}>
-                <Text style={styles.selectedUsersTitle}>
-                  Selected ({selectedUsers.length}):
-                </Text>
-                <ScrollView horizontal style={styles.selectedUsersList}>
-                  {selectedUsers.map((user) => (
-                    <View key={user.id} style={styles.selectedUserChip}>
-                      <Text style={styles.selectedUserChipText}>
-                        {user.name}
-                      </Text>
-                    </View>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
-
-            {loading ? (
-              <Text style={styles.loadingText}>Loading users...</Text>
-            ) : isSearching ? (
-              <Text style={styles.loadingText}>Searching users...</Text>
-            ) : (
-              <ScrollView style={styles.userList}>
-                {getDisplayUsers().map((user) => (
-                  <TouchableOpacity
-                    key={user.id}
-                    style={[
-                      styles.userItem,
-                      isUserSelected(user.id) && styles.selectedUserItem,
-                    ]}
-                    onPress={() => handleUserSelect(user)}
-                  >
-                    <Text
-                      style={[
-                        styles.userName,
-                        isUserSelected(user.id) && styles.selectedUserName,
-                      ]}
-                    >
-                      {user.name}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.userEmail,
-                        isUserSelected(user.id) && styles.selectedUserEmail,
-                      ]}
-                    >
-                      {user.email}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-                {getDisplayUsers().length === 0 && (
-                  <Text style={styles.noUsersText}>No users available</Text>
-                )}
-              </ScrollView>
-            )}
-
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={() => {
-                  setSelectedUsers([]);
-                  setShowUserSelector(false);
-                  setSearchQuery("");
-                  setSearchResults([]);
-                }}
-              >
-                <Text style={styles.modalButtonTextCancel}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.modalButtonConfirm]}
-                onPress={handleConfirmSelection}
-              >
-                <Text style={styles.modalButtonTextConfirm}>
-                  Add{" "}
-                  {selectedUsers.length > 0 ? `(${selectedUsers.length})` : ""}{" "}
-                  Users
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  generalContainer: {
+    backgroundColor: COLORS.background,
+    height: "100%",
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    paddingBottom: 100,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    paddingBottom: 15,
+    color: COLORS.text.primary,
+  },
+  inputTitle: {
+    paddingBottom: 10,
+    color: COLORS.text.primary,
+  },
+  input: {
+    borderRadius: 5,
+    padding: 10,
+    backgroundColor: COLORS.surface,
+    flex: 1,
+  },
   pickerContainer: {
+    flexDirection: "row",
+  },
+  pickerButton: {
+    paddingHorizontal: 15,
+    backgroundColor: COLORS.surface,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 10,
+  },
+  validationContainer: {
+    marginHorizontal: 15,
+    marginBottom: 15,
+  },
+  validationItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  validationText: {
+    marginLeft: 8,
+    fontSize: 14,
+    color: COLORS.elemental.sage,
+  },
+  validEmail: {
+    fontSize: 14,
+    color: COLORS.status.success,
+  },
+  invalidEmail: {
+    fontSize: 14,
+    color: COLORS.status.error,
+  },
+  notFoundEmail: {
+    fontSize: 14,
+    color: COLORS.status.warning,
+  },
+  switchContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 15,
-    marginBottom: 15,
+    marginBottom: 10,
   },
-  pickerValueContainer: {
-    flex: 1,
-    padding: 10,
-    backgroundColor: "#FEFADF",
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: "#ddd",
+  createButton: {
+    backgroundColor: COLORS.primary,
+    padding: 15,
+    marginVertical: 15,
+    alignItems: "center",
+    borderRadius: 10,
   },
-  pickerValueText: {
+  createButtonDisabled: {
+    backgroundColor: "#cccccc",
+  },
+  createButtonText: {
+    color: COLORS.surface,
     fontSize: 16,
-    color: "#333",
-  },
-  pickerButton: {
-    padding: 10,
-    backgroundColor: "#FEFADF",
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: "#ddd",
-  },
-  pickerButtonText: {
-    fontSize: 20,
+    fontWeight: "bold",
   },
   modalOverlay: {
     flex: 1,
@@ -289,12 +166,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    backgroundColor: "#EEDCAD",
+    backgroundColor: COLORS.background,
     borderRadius: 10,
     padding: 20,
     margin: 20,
-    width: "90%",
-    maxHeight: "80%",
+    alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -304,49 +180,57 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  iconModalContent: {
+    backgroundColor: COLORS.background,
+    borderRadius: 10,
+    padding: 20,
+    margin: 20,
+    alignItems: "center",
+    width: 320,
+    maxWidth: "90%",
+    minHeight: 300,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  colorModalContent: {
+    backgroundColor: COLORS.background,
+    borderRadius: 10,
+    padding: 20,
+    margin: 20,
+    alignItems: "center",
+    width: 300,
+    maxWidth: "90%",
+    minHeight: 280,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalContentWrapper: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+  },
   modalTitle: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 15,
     color: "#452A17",
-    textAlign: "center",
   },
-  loadingText: {
-    textAlign: "center",
-    fontSize: 16,
-    color: "#452A17",
-    padding: 20,
-  },
-  userList: {
-    maxHeight: 400,
-  },
-  userItem: {
-    backgroundColor: "#FEFADF",
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 8,
-    borderWidth: 2,
-    borderColor: "transparent",
-  },
-  selectedUserItem: {
-    borderColor: "#606B38",
-    backgroundColor: "#E8F5E8",
-  },
-  userName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#452A17",
-  },
-  selectedUserName: {
-    color: "#606B38",
-  },
-  userEmail: {
-    fontSize: 14,
-    color: "#666",
-    marginTop: 2,
-  },
-  selectedUserEmail: {
-    color: "#606B38",
+  dateTimePicker: {
+    width: 200,
+    height: 200,
   },
   modalButtons: {
     flexDirection: "row",
@@ -355,12 +239,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   modalButton: {
-    flex: 1,
-    padding: 10,
+    padding: 12,
     marginHorizontal: 5,
     borderRadius: 5,
     backgroundColor: "#FEFADF",
     alignItems: "center",
+    minWidth: 100,
+    marginTop: 10,
   },
   modalButtonConfirm: {
     backgroundColor: "#606B38",
@@ -375,49 +260,104 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#FEFADF",
   },
-  selectedUsersContainer: {
-    marginBottom: 15,
-    padding: 10,
-    backgroundColor: "#FEFADF",
-    borderRadius: 8,
+  iconPreviewContainer: {
+    flexDirection: "row",
+    alignItems: "center",
   },
-  selectedUsersTitle: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#452A17",
-    marginBottom: 8,
+  iconPreview: {
+    width: 30,
+    height: 30,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 10,
   },
-  selectedUsersList: {
-    maxHeight: 40,
+  colorPreviewContainer: {
+    flexDirection: "row",
+    alignItems: "center",
   },
-  selectedUserChip: {
-    backgroundColor: "#606B38",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+  colorPreview: {
+    width: 30,
+    height: 30,
     borderRadius: 15,
-    marginRight: 8,
-  },
-  selectedUserChipText: {
-    color: "#FEFADF",
-    fontSize: 12,
-    fontWeight: "bold",
-  },
-  searchContainer: {
-    marginBottom: 15,
-    padding: 10,
-    backgroundColor: "#FEFADF",
-    borderRadius: 8,
+    marginRight: 10,
     borderWidth: 1,
     borderColor: "#ddd",
   },
-  searchInput: {
-    fontSize: 16,
-    color: "#333",
+  iconGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+    marginBottom: 20,
+    width: "100%",
   },
-  noUsersText: {
+  iconOption: {
+    alignItems: "center",
+    margin: 10,
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: "#FEFADF",
+    minWidth: 80,
+  },
+  selectedIconOption: {
+    backgroundColor: "#606B38",
+  },
+  iconOptionBackground: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  iconOptionText: {
+    fontSize: 12,
     textAlign: "center",
-    fontSize: 16,
-    color: "#666",
-    padding: 20,
+    color: "#452A17",
+  },
+  colorGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+    marginBottom: 20,
+    width: "100%",
+  },
+  colorOption: {
+    alignItems: "center",
+    margin: 10,
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: "#FEFADF",
+    minWidth: 80,
+  },
+  selectedColorOption: {
+    backgroundColor: "#606B38",
+  },
+  colorOptionText: {
+    fontSize: 12,
+    textAlign: "center",
+    color: "#452A17",
+    marginTop: 5,
+  },
+  tagContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  tagOption: {
+    backgroundColor: COLORS.surface,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginBottom: 8,
+    marginRight: 8,
+    minWidth: 80,
+    alignItems: "center",
+  },
+  selectedTagOption: {
+    backgroundColor: COLORS.confirm,
+  },
+  selectedTagText: {
+    color: COLORS.surface,
   },
 });

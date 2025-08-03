@@ -15,7 +15,6 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import NavBar from "../components/navbar";
-import GuestSelector from "../components/guest-selector";
 import { useAuth } from "../contexts/AuthContext";
 import { updateBubble, validateGuestEmails } from "../utils/firestore";
 import DateTimePicker from "@react-native-community/datetimepicker";
