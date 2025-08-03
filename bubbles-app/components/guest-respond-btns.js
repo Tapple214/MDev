@@ -91,7 +91,10 @@ export default function GuestRespondBtns({
                 marginTop: currentRoute.name === "BubbleView" ? 7 : 0,
               }}
             >
-              <TouchableOpacity style={styles.button} onPress={onRetract}>
+              <TouchableOpacity
+                style={{ justifyContent: "center" }}
+                onPress={onRetract}
+              >
                 <Text
                   style={{
                     color: COLORS.reject,

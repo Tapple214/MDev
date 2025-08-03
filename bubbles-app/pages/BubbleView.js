@@ -293,35 +293,56 @@ export default function BubbleView() {
           </View>
         </View>
 
+        {/* TODO: add images into db */}
         {/* Row 4: Quick Actions; Buttons for BubbleBook and QR Code */}
         <View style={styles.quickActionsContainer}>
-          {/* QR Code Button; will only show if user has accepted the bubble or if uses is host */}
+          {/* QR Code Button and BubbleBook Button; will only show if user has accepted the bubble or if uses is host */}
           {((user &&
             bubbleData?.guestResponses?.[user.email?.toLowerCase()]
               ?.response === "accepted") ||
             bubbleDetails.userRole === "host") && (
-            <TouchableOpacity
-              style={[styles.button, bubbleData?.needQR && styles.button]}
-              onPress={handleShowQRCode}
-            >
-              <Feather
-                name={
-                  bubbleDetails.userRole === "host"
-                    ? "smartphone"
-                    : "user-check"
+            <View>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() =>
+                  navigation.navigate("BubbleBook", {
+                    bubbleId: bubbleDetails.bubbleId,
+                    bubbleName: bubbleData?.name || bubbleDetails.name,
+                  })
                 }
-                size={30}
-                color={COLORS.primary}
-                style={styles.icon}
-              />
-              <Text style={[styles.buttonText]}>
-                {bubbleData?.needQR
-                  ? bubbleDetails.userRole === "host"
-                    ? "Show QR Code"
-                    : "Scan QR Code"
-                  : "No QR Required"}
-              </Text>
-            </TouchableOpacity>
+              >
+                <Feather
+                  name="camera"
+                  size={30}
+                  color={COLORS.primary}
+                  style={styles.icon}
+                />
+                <Text style={styles.buttonText}>Add to BubbleBook</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.button, bubbleData?.needQR && styles.button]}
+                onPress={handleShowQRCode}
+              >
+                <Feather
+                  name={
+                    bubbleDetails.userRole === "host"
+                      ? "smartphone"
+                      : "user-check"
+                  }
+                  size={30}
+                  color={COLORS.primary}
+                  style={styles.icon}
+                />
+                <Text style={[styles.buttonText]}>
+                  {bubbleData?.needQR
+                    ? bubbleDetails.userRole === "host"
+                      ? "Show QR Code"
+                      : "Scan QR Code"
+                    : "No QR Required"}
+                </Text>
+              </TouchableOpacity>
+            </View>
           )}
 
           {/* QR Code Display Modal (for hosts) */}
@@ -338,25 +359,6 @@ export default function BubbleView() {
             onClose={() => setShowQRScanner(false)}
             onQRCodeScanned={handleQRCodeScanned}
           />
-
-          {/* BubbleBook Button */}
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() =>
-              navigation.navigate("BubbleBook", {
-                bubbleId: bubbleDetails.bubbleId,
-                bubbleName: bubbleData?.name || bubbleDetails.name,
-              })
-            }
-          >
-            <Feather
-              name="camera"
-              size={30}
-              color={COLORS.primary}
-              style={styles.icon}
-            />
-            <Text style={styles.buttonText}>Add to BubbleBook</Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
       <NavBar
