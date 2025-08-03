@@ -10,8 +10,6 @@ import {
   ActivityIndicator,
   ScrollView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
 import NavBar from "../components/navbar";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -21,6 +19,8 @@ import {
   searchUsersInDatabase,
   getBubbleBuddiesForSelection,
 } from "../utils/firestore";
+import Feather from "react-native-vector-icons/Feather";
+import { COLORS } from "../utils/colors";
 
 export default function BubbleBuddies() {
   const { user } = useAuth();
@@ -253,6 +253,8 @@ export default function BubbleBuddies() {
         {userData?.bubbleBuddies && userData.bubbleBuddies.length > 0 ? (
           userData.bubbleBuddies.map((buddy, index) => (
             <View key={index} style={styles.bubbleBuddyNameContainer}>
+              <Feather name="user" size={24} color={COLORS.primary} />
+
               <Text>{buddy}</Text>
             </View>
           ))
@@ -287,12 +289,6 @@ export default function BubbleBuddies() {
                 multiline
                 numberOfLines={3}
               />
-              <TouchableOpacity
-                style={styles.emojiButton}
-                onPress={handleEmojiSelection}
-              >
-                <Text style={styles.emojiButtonText}>👥</Text>
-              </TouchableOpacity>
             </View>
 
             {renderSearchValidationStatus()}
@@ -350,11 +346,14 @@ const styles = StyleSheet.create({
   },
   bubbleBuddiesContainer: { paddingVertical: 15, paddingHorizontal: 15 },
   bubbleBuddyNameContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
     backgroundColor: "#FEFADF",
     borderRadius: 10,
-    paddingVertical: 10,
+    paddingVertical: 15,
     paddingHorizontal: 15,
-    marginBottom: 15,
+    marginBottom: 10,
   },
   noBuddiesText: {
     textAlign: "center",

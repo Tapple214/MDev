@@ -182,22 +182,8 @@ export default function GuestSelector({
                   ]}
                   onPress={() => handleUserSelect(user)}
                 >
-                  <Text
-                    style={[
-                      styles.userName,
-                      isUserSelected(user.id) && styles.selectedUserName,
-                    ]}
-                  >
-                    {user.name}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.userEmail,
-                      isUserSelected(user.id) && styles.selectedUserEmail,
-                    ]}
-                  >
-                    {user.email}
-                  </Text>
+                  <Text style={[styles.userName]}>{user.name}</Text>
+                  <Text style={[styles.userEmail]}>{user.email}</Text>
                 </TouchableOpacity>
               ))}
               {users.length === 0 && (
@@ -372,5 +358,3 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 });
-
-// TODO: fix modal
