@@ -260,7 +260,7 @@ export default function BubbleBook() {
     if (photos.length === 0) {
       return (
         <View style={styles.centerContainer}>
-          <Feather name="image" size={60} color={COLORS.text.secondary} />
+          <Feather name="image" size={60} color={COLORS.text.primary} />
           <Text style={styles.emptyText}>No photos yet</Text>
           <Text style={styles.emptySubtext}>
             Add the first photo to start the album!
