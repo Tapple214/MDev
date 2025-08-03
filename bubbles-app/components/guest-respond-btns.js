@@ -67,7 +67,7 @@ export default function GuestRespondBtns({
               >
                 <Text style={styles.actionButtonText}>X</Text>
               </TouchableOpacity>
-              (
+              <Text>(</Text>
               {currentRoute.name === "BubbleView" ? (
                 <TouchableOpacity
                   style={[styles.button, styles.acceptButton]}
@@ -83,7 +83,7 @@ export default function GuestRespondBtns({
                   <Text style={styles.actionButtonText}>I'm coming!</Text>
                 </TouchableOpacity>
               )}
-              )
+              <Text>)</Text>
             </>
           ) : (
             <View
@@ -111,7 +111,6 @@ export default function GuestRespondBtns({
                   { borderColor: getResponseColor(), borderWidth: 3 },
                 ]}
               >
-                (
                 {currentRoute.name === "BubbleView" ? (
                   <Text style={{ color: getResponseColor() }}>
                     <Feather name="check" size={15} color={COLORS.accept} />
@@ -126,7 +125,6 @@ export default function GuestRespondBtns({
                     {getResponseText()}
                   </Text>
                 )}
-                )
               </View>
             </View>
           )}
