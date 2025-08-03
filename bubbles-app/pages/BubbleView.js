@@ -314,12 +314,12 @@ export default function BubbleView() {
                 }
               >
                 <Feather
-                  name="camera"
+                  name="image"
                   size={30}
                   color={COLORS.primary}
                   style={styles.icon}
                 />
-                <Text style={styles.buttonText}>Add to BubbleBook</Text>
+                <Text style={styles.buttonText}>View BubbleBook</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
