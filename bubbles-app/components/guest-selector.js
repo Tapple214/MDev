@@ -32,7 +32,6 @@ export default function GuestSelector({
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isValidatingEmails, setIsValidatingEmails] = useState(false);
 
   useEffect(() => {
     if (showUserSelector) {
@@ -60,14 +59,11 @@ export default function GuestSelector({
     setGuestList(text);
 
     if (text.trim()) {
-      setIsValidatingEmails(true);
       try {
         const validation = await validateGuestEmails(text);
         setEmailValidation(validation);
       } catch (error) {
         console.error("Error validating emails:", error);
-      } finally {
-        setIsValidatingEmails(false);
       }
     } else {
       setEmailValidation({ valid: [], invalid: [], notFound: [] });
@@ -139,13 +135,6 @@ export default function GuestSelector({
       </View>
 
       <View style={styles.validationContainer}>
-        {isValidatingEmails && (
-          <View style={styles.validationItem}>
-            <ActivityIndicator size="small" color="#606B38" />
-            <Text style={styles.validationText}>Validating emails...</Text>
-          </View>
-        )}
-
         {emailValidation.valid.length > 0 && (
           <View style={styles.validationItem}>
             <Text style={styles.validEmail}>
@@ -201,7 +190,7 @@ export default function GuestSelector({
             {loading ? (
               <Text style={styles.loadingText}>Loading bubble buddies...</Text>
             ) : (
-              <ScrollView style={styles.userList}>
+              <ScrollView>
                 {users.map((user) => (
                   <TouchableOpacity
                     key={user.id}
@@ -301,10 +290,8 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   validationContainer: {
-    backgroundColor: COLORS.surface,
-    marginBottom: 15,
     height: 50,
-    marginTop: 10,
+    justifyContent: "center",
   },
   validationItem: {
     flexDirection: "row",
@@ -362,8 +349,7 @@ const styles = StyleSheet.create({
     margin: 20,
     alignItems: "center",
     maxWidth: "90%",
-    minHeight: "30%",
-    maxHeight: "40%",
+    height: "40%",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -596,6 +582,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderWidth: 2,
     borderColor: "transparent",
+    width: "100%",
   },
   selectedUserItem: {
     borderColor: COLORS.confirm,
@@ -630,3 +617,5 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 });
+
+// TODO: fix modal
