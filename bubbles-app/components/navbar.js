@@ -40,6 +40,7 @@ export default function NavBar({
     ]);
   };
 
+  console.log("userRole", userRole);
   // Dynamic highlight icon that will change based on the page; placed on far right of navbar
   const getHighlightIconConfig = () => {
     switch (page) {
@@ -52,24 +53,27 @@ export default function NavBar({
           color: COLORS.background,
           backgroundColor: COLORS.primary,
         };
-      case "BubbleView" && userRole === "host":
-        return {
-          icon: "edit-3",
-          onPress: () => {
-            handleEditBubble();
-          },
-          color: COLORS.background,
-          backgroundColor: COLORS.primary,
-        };
-      case "BubbleView" && userRole !== "host":
-        return {
-          icon: "plus",
-          onPress: () => {
-            navigation.navigate("CreateBubble");
-          },
-          color: COLORS.background,
-          backgroundColor: COLORS.primary,
-        };
+      case "BubbleView":
+        // Check user role for BubbleView page
+        if (userRole === "host") {
+          return {
+            icon: "edit-3",
+            onPress: () => {
+              handleEditBubble();
+            },
+            color: COLORS.background,
+            backgroundColor: COLORS.primary,
+          };
+        } else {
+          return {
+            icon: "plus",
+            onPress: () => {
+              navigation.navigate("CreateBubble");
+            },
+            color: COLORS.background,
+            backgroundColor: COLORS.primary,
+          };
+        }
       default:
         return {
           icon: "plus",
