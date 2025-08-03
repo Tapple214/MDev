@@ -60,7 +60,6 @@ export default function Home({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [currentQuickActionIndex, setCurrentQuickActionIndex] = useState(0);
-  const [showQRScanner, setShowQRScanner] = useState(false);
 
   // Fetch data from firestore
   const fetchData = async () => {
@@ -108,7 +107,9 @@ export default function Home({ navigation }) {
           return userResponse && userResponse.response === "accepted";
         });
       case 5: // Completed; shows all bubbles that have ended
-        return bubbles.filter((bubble) => bubble.schedule.endTime < new Date());
+        return bubbles.filter(
+          (bubble) => bubble.schedule?.toDate() < new Date()
+        );
       default:
         return bubbles;
     }
