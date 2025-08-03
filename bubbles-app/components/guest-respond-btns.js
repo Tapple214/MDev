@@ -67,7 +67,6 @@ export default function GuestRespondBtns({
               >
                 <Text style={styles.actionButtonText}>X</Text>
               </TouchableOpacity>
-              <Text>(</Text>
               {currentRoute.name === "BubbleView" ? (
                 <TouchableOpacity
                   style={[styles.button, styles.acceptButton]}
@@ -83,7 +82,6 @@ export default function GuestRespondBtns({
                   <Text style={styles.actionButtonText}>I'm coming!</Text>
                 </TouchableOpacity>
               )}
-              <Text>)</Text>
             </>
           ) : (
             <View
