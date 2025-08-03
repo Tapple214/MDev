@@ -46,7 +46,6 @@ export default function CreateBubble() {
     invalid: [],
     notFound: [],
   });
-  const [isValidatingEmails, setIsValidatingEmails] = useState(false);
   const [selectedIcon, setSelectedIcon] = useState("heart");
   const [selectedBackgroundColor, setSelectedBackgroundColor] = useState(
     COLORS.elemental.orange
@@ -129,25 +128,6 @@ export default function CreateBubble() {
         return prev;
       }
     });
-  };
-
-  // Validate emails when guest list changes
-  const handleGuestListChange = async (text) => {
-    setGuestList(text);
-
-    if (text.trim()) {
-      setIsValidatingEmails(true);
-      try {
-        const validation = await validateGuestEmails(text);
-        setEmailValidation(validation);
-      } catch (error) {
-        console.error("Error validating emails:", error);
-      } finally {
-        setIsValidatingEmails(false);
-      }
-    } else {
-      setEmailValidation({ valid: [], invalid: [], notFound: [] });
-    }
   };
 
   const validateForm = () => {
@@ -240,44 +220,6 @@ export default function CreateBubble() {
   };
 
   // TODO: create a separate util file for this
-  const renderEmailValidationStatus = () => {
-    if (!guestList.trim()) return null;
-
-    return (
-      <View style={styles.validationContainer}>
-        {isValidatingEmails && (
-          <View style={styles.validationItem}>
-            <ActivityIndicator size="small" color="#606B38" />
-            <Text style={styles.validationText}>Validating emails...</Text>
-          </View>
-        )}
-
-        {emailValidation.valid.length > 0 && (
-          <View style={styles.validationItem}>
-            <Text style={styles.validEmail}>
-              ✓ Valid emails: {emailValidation.valid.join(", ")}
-            </Text>
-          </View>
-        )}
-
-        {emailValidation.invalid.length > 0 && (
-          <View style={styles.validationItem}>
-            <Text style={styles.invalidEmail}>
-              ✗ Invalid format: {emailValidation.invalid.join(", ")}
-            </Text>
-          </View>
-        )}
-
-        {emailValidation.notFound.length > 0 && (
-          <View style={styles.validationItem}>
-            <Text style={styles.notFoundEmail}>
-              ⚠ Not registered: {emailValidation.notFound.join(", ")}
-            </Text>
-          </View>
-        )}
-      </View>
-    );
-  };
 
   return (
     <View style={styles.generalContainer}>
@@ -394,14 +336,15 @@ export default function CreateBubble() {
         </Text>
         <GuestSelector
           value={guestList}
-          onChangeText={handleGuestListChange}
           placeholder="Type or tap or the icon on the right"
           multiline
           numberOfLines={5}
           editable={!isLoading}
+          guestList={guestList}
+          setGuestList={setGuestList}
+          emailValidation={emailValidation}
+          setEmailValidation={setEmailValidation}
         />
-
-        {renderEmailValidationStatus()}
 
         {/* Title; For customizing your bubble */}
         <Text style={[styles.title, { textAlign: "center", paddingTop: 15 }]}>

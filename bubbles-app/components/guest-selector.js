@@ -6,28 +6,33 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  Modal,
+  ScrollView,
 } from "react-native";
 import { useAuth } from "../contexts/AuthContext";
-import {
-  getBubbleBuddiesForSelection,
-  searchUsersInDatabase,
-} from "../utils/firestore";
+import { getBubbleBuddiesForSelection } from "../utils/firestore";
 import { COLORS } from "../utils/colors";
+import { validateGuestEmails } from "../utils/firestore";
+import { ActivityIndicator } from "react-native";
 
 export default function GuestSelector({
   value,
-  onChangeText,
   placeholder,
   style,
   multiline,
   numberOfLines,
   editable = true,
+  guestList,
+  setGuestList,
+  emailValidation,
+  setEmailValidation,
 }) {
   const { user } = useAuth();
   const [showUserSelector, setShowUserSelector] = useState(false);
   const [users, setUsers] = useState([]);
-
+  const [selectedUsers, setSelectedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isValidatingEmails, setIsValidatingEmails] = useState(false);
 
   useEffect(() => {
     if (showUserSelector) {
@@ -50,13 +55,72 @@ export default function GuestSelector({
     }
   };
 
+  // Validate emails when guest list changes
+  const handleGuestListChange = async (text) => {
+    setGuestList(text);
+
+    if (text.trim()) {
+      setIsValidatingEmails(true);
+      try {
+        const validation = await validateGuestEmails(text);
+        setEmailValidation(validation);
+      } catch (error) {
+        console.error("Error validating emails:", error);
+      } finally {
+        setIsValidatingEmails(false);
+      }
+    } else {
+      setEmailValidation({ valid: [], invalid: [], notFound: [] });
+    }
+  };
+
+  const handleUserSelect = (selectedUser) => {
+    const isSelected = selectedUsers.find(
+      (user) => user.id === selectedUser.id
+    );
+
+    if (isSelected) {
+      setSelectedUsers(
+        selectedUsers.filter((user) => user.id !== selectedUser.id)
+      );
+    } else {
+      setSelectedUsers([...selectedUsers, selectedUser]);
+    }
+  };
+
+  const handleConfirmSelection = () => {
+    if (selectedUsers.length === 0) {
+      setShowUserSelector(false);
+      return;
+    }
+
+    const selectedEmails = selectedUsers.map((user) => user.email);
+    const currentEmails = guestList
+      ? guestList
+          .split(",")
+          .map((email) => email.trim())
+          .filter((email) => email)
+      : [];
+
+    const allEmails = [...new Set([...currentEmails, ...selectedEmails])];
+    const emailString = allEmails.join(", ");
+
+    setGuestList(emailString);
+    setSelectedUsers([]);
+    setShowUserSelector(false);
+  };
+
+  const isUserSelected = (userId) => {
+    return selectedUsers.find((user) => user.id === userId);
+  };
+
   return (
     <View>
       <View style={styles.pickerContainer}>
         <View style={styles.input}>
           <TextInput
             value={value}
-            onChangeText={onChangeText}
+            onChangeText={handleGuestListChange}
             placeholder={placeholder}
             style={[styles.pickerValueText, style]}
             multiline={multiline}
@@ -73,6 +137,130 @@ export default function GuestSelector({
           <Text>👥</Text>
         </TouchableOpacity>
       </View>
+
+      <View style={styles.validationContainer}>
+        {isValidatingEmails && (
+          <View style={styles.validationItem}>
+            <ActivityIndicator size="small" color="#606B38" />
+            <Text style={styles.validationText}>Validating emails...</Text>
+          </View>
+        )}
+
+        {emailValidation.valid.length > 0 && (
+          <View style={styles.validationItem}>
+            <Text style={styles.validEmail}>
+              ✓ Valid emails: {emailValidation.valid.join(", ")}
+            </Text>
+          </View>
+        )}
+
+        {emailValidation.invalid.length > 0 && (
+          <View style={styles.validationItem}>
+            <Text style={styles.invalidEmail}>
+              ✗ Invalid format: {emailValidation.invalid.join(", ")}
+            </Text>
+          </View>
+        )}
+
+        {emailValidation.notFound.length > 0 && (
+          <View style={styles.validationItem}>
+            <Text style={styles.notFoundEmail}>
+              ⚠ Not registered: {emailValidation.notFound.join(", ")}
+            </Text>
+          </View>
+        )}
+      </View>
+
+      <Modal
+        visible={showUserSelector}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowUserSelector(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Select Bubble Buddies</Text>
+
+            {selectedUsers.length > 0 && (
+              <View style={styles.selectedUsersContainer}>
+                <Text style={styles.selectedUsersTitle}>
+                  Selected ({selectedUsers.length}):
+                </Text>
+                <ScrollView horizontal style={styles.selectedUsersList}>
+                  {selectedUsers.map((user) => (
+                    <View key={user.id} style={styles.selectedUserChip}>
+                      <Text style={styles.selectedUserChipText}>
+                        {user.name}
+                      </Text>
+                    </View>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+
+            {loading ? (
+              <Text style={styles.loadingText}>Loading bubble buddies...</Text>
+            ) : (
+              <ScrollView style={styles.userList}>
+                {users.map((user) => (
+                  <TouchableOpacity
+                    key={user.id}
+                    style={[
+                      styles.userItem,
+                      isUserSelected(user.id) && styles.selectedUserItem,
+                    ]}
+                    onPress={() => handleUserSelect(user)}
+                  >
+                    <Text
+                      style={[
+                        styles.userName,
+                        isUserSelected(user.id) && styles.selectedUserName,
+                      ]}
+                    >
+                      {user.name}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.userEmail,
+                        isUserSelected(user.id) && styles.selectedUserEmail,
+                      ]}
+                    >
+                      {user.email}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+                {users.length === 0 && (
+                  <Text style={styles.noUsersText}>
+                    No bubble buddies available
+                  </Text>
+                )}
+              </ScrollView>
+            )}
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => {
+                  setSelectedUsers([]);
+                  setShowUserSelector(false);
+                }}
+              >
+                <Text style={styles.modalButtonTextCancel}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonConfirm]}
+                onPress={handleConfirmSelection}
+              >
+                <Text style={styles.modalButtonTextConfirm}>
+                  Add{" "}
+                  {selectedUsers.length > 0 ? `(${selectedUsers.length})` : ""}{" "}
+                  Users
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -113,8 +301,10 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   validationContainer: {
-    marginHorizontal: 15,
+    backgroundColor: COLORS.surface,
     marginBottom: 15,
+    height: 50,
+    marginTop: 10,
   },
   validationItem: {
     flexDirection: "row",
@@ -171,6 +361,9 @@ const styles = StyleSheet.create({
     padding: 20,
     margin: 20,
     alignItems: "center",
+    maxWidth: "90%",
+    minHeight: "30%",
+    maxHeight: "40%",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -359,5 +552,81 @@ const styles = StyleSheet.create({
   },
   selectedTagText: {
     color: COLORS.surface,
+  },
+  pickerValueText: {
+    fontSize: 16,
+    color: COLORS.text.primary,
+  },
+
+  selectedUsersContainer: {
+    marginBottom: 15,
+    padding: 10,
+    backgroundColor: COLORS.surface,
+    borderRadius: 8,
+  },
+  selectedUsersTitle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: COLORS.text.primary,
+    marginBottom: 8,
+  },
+  selectedUsersList: {
+    maxHeight: 40,
+  },
+  selectedUserChip: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    marginRight: 8,
+  },
+  selectedUserChipText: {
+    color: COLORS.surface,
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  userList: {
+    maxHeight: 300,
+    minHeight: 100,
+  },
+  userItem: {
+    backgroundColor: COLORS.surface,
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 8,
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  selectedUserItem: {
+    borderColor: COLORS.confirm,
+    backgroundColor: "#E8F5E8",
+  },
+  userName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: COLORS.text.primary,
+  },
+  selectedUserName: {
+    color: COLORS.confirm,
+  },
+  userEmail: {
+    fontSize: 14,
+    color: COLORS.text.secondary,
+    marginTop: 2,
+  },
+  selectedUserEmail: {
+    color: COLORS.confirm,
+  },
+  loadingText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: COLORS.text.secondary,
+    padding: 20,
+  },
+  noUsersText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: COLORS.text.secondary,
+    padding: 20,
   },
 });
