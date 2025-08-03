@@ -347,7 +347,7 @@ export default function CreateBubble() {
         />
 
         {/* Title; For customizing your bubble */}
-        <Text style={[styles.title, { textAlign: "center", paddingTop: 15 }]}>
+        <Text style={[styles.title, { textAlign: "center", paddingTop: 5 }]}>
           Make it your own!
         </Text>
 

@@ -205,7 +205,9 @@ export default function BubbleView() {
             />
 
             <Text style={[styles.cardTitle, { textAlign: "right" }]}>
-              Are you coming?
+              {bubbleDetails.userRole === "host"
+                ? "Are you excited?"
+                : "Are you attending?"}
             </Text>
 
             <GuestRespondBtns

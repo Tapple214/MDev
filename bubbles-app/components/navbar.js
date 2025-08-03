@@ -40,7 +40,6 @@ export default function NavBar({
     ]);
   };
 
-  console.log("userRole", userRole);
   // Dynamic highlight icon that will change based on the page; placed on far right of navbar
   const getHighlightIconConfig = () => {
     switch (page) {
