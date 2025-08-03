@@ -12,6 +12,7 @@ import {
   Modal,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
 import { Feather } from "@expo/vector-icons";
 import {
   doc,
@@ -51,6 +52,7 @@ export default function BubbleBook() {
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [userPhotoCount, setUserPhotoCount] = useState(0);
+  const [uploading, setUploading] = useState(false);
 
   // Fetch photos from Firestore for this specific bubble
   const fetchPhotos = async () => {
@@ -184,16 +186,53 @@ export default function BubbleBook() {
     }
   };
 
+  // Convert image to base64
+  const convertImageToBase64 = async (imageUri) => {
+    try {
+      // Check file size first (limit to 5MB to avoid Firestore limits)
+      const fileInfo = await FileSystem.getInfoAsync(imageUri);
+      const fileSizeInMB = fileInfo.size / (1024 * 1024);
+
+      if (fileSizeInMB > 5) {
+        throw new Error(
+          "Image file is too large. Please choose an image smaller than 5MB."
+        );
+      }
+
+      const base64 = await FileSystem.readAsStringAsync(imageUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      // Check if base64 string is too long for Firestore (1MB limit)
+      const base64SizeInMB = (base64.length * 3) / 4 / (1024 * 1024);
+      if (base64SizeInMB > 1) {
+        throw new Error(
+          "Image is too large after conversion. Please choose a smaller image."
+        );
+      }
+
+      return `data:image/jpeg;base64,${base64}`;
+    } catch (error) {
+      console.error("Error converting image to base64:", error);
+      throw error;
+    }
+  };
+
   // Add photo to Firestore collection
   const addPhotoToCollection = async (imageUri, source) => {
     try {
+      setUploading(true);
       const photosRef = collection(db, "bubbleBook");
       if (!user?.email) {
         Alert.alert("Error", "User not authenticated");
         return;
       }
+
+      // Convert image to base64
+      const base64Image = await convertImageToBase64(imageUri);
+
       const photoData = {
-        imageUri: imageUri,
+        imageBase64: base64Image,
         source: source,
         addedBy: user.email,
         addedByName: user.displayName || user.email,
@@ -214,7 +253,12 @@ export default function BubbleBook() {
       Alert.alert("Success", "Photo added to BubbleBook!");
     } catch (error) {
       console.error("Error adding photo:", error);
-      Alert.alert("Error", "Failed to add photo. Please try again.");
+      Alert.alert(
+        "Error",
+        error.message || "Failed to add photo. Please try again."
+      );
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -277,7 +321,13 @@ export default function BubbleBook() {
             style={styles.photoContainer}
             onPress={() => openPhotoModal(photo)}
           >
-            <Image source={{ uri: photo.imageUri }} style={styles.photo} />
+            <Image
+              source={{
+                // Use base64 if available, otherwise fall back to imageUri for backward compatibility
+                uri: photo.imageBase64 || photo.imageUri,
+              }}
+              style={styles.photo}
+            />
             <View style={styles.photoOverlay}>
               <Text style={styles.photoAddedBy}>{photo.addedByName}</Text>
             </View>
@@ -289,12 +339,15 @@ export default function BubbleBook() {
 
   // Add photo buttons with limit indicator
   const renderAddPhotoButtons = () => {
-    const canAdd = canAddPhoto();
+    const canAdd = canAddPhoto() && !uploading;
 
     return (
       <View style={styles.addPhotoContainer}>
         <TouchableOpacity
-          style={[styles.addPhotoButton, !canAdd && styles.disabledButton]}
+          style={[
+            styles.addPhotoButton,
+            (!canAdd || uploading) && styles.disabledButton,
+          ]}
           onPress={takePhoto}
           disabled={!canAdd}
         >
@@ -303,13 +356,21 @@ export default function BubbleBook() {
             size={24}
             color={canAdd ? COLORS.surface : COLORS.text.secondary}
           />
-          <Text style={[styles.addPhotoText, !canAdd && styles.disabledText]}>
-            Take Photo
+          <Text
+            style={[
+              styles.addPhotoText,
+              (!canAdd || uploading) && styles.disabledText,
+            ]}
+          >
+            {uploading ? "Uploading..." : "Take Photo"}
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.addPhotoButton, !canAdd && styles.disabledButton]}
+          style={[
+            styles.addPhotoButton,
+            (!canAdd || uploading) && styles.disabledButton,
+          ]}
           onPress={pickImage}
           disabled={!canAdd}
         >
@@ -318,8 +379,13 @@ export default function BubbleBook() {
             size={24}
             color={canAdd ? COLORS.surface : COLORS.text.secondary}
           />
-          <Text style={[styles.addPhotoText, !canAdd && styles.disabledText]}>
-            Choose Photo
+          <Text
+            style={[
+              styles.addPhotoText,
+              (!canAdd || uploading) && styles.disabledText,
+            ]}
+          >
+            {uploading ? "Uploading..." : "Choose Photo"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -331,6 +397,11 @@ export default function BubbleBook() {
     return (
       <View style={styles.limitContainer}>
         <Text style={styles.limitText}>Your photos: {userPhotoCount}/3</Text>
+        {uploading && (
+          <Text style={styles.uploadingText}>
+            Converting and uploading image...
+          </Text>
+        )}
         {userPhotoCount >= 3 && (
           <Text style={styles.limitWarning}>
             You've reached the maximum of 3 photos for this bubble
@@ -390,7 +461,10 @@ export default function BubbleBook() {
             {selectedPhoto && (
               <>
                 <Image
-                  source={{ uri: selectedPhoto.imageUri }}
+                  source={{
+                    // Use base64 if available, otherwise fall back to imageUri for backward compatibility
+                    uri: selectedPhoto.imageBase64 || selectedPhoto.imageUri,
+                  }}
                   style={styles.modalPhoto}
                 />
                 <View style={styles.modalInfo}>
@@ -472,6 +546,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.text.secondary,
     textAlign: "center",
+  },
+  uploadingText: {
+    fontSize: 12,
+    color: COLORS.confirm,
+    textAlign: "center",
+    marginTop: 5,
+    fontStyle: "italic",
   },
   limitWarning: {
     fontSize: 12,
