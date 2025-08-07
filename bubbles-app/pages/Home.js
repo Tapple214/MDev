@@ -8,6 +8,7 @@ import {
   Dimensions,
   Alert,
   RefreshControl,
+  ImageBackground,
 } from "react-native";
 
 // TODO: create a typography util file
@@ -31,11 +32,13 @@ const quickActions = [
     id: 1,
     title: "Create a Bubble!",
     goTo: "CreateBubble",
+    image: require("../assets/create-bubble.png"),
   },
   {
     id: 2,
     title: "Add a Bubble Buddy!",
     goTo: "BubbleBuddies",
+    image: require("../assets/add-buddy.png"),
   },
 ];
 
@@ -231,16 +234,41 @@ export default function Home({ navigation }) {
           >
             {quickActions.map((quickAction) => (
               <View key={quickAction.id} style={styles.quickActionsContainer}>
-                <View style={styles.quickActionsCard}>
+                <ImageBackground
+                  source={quickAction.image}
+                  style={styles.quickActionsCard}
+                  imageStyle={styles.quickActionsBackgroundImage}
+                >
                   <TouchableOpacity
                     key={quickAction.id}
                     onPress={() => navigation.navigate(quickAction.goTo)}
+                    style={styles.quickActionsTouchable}
                   >
-                    <View style={styles.quickActionsCard}>
-                      <Text style={styles.cardTitle}>{quickAction.title}</Text>
-                    </View>
+                    {quickAction.title === "Create a Bubble!" ? (
+                      <Text
+                        style={[
+                          styles.quickActionsTitle,
+                          { alignSelf: "flex-start", paddingLeft: 10 },
+                        ]}
+                      >
+                        {quickAction.title}
+                      </Text>
+                    ) : (
+                      <Text
+                        style={[
+                          styles.quickActionsTitle,
+                          {
+                            position: "absolute",
+                            bottom: 10,
+                            right: 0,
+                          },
+                        ]}
+                      >
+                        {quickAction.title}
+                      </Text>
+                    )}
                   </TouchableOpacity>
-                </View>
+                </ImageBackground>
               </View>
             ))}
           </ScrollView>
@@ -412,6 +440,24 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "center",
     borderRadius: 10,
+    height: 120,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  quickActionsBackgroundImage: {
+    borderRadius: 10,
+    opacity: 0.8,
+  },
+  quickActionsTouchable: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+  },
+  quickActionsTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: COLORS.primary,
   },
   noBubblesText: {
     textAlign: "center",
