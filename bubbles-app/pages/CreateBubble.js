@@ -16,6 +16,7 @@ import { Feather } from "@expo/vector-icons";
 // Components
 import NavBar from "../components/navbar";
 import GuestSelector from "../components/guest-selector";
+import AIDescriptionGenerator from "../components/ai-description-generator";
 
 // Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
@@ -53,6 +54,7 @@ export default function CreateBubble() {
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [showAIGenerator, setShowAIGenerator] = useState(false);
 
   // Available options
   const iconOptions = [
@@ -239,15 +241,24 @@ export default function CreateBubble() {
         />
 
         <Text style={styles.inputTitle}>Describe your bubble.</Text>
-        <TextInput
-          value={bubbleDescription}
-          onChangeText={setBubbleDescription}
-          placeholder="Dresscode, notes, etc."
-          style={styles.input}
-          multiline
-          numberOfLines={3}
-          editable={!isLoading}
-        />
+        <View style={styles.descriptionContainer}>
+          <TextInput
+            value={bubbleDescription}
+            onChangeText={setBubbleDescription}
+            placeholder="Dresscode, notes, etc."
+            style={[styles.input, styles.descriptionInput]}
+            multiline
+            numberOfLines={3}
+            editable={!isLoading}
+          />
+          <TouchableOpacity
+            style={styles.aiButton}
+            onPress={() => setShowAIGenerator(true)}
+            disabled={isLoading}
+          >
+            <Feather name="zap" size={20} color={COLORS.surface} />
+          </TouchableOpacity>
+        </View>
 
         <Text style={styles.inputTitle}>
           Choose tags for your bubble (up to 3)
@@ -580,6 +591,19 @@ export default function CreateBubble() {
         </View>
       </Modal>
 
+      {/* AI Description Generator Modal */}
+      <AIDescriptionGenerator
+        bubbleName={bubbleName}
+        selectedTags={selectedTags}
+        bubbleLocation={bubbleLocation}
+        selectedDate={selectedDate}
+        selectedTime={selectedTime}
+        guestList={guestList}
+        onDescriptionGenerated={setBubbleDescription}
+        isVisible={showAIGenerator}
+        onClose={() => setShowAIGenerator(false)}
+      />
+
       <NavBar />
     </View>
   );
@@ -860,5 +884,23 @@ const styles = StyleSheet.create({
   },
   selectedTagText: {
     color: COLORS.surface,
+  },
+  descriptionContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 10,
+  },
+  descriptionInput: {
+    flex: 1,
+    marginRight: 10,
+  },
+  aiButton: {
+    backgroundColor: COLORS.primary,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 5,
   },
 });
