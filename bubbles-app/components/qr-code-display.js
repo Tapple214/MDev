@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { Feather } from "@expo/vector-icons";
-import { COLORS } from "../utils/colors";
+import { COLORS } from "../utils/custom-styles";
 
 export default function QRCodeDisplay({
   qrCodeData,

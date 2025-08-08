@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 // Utility function/Hooks imports
-import { COLORS } from "../utils/colors";
+import { COLORS } from "../utils/custom-styles";
 import { findUser } from "../utils/firestore";
 
 export default function GuestList() {

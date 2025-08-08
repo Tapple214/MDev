@@ -16,7 +16,7 @@ import {
   addBubbleBuddies,
 } from "../utils/firestore";
 import Feather from "react-native-vector-icons/Feather";
-import { COLORS } from "../utils/colors";
+import { COLORS } from "../utils/custom-styles";
 
 export default function BubbleBuddies() {
   const { user } = useAuth();

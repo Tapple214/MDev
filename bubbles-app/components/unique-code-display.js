@@ -8,7 +8,7 @@ import {
   Alert,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { COLORS } from "../utils/colors";
+import { COLORS } from "../utils/custom-styles";
 
 export default function UniqueCodeDisplay({
   isVisible,

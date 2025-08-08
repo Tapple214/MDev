@@ -12,7 +12,7 @@ import {
 
 // Custom hooks
 import { useAuth } from "../contexts/AuthContext";
-import { COLORS } from "../utils/colors";
+import { COLORS } from "../utils/custom-styles";
 
 export default function Login({ navigation }) {
   // Custom Hook

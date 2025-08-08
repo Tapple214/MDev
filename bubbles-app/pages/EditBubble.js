@@ -24,7 +24,7 @@ import { updateBubble, validateGuestEmails } from "../utils/firestore";
 
 // TODO: create a date util file
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { COLORS } from "../utils/colors";
+import { COLORS } from "../utils/custom-styles";
 
 export default function EditBubble() {
   const route = useRoute();

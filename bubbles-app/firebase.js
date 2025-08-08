@@ -6,26 +6,27 @@ import {
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-// Your Firebase configuration
-// Replace these values with your actual Firebase project configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBWr89kHTDaKqTHMkwJUvZ7tWuf6RB4gzE",
-  authDomain: "bubbles-3164d.firebaseapp.com",
-  projectId: "bubbles-3164d",
-  storageBucket: "bubbles-3164d.firebasestorage.app",
-  messagingSenderId: "211384634852",
-  appId: "1:211384634852:web:d1addccfc396ac064d0bf1",
-  measurementId: "G-KCYJXR1QH5",
-};
+import { firebaseConfig } from "./config/firebase-config";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
 // Initialize Auth with AsyncStorage persistence
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
-});
+// Handle the case where auth might already be initialized
+let auth;
+try {
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+} catch (error) {
+  // If auth is already initialized, just get the existing instance
+  if (error.code === "auth/already-initialized") {
+    auth = getAuth(app);
+  } else {
+    // Re-throw other errors
+    throw error;
+  }
+}
 
 // Initialize Firestore
 const db = getFirestore(app);

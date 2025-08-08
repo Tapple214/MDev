@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useAuth } from "../contexts/AuthContext";
 import { getBubbleBuddiesForSelection } from "../utils/firestore";
-import { COLORS } from "../utils/colors";
+import { COLORS } from "../utils/custom-styles";
 import { validateGuestEmails } from "../utils/firestore";
 import Feather from "react-native-vector-icons/Feather";
 

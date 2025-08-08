@@ -11,8 +11,7 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../contexts/AuthContext";
-import { COLORS } from "../utils/colors";
-import { TEXT_STYLES, combineTextStyles } from "../utils/textStyles";
+import { COLORS, TEXT_STYLES, combineTextStyles } from "../utils/custom-styles";
 import {
   requestNotificationPermissions,
   getUserPushToken,

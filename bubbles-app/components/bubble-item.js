@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { COLORS } from "../utils/colors";
+import { COLORS } from "../utils/custom-styles";
 
 // Component imports
 import GuestRespondBtns from "./guest-respond-btns";

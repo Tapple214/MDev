@@ -21,8 +21,7 @@ import UniqueCodeEntry from "../components/unique-code-entry";
 import GuestRespondBtns from "../components/guest-respond-btns";
 
 // Utility function/Hooks imports
-import { COLORS } from "../utils/colors";
-import { TEXT_STYLES, combineTextStyles } from "../utils/textStyles";
+import { COLORS, TEXT_STYLES, combineTextStyles } from "../utils/custom-styles";
 import { confirmAttendance, validateAttendanceQR } from "../utils/attendance";
 import { generateEntryQRCode } from "../utils/qrCode";
 import { useAuth } from "../contexts/AuthContext";

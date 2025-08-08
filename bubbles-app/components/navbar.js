@@ -4,7 +4,7 @@ import { Feather } from "@expo/vector-icons";
 
 // Utility function/Hooks imports
 import { useAuth } from "../contexts/AuthContext";
-import { COLORS } from "../utils/colors";
+import { COLORS } from "../utils/custom-styles";
 import { useNavigation } from "@react-navigation/native";
 
 export default function NavBar({

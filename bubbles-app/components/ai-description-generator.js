@@ -9,7 +9,7 @@ import {
   Modal,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { COLORS } from "../utils/colors";
+import { COLORS } from "../utils/custom-styles";
 import { generateEventDescription } from "../utils/ai-service";
 
 export default function AIDescriptionGenerator({

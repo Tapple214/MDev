@@ -31,7 +31,7 @@ import { db } from "../firebase";
 import NavBar from "../components/navbar";
 
 // Utility function/Hooks imports
-import { COLORS } from "../utils/colors";
+import { COLORS } from "../utils/custom-styles";
 import { useAuth } from "../contexts/AuthContext";
 import { useRoute } from "@react-navigation/native";
 

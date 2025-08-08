@@ -24,7 +24,7 @@ import {
   getUser,
   updateGuestResponse,
 } from "../utils/firestore";
-import { COLORS } from "../utils/colors";
+import { COLORS } from "../utils/custom-styles";
 
 // Quick actions that are displayed on the home screen
 const quickActions = [
