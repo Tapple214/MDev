@@ -15,7 +15,6 @@ import { COLORS } from "../utils/colors";
 import { TEXT_STYLES, combineTextStyles } from "../utils/textStyles";
 import {
   requestNotificationPermissions,
-  sendLocalNotification,
   getUserPushToken,
 } from "../utils/notifications";
 import { doc, updateDoc } from "firebase/firestore";
@@ -69,19 +68,6 @@ export default function NotificationSettings() {
       }
     } catch (error) {
       Alert.alert("Error", "Failed to request notification permissions");
-    }
-  };
-
-  const handleTestNotification = async () => {
-    try {
-      await sendLocalNotification(
-        "Test Notification",
-        "This is a test notification from the Bubbles app! Tap to verify notifications are working.",
-        { type: "test" }
-      );
-      Alert.alert("Success", "Test notification sent!");
-    } catch (error) {
-      Alert.alert("Error", "Failed to send test notification");
     }
   };
 
@@ -142,11 +128,13 @@ export default function NotificationSettings() {
 
           {permissionStatus !== "granted" && (
             <TouchableOpacity
-              style={styles.button}
+              style={[styles.button, styles.permissionButton]}
               onPress={handlePermissionRequest}
             >
-              <Feather name="bell" size={20} color={COLORS.primary} />
-              <Text style={styles.buttonText}>Request Permissions</Text>
+              <Feather name="bell" size={20} color="#FFFFFF" />
+              <Text style={[styles.buttonText, styles.permissionButtonText]}>
+                Request Permissions
+              </Text>
             </TouchableOpacity>
           )}
         </View>
@@ -205,20 +193,6 @@ export default function NotificationSettings() {
               }
             />
           </View>
-        </View>
-
-        {/* Test Notifications */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Test Notifications</Text>
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: "#FF6B6B" }]}
-            onPress={handleTestNotification}
-          >
-            <Feather name="bell" size={20} color="#FFFFFF" />
-            <Text style={[styles.buttonText, { color: "#FFFFFF" }]}>
-              Send Test Notification
-            </Text>
-          </TouchableOpacity>
         </View>
 
         {/* Information */}
@@ -284,6 +258,15 @@ const styles = StyleSheet.create({
   buttonText: {
     ...TEXT_STYLES.button.primary,
     marginLeft: 10,
+  },
+  permissionButton: {
+    backgroundColor: COLORS.primary,
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+  },
+  permissionButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
   },
   settingRow: {
     flexDirection: "row",

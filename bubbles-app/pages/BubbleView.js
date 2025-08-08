@@ -24,7 +24,6 @@ import { TEXT_STYLES, combineTextStyles } from "../utils/textStyles";
 import { confirmAttendance, validateAttendanceQR } from "../utils/attendance";
 import { generateEntryQRCode } from "../utils/qrCode";
 import { useAuth } from "../contexts/AuthContext";
-import { sendLocalNotification } from "../utils/notifications";
 
 export default function BubbleView() {
   // Hooks
@@ -161,19 +160,6 @@ export default function BubbleView() {
     navigation.navigate("EditBubble", {
       bubbleData: bubbleData,
     });
-  };
-
-  const handleTestNotification = async () => {
-    try {
-      await sendLocalNotification(
-        "Test Notification",
-        "This is a test notification from the Bubbles app! Tap to verify notifications are working.",
-        { type: "test" }
-      );
-      Alert.alert("Success", "Test notification sent!");
-    } catch (error) {
-      Alert.alert("Error", "Failed to send test notification");
-    }
   };
 
   return (
@@ -380,22 +366,6 @@ export default function BubbleView() {
               style={styles.icon}
             />
             <Text style={styles.buttonText}>View BubbleBook</Text>
-          </TouchableOpacity>
-
-          {/* Test Notification Button */}
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: "#FF6B6B" }]}
-            onPress={handleTestNotification}
-          >
-            <Feather
-              name="bell"
-              size={30}
-              color="#FFFFFF"
-              style={styles.icon}
-            />
-            <Text style={[styles.buttonText, { color: "#FFFFFF" }]}>
-              Test Notification
-            </Text>
           </TouchableOpacity>
 
           {/* QR Code Display Modal (for hosts) */}

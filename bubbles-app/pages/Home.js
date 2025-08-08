@@ -40,12 +40,6 @@ const quickActions = [
     goTo: "BubbleBuddies",
     image: require("../assets/add-buddy.png"),
   },
-  {
-    id: 3,
-    title: "Notification Settings",
-    goTo: "NotificationSettings",
-    image: require("../assets/add-buddy.png"), // Using same image for now
-  },
 ];
 
 // To show the different bubbles related to the user

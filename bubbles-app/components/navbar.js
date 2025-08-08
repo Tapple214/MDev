@@ -103,6 +103,17 @@ export default function NavBar({
         <Feather name="home" size={30} color={COLORS.primary} />
       </TouchableOpacity>
 
+      {/* Settings icon */}
+      <TouchableOpacity
+        onPress={() => {
+          if (currentRoute.name !== "NotificationSettings") {
+            navigation.navigate("NotificationSettings");
+          }
+        }}
+      >
+        <Feather name="settings" size={30} color={COLORS.primary} />
+      </TouchableOpacity>
+
       {/* Bubble Buddies icon */}
       <TouchableOpacity>
         <Feather
