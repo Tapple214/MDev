@@ -1,5 +1,0 @@
-Expo Link: exp://exp.host/@your-username/calculator-app
-
-Expo Snacks Link: https://appetize.io/embed/b_wquwfvmavsf7yydnygzetbxyey?device=iphone16pro&launchUrl=exp%3A%2F%2Fu.expo.dev%2F933fd9c0-1666-11e7-afca-d980795c5824%3Fruntime-version%3Dexposdk%253A53.0.0%26channel-name%3Dproduction%26snack%3D%2540tapple%252Fcalculator-app%26snack-channel%3DNthS67CkiN&params=%7B%22EXDevMenuDisableAutoLaunch%22%3Atrue%2C%22EXKernelDisableNuxDefaultsKey%22%3Atrue%7D&appearance=light&deviceColor=black&scale=auto&orientation=portrait&centered=both
-
-Expo Snacks Link: https://snack.expo.dev/@tapple/calculator-app

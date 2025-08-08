@@ -1,4 +1,0 @@
-Expo Link : exp://192.168.28.11:8081
-
-Expo Snacks Link: https://snack.expo.dev/@anonymous/food-app
-
