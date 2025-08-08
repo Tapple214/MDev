@@ -18,7 +18,7 @@ export const testAIIntegration = async () => {
     };
 
     console.log("📝 Generating test description...");
-    const description = await generateEventDescription(testEventData, "openai");
+    const description = await generateEventDescription(testEventData);
 
     console.log("✅ AI Integration Test Successful!");
     console.log("📄 Generated Description:", description);

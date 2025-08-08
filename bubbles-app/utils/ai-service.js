@@ -9,8 +9,10 @@ import { AI_CONFIG } from "../config/ai-config";
  * @param {Object} eventData - Event details
  * @returns {Promise<string>} Generated description
  */
-export const generateDescriptionWithOpenAI = async (eventData) => {
+export const generateEventDescription = async (eventData) => {
   try {
+    console.log("🤖 Generating description with OpenAI...");
+
     const response = await fetch(
       `${AI_CONFIG.OPENAI_BASE_URL}/chat/completions`,
       {
@@ -45,147 +47,13 @@ export const generateDescriptionWithOpenAI = async (eventData) => {
     }
 
     const data = await response.json();
+    console.log("✅ OpenAI description generated successfully");
     return data.choices[0].message.content;
   } catch (error) {
-    console.error("OpenAI API Error:", error);
-    throw error;
+    console.error("❌ OpenAI API Error:", error);
+    // Return fallback description if OpenAI fails
+    return generateFallbackDescription(eventData);
   }
-};
-
-/**
- * Generate event description using Google Gemini
- * @param {Object} eventData - Event details
- * @returns {Promise<string>} Generated description
- */
-export const generateDescriptionWithGemini = async (eventData) => {
-  try {
-    const response = await fetch(
-      `${AI_CONFIG.GEMINI_BASE_URL}/models/gemini-pro:generateContent?key=${AI_CONFIG.GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: `You are an expert event planner. Create an engaging event description for: ${JSON.stringify(
-                    eventData
-                  )}. Keep it under 200 words and make it inviting.`,
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 300,
-          },
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.candidates[0].content.parts[0].text;
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw error;
-  }
-};
-
-/**
- * Generate event description using Azure OpenAI
- * @param {Object} eventData - Event details
- * @returns {Promise<string>} Generated description
- */
-export const generateDescriptionWithAzure = async (eventData) => {
-  try {
-    const response = await fetch(
-      `${AI_CONFIG.AZURE_OPENAI_ENDPOINT}/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-05-15`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "api-key": AI_CONFIG.AZURE_OPENAI_API_KEY,
-        },
-        body: JSON.stringify({
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are an expert event planner and copywriter. Create engaging, concise event descriptions that capture the essence and excitement of the event. Keep descriptions under 200 words and make them inviting and appealing.",
-            },
-            {
-              role: "user",
-              content: `Create an engaging event description for: ${JSON.stringify(
-                eventData
-              )}`,
-            },
-          ],
-          max_tokens: 300,
-          temperature: 0.7,
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Azure OpenAI API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.choices[0].message.content;
-  } catch (error) {
-    console.error("Azure OpenAI API Error:", error);
-    throw error;
-  }
-};
-
-/**
- * Generate event description with fallback options
- * @param {Object} eventData - Event details
- * @param {string} preferredProvider - Preferred AI provider ('openai', 'gemini', 'azure')
- * @returns {Promise<string>} Generated description
- */
-export const generateEventDescription = async (
-  eventData,
-  preferredProvider = "openai"
-) => {
-  const providers = [
-    { name: "openai", func: generateDescriptionWithOpenAI },
-    { name: "gemini", func: generateDescriptionWithGemini },
-    { name: "azure", func: generateDescriptionWithAzure },
-  ];
-
-  // Reorder providers to put preferred one first
-  const reorderedProviders = [
-    ...providers.filter((p) => p.name === preferredProvider),
-    ...providers.filter((p) => p.name !== preferredProvider),
-  ];
-
-  for (const provider of reorderedProviders) {
-    try {
-      console.log(
-        `Attempting to generate description with ${provider.name}...`
-      );
-      const description = await provider.func(eventData);
-      console.log(`Successfully generated description with ${provider.name}`);
-      return description;
-    } catch (error) {
-      console.error(
-        `Failed to generate description with ${provider.name}:`,
-        error
-      );
-      // Continue to next provider
-    }
-  }
-
-  // If all providers fail, return a fallback description
-  return generateFallbackDescription(eventData);
 };
 
 /**
@@ -375,7 +243,4 @@ export default {
   generateEventDescription,
   generateEventThemes,
   generatePersonalizedInvitation,
-  generateDescriptionWithOpenAI,
-  generateDescriptionWithGemini,
-  generateDescriptionWithAzure,
 };

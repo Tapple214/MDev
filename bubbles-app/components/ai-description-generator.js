@@ -42,7 +42,7 @@ export default function AIDescriptionGenerator({
       };
 
       // Call the AI service
-      const description = await generateEventDescription(eventData, "openai");
+      const description = await generateEventDescription(eventData);
 
       setGeneratedDescription(description);
     } catch (error) {

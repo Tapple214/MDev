@@ -84,14 +84,12 @@ If you encounter issues with environment variables, you may need to configure Me
    - Edit the description manually
    - Regenerate if not satisfied
 
-### Fallback System
+### AI System
 
-The AI integration includes a robust fallback system:
+The app uses OpenAI as the primary AI provider:
 
-1. **Primary**: Tries OpenAI first
-2. **Secondary**: Falls back to Google Gemini
-3. **Tertiary**: Falls back to Azure OpenAI
-4. **Final**: Uses built-in template generation
+1. **Primary**: OpenAI GPT-3.5-turbo for description generation
+2. **Fallback**: Built-in template generation if OpenAI is unavailable
 
 ## Code Structure
 
