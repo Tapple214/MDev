@@ -69,7 +69,7 @@ export default function QRCodeScannerSimple({
         <View style={styles.scannerContainer}>
           {/* Placeholder for camera view */}
           <View style={styles.cameraPlaceholder}>
-            <Feather name="camera" size={80} color={COLORS.text.secondary} />
+            <Feather name="camera" size={80} color={COLORS.primary} />
             <Text style={styles.placeholderText}>Camera Scanner</Text>
             <Text style={styles.placeholderSubtext}>
               Native camera module is being configured
@@ -84,12 +84,6 @@ export default function QRCodeScannerSimple({
               <View style={[styles.corner, styles.cornerBottomLeft]} />
               <View style={[styles.corner, styles.cornerBottomRight]} />
             </View>
-          </View>
-
-          <View style={styles.instructionContainer}>
-            <Text style={styles.instructionText}>
-              Tap the button below to simulate scanning
-            </Text>
           </View>
         </View>
 
@@ -144,7 +138,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: COLORS.surface,
     margin: 20,
     borderRadius: 15,
   },
@@ -156,7 +149,7 @@ const styles = StyleSheet.create({
   },
   placeholderSubtext: {
     fontSize: 14,
-    color: COLORS.text.secondary,
+    color: COLORS.primary,
     textAlign: "center",
     marginTop: 10,
     paddingHorizontal: 20,
@@ -179,7 +172,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: 30,
     height: 30,
-    borderColor: COLORS.confirm,
+    borderColor: COLORS.primary,
     borderWidth: 3,
   },
   cornerTopRight: {
@@ -222,7 +215,7 @@ const styles = StyleSheet.create({
     bottom: 100,
     left: 20,
     right: 20,
-    backgroundColor: COLORS.confirm,
+    backgroundColor: COLORS.primary,
     paddingVertical: 15,
     borderRadius: 25,
     alignItems: "center",
@@ -240,7 +233,7 @@ const styles = StyleSheet.create({
     bottom: 50,
     left: 20,
     right: 20,
-    backgroundColor: COLORS.confirm,
+    backgroundColor: COLORS.primary,
     paddingVertical: 15,
     borderRadius: 25,
     alignItems: "center",
