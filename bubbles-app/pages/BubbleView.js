@@ -23,7 +23,7 @@ import GuestRespondBtns from "../components/guest-respond-btns";
 // Utility function/Hooks imports
 import { COLORS, TEXT_STYLES, combineTextStyles } from "../utils/custom-styles";
 import { confirmAttendance, validateAttendanceQR } from "../utils/attendance";
-import { generateEntryQRCode } from "../utils/qrCode";
+import { generateEntryQRCode } from "../utils/attendance";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function BubbleView() {

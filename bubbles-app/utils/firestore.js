@@ -11,7 +11,7 @@ import {
   deleteDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { generateEntryQRCode } from "./qrCode";
+import { generateEntryQRCode } from "./attendance";
 import {
   notifyGuestOfInvite,
   scheduleBubbleNotifications,
