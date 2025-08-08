@@ -285,6 +285,46 @@ export const notifyUpcomingBubble = async (bubbleId, hoursBefore = 24) => {
   }
 };
 
+// Notification for guests when host makes changes to a bubble
+export const notifyGuestsOfBubbleChanges = async (bubbleId, hostName) => {
+  try {
+    // Get bubble data
+    const bubbleRef = doc(db, "bubbles", bubbleId);
+    const bubbleSnap = await getDoc(bubbleRef);
+
+    if (!bubbleSnap.exists()) return;
+
+    const bubbleData = bubbleSnap.data();
+    const guestList = bubbleData.guestList || [];
+
+    // Send notifications to all guests
+    for (const guestEmail of guestList) {
+      // Get guest's push token
+      const guestToken = await getUserPushTokenByEmail(guestEmail);
+
+      const title = "Bubble Updated!";
+      const body = `${hostName} made changes to "${bubbleData.name}". Check it out to stay in the loop!`;
+      const data = {
+        type: "bubble_updated",
+        bubbleId,
+        hostName,
+        bubbleName: bubbleData.name,
+      };
+
+      // Send push notification if token is available
+      if (guestToken) {
+        await sendPushNotification(guestToken, title, body, data);
+      } else {
+        // Fallback to local notification for development
+        console.log("Sending local notification for bubble update");
+        await sendLocalNotification(title, body, data);
+      }
+    }
+  } catch (error) {
+    console.error("Error notifying guests of bubble changes:", error);
+  }
+};
+
 // Schedule notifications for a bubble (1 day and 6 hours before)
 export const scheduleBubbleNotifications = async (bubbleId) => {
   try {

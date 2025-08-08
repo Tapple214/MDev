@@ -16,6 +16,7 @@ import {
   notifyGuestOfInvite,
   scheduleBubbleNotifications,
   notifyHostOfGuestResponse,
+  notifyGuestsOfBubbleChanges,
 } from "./notifications";
 
 // Sign up functionality
@@ -189,6 +190,15 @@ export const updateBubble = async (bubbleData) => {
     });
 
     await updateDoc(bubbleRef, bubbleDoc);
+
+    // Notify all guests about the bubble changes
+    if (guestList.length > 0) {
+      await notifyGuestsOfBubbleChanges(
+        bubbleData.bubbleId,
+        bubbleData.hostName
+      );
+    }
+
     return { id: bubbleData.bubbleId, ...bubbleDoc };
   } catch (error) {
     console.error("Error updating bubble in Firestore:", error);
