@@ -305,24 +305,6 @@ export default function BubbleView() {
             bubbleDetails.userRole === "host") && (
             <View>
               <TouchableOpacity
-                style={styles.button}
-                onPress={() =>
-                  navigation.navigate("BubbleBook", {
-                    bubbleId: bubbleDetails.bubbleId,
-                    bubbleName: bubbleData?.name || bubbleDetails.name,
-                  })
-                }
-              >
-                <Feather
-                  name="image"
-                  size={30}
-                  color={COLORS.primary}
-                  style={styles.icon}
-                />
-                <Text style={styles.buttonText}>View BubbleBook</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
                 style={[styles.button, bubbleData?.needQR && styles.button]}
                 onPress={handleShowQRCode}
               >
@@ -346,6 +328,24 @@ export default function BubbleView() {
               </TouchableOpacity>
             </View>
           )}
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() =>
+              navigation.navigate("BubbleBook", {
+                bubbleId: bubbleDetails.bubbleId,
+                bubbleName: bubbleData?.name || bubbleDetails.name,
+              })
+            }
+          >
+            <Feather
+              name="image"
+              size={30}
+              color={COLORS.primary}
+              style={styles.icon}
+            />
+            <Text style={styles.buttonText}>View BubbleBook</Text>
+          </TouchableOpacity>
 
           {/* QR Code Display Modal (for hosts) */}
           <QRCodeDisplay
