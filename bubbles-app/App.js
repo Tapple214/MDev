@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
 // Custom hooks and utility functions
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { setupNotificationListeners } from "./utils/notifications";
 
 // Import page components
 import Login from "./pages/Login";
@@ -14,6 +15,7 @@ import BubbleBuddies from "./pages/BubbleBuddies";
 import CreateBubble from "./pages/CreateBubble";
 import EditBubble from "./pages/EditBubble";
 import GuestList from "./pages/GuestList";
+import NotificationSettings from "./pages/NotificationSettings";
 
 const Stack = createStackNavigator();
 
@@ -22,6 +24,14 @@ const Stack = createStackNavigator();
 function NavigationContent() {
   // Custom Hook
   const { user } = useAuth();
+
+  // Set up notification listeners when user is authenticated
+  useEffect(() => {
+    if (user) {
+      const cleanup = setupNotificationListeners();
+      return cleanup;
+    }
+  }, [user]);
 
   return (
     <Stack.Navigator
@@ -49,6 +59,10 @@ function NavigationContent() {
           <Stack.Screen name="CreateBubble" component={CreateBubble} />
           <Stack.Screen name="EditBubble" component={EditBubble} />
           <Stack.Screen name="GuestList" component={GuestList} />
+          <Stack.Screen
+            name="NotificationSettings"
+            component={NotificationSettings}
+          />
         </>
       ) : (
         // User is not signed in

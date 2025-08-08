@@ -16,6 +16,7 @@ import {
   getUser,
   deleteUser as deleteFirestoreUser,
 } from "../utils/firestore";
+import { initializeNotifications } from "../utils/notifications";
 
 const AuthContext = createContext({});
 
@@ -32,11 +33,14 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
 
-      // If user is authenticated, fetch their data from Firestore
+      // If user is authenticated, fetch their data from Firestore and initialize notifications
       if (user) {
         try {
           const data = await getUser(user.uid);
           setUserData(data);
+
+          // Initialize notifications for the user
+          await initializeNotifications(user.uid);
         } catch (error) {
           console.error("Error fetching user data:", error);
           setUserData(null);

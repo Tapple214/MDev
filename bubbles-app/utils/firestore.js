@@ -12,6 +12,11 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { generateEntryQRCode } from "./qrCode";
+import {
+  notifyGuestOfInvite,
+  scheduleBubbleNotifications,
+  notifyHostOfGuestResponse,
+} from "./notifications";
 
 // Sign up functionality
 export const addUser = async (userId, userData) => {
@@ -109,6 +114,17 @@ export const createBubble = async (bubbleData) => {
     });
 
     await setDoc(newBubbleRef, bubbleDoc);
+
+    // Send notifications to all guests
+    if (guestList.length > 0) {
+      for (const guestEmail of guestList) {
+        await notifyGuestOfInvite(guestEmail, newBubbleRef.id);
+      }
+    }
+
+    // Schedule upcoming bubble notifications
+    await scheduleBubbleNotifications(newBubbleRef.id);
+
     return { id: newBubbleRef.id, ...bubbleDoc };
   } catch (error) {
     console.error("Error creating bubble in Firestore:", error);
@@ -367,6 +383,9 @@ export const updateGuestResponse = async (bubbleId, guestEmail, response) => {
       guestResponses: guestResponses,
       updatedAt: serverTimestamp(),
     });
+
+    // Notify the host of the guest response
+    await notifyHostOfGuestResponse(bubbleId, guestEmail, response);
 
     return true;
   } catch (error) {
