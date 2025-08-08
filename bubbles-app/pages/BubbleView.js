@@ -16,6 +16,8 @@ import { db } from "../firebase";
 import NavBar from "../components/navbar";
 import QRCodeDisplay from "../components/qr-code-display";
 import QRCodeScanner from "../components/qr-code-scanner-simple";
+import UniqueCodeDisplay from "../components/unique-code-display";
+import UniqueCodeEntry from "../components/unique-code-entry";
 import GuestRespondBtns from "../components/guest-respond-btns";
 
 // Utility function/Hooks imports
@@ -38,6 +40,8 @@ export default function BubbleView() {
   const [bubbleData, setBubbleData] = useState(null);
   const [showQRCode, setShowQRCode] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
+  const [showUniqueCodeDisplay, setShowUniqueCodeDisplay] = useState(false);
+  const [showUniqueCodeEntry, setShowUniqueCodeEntry] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Load bubble data from Firestore
@@ -65,6 +69,59 @@ export default function BubbleView() {
       loadBubbleData();
     }
   }, [bubbleDetails.bubbleId]);
+
+  // Handle attendance confirmation methods
+  const handleShowAttendanceOptions = () => {
+    if (!bubbleData?.needQR) {
+      Alert.alert(
+        "Info",
+        "This bubble doesn't require attendance confirmation"
+      );
+      return;
+    }
+
+    if (bubbleDetails.userRole === "host") {
+      // Show options for host
+      Alert.alert(
+        "Attendance Method",
+        "Choose how guests will confirm attendance:",
+        [
+          {
+            text: "QR Code",
+            onPress: () => handleShowQRCode(),
+          },
+          {
+            text: "Unique Code",
+            onPress: () => setShowUniqueCodeDisplay(true),
+          },
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+        ]
+      );
+    } else {
+      // Show options for guest
+      Alert.alert(
+        "Confirm Attendance",
+        "Choose how to confirm your attendance:",
+        [
+          {
+            text: "Scan QR Code",
+            onPress: () => setShowQRScanner(true),
+          },
+          {
+            text: "Enter Code",
+            onPress: () => setShowUniqueCodeEntry(true),
+          },
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+        ]
+      );
+    }
+  };
 
   // If user is host, user will have to show QR code
   const handleShowQRCode = () => {
@@ -143,6 +200,56 @@ export default function BubbleView() {
               );
             }
             setShowQRScanner(false);
+          },
+        },
+      ]
+    );
+  };
+
+  const handleCodeSubmitted = async (codeData) => {
+    const validation = validateAttendanceQR(codeData, bubbleDetails.bubbleId);
+
+    if (!validation.isValid) {
+      Alert.alert("Invalid Code", validation.message);
+      setShowUniqueCodeEntry(false);
+      return;
+    }
+
+    Alert.alert(
+      "Confirm Attendance",
+      `Bubble: ${codeData.bubbleName}\nHost: ${codeData.hostName}\nCode: ${codeData.entryCode}\n\nWould you like to confirm your attendance?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+          onPress: () => setShowUniqueCodeEntry(false),
+        },
+        {
+          text: "Yes",
+          onPress: async () => {
+            try {
+              if (!user?.email) {
+                Alert.alert("Error", "User not authenticated");
+                return;
+              }
+              const result = await confirmAttendance(
+                bubbleDetails.bubbleId,
+                user.email,
+                codeData
+              );
+
+              if (result.success) {
+                Alert.alert("Success", result.message);
+              } else {
+                Alert.alert("Error", result.message);
+              }
+            } catch (error) {
+              Alert.alert(
+                "Error",
+                "Failed to confirm attendance. Please try again."
+              );
+            }
+            setShowUniqueCodeEntry(false);
           },
         },
       ]
@@ -317,9 +424,9 @@ export default function BubbleView() {
         </View>
 
         {/* TODO: add images into db */}
-        {/* Row 4: Quick Actions; Buttons for BubbleBook and QR Code */}
+        {/* Row 4: Quick Actions; Buttons for BubbleBook and Attendance */}
         <View style={styles.quickActionsContainer}>
-          {/* QR Code Button and BubbleBook Button; will only show if user has accepted the bubble or if uses is host */}
+          {/* Attendance Button and BubbleBook Button; will only show if user has accepted the bubble or if uses is host */}
           {((user &&
             bubbleData?.guestResponses?.[user.email?.toLowerCase()]
               ?.response === "accepted") ||
@@ -327,13 +434,11 @@ export default function BubbleView() {
             <View>
               <TouchableOpacity
                 style={[styles.button, bubbleData?.needQR && styles.button]}
-                onPress={handleShowQRCode}
+                onPress={handleShowAttendanceOptions}
               >
                 <Feather
                   name={
-                    bubbleDetails.userRole === "host"
-                      ? "smartphone"
-                      : "user-check"
+                    bubbleDetails.userRole === "host" ? "lock" : "user-check"
                   }
                   size={30}
                   color={COLORS.primary}
@@ -342,9 +447,9 @@ export default function BubbleView() {
                 <Text style={[styles.buttonText]}>
                   {bubbleData?.needQR
                     ? bubbleDetails.userRole === "host"
-                      ? "Show QR Code"
-                      : "Scan QR Code"
-                    : "No QR Required"}
+                      ? "Attendance Options"
+                      : "Confirm Attendance"
+                    : "No Attendance Required"}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -381,6 +486,23 @@ export default function BubbleView() {
             isVisible={showQRScanner}
             onClose={() => setShowQRScanner(false)}
             onQRCodeScanned={handleQRCodeScanned}
+          />
+
+          {/* Unique Code Display Modal (for hosts) */}
+          <UniqueCodeDisplay
+            isVisible={showUniqueCodeDisplay}
+            onClose={() => setShowUniqueCodeDisplay(false)}
+            bubbleName={bubbleData?.name}
+            bubbleId={bubbleDetails.bubbleId}
+          />
+
+          {/* Unique Code Entry Modal (for guests) */}
+          <UniqueCodeEntry
+            isVisible={showUniqueCodeEntry}
+            onClose={() => setShowUniqueCodeEntry(false)}
+            onCodeSubmitted={handleCodeSubmitted}
+            bubbleName={bubbleData?.name}
+            hostName={bubbleData?.hostName}
           />
         </View>
       </ScrollView>
