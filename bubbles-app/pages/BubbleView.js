@@ -20,6 +20,7 @@ import GuestRespondBtns from "../components/guest-respond-btns";
 
 // Utility function/Hooks imports
 import { COLORS } from "../utils/colors";
+import { TEXT_STYLES, combineTextStyles } from "../utils/textStyles";
 import { confirmAttendance, validateAttendanceQR } from "../utils/attendance";
 import { generateEntryQRCode } from "../utils/qrCode";
 import { useAuth } from "../contexts/AuthContext";
@@ -204,7 +205,12 @@ export default function BubbleView() {
               color="#949D72"
             />
 
-            <Text style={[styles.cardTitle, { textAlign: "right" }]}>
+            <Text
+              style={combineTextStyles(
+                styles.cardTitle,
+                TEXT_STYLES.alignment.right
+              )}
+            >
               {bubbleDetails.userRole === "host"
                 ? "Are you excited?"
                 : "Are you attending?"}
@@ -225,11 +231,21 @@ export default function BubbleView() {
 
           {/* Guest List */}
           <View style={[styles.cell, { flex: 1 }]}>
-            <Text style={[styles.cardTitle, { textAlign: "right" }]}>
+            <Text
+              style={combineTextStyles(
+                styles.cardTitle,
+                TEXT_STYLES.alignment.right
+              )}
+            >
               Guests
             </Text>
 
-            <Text style={[styles.cardText, { textAlign: "right" }]}>
+            <Text
+              style={combineTextStyles(
+                styles.cardText,
+                TEXT_STYLES.alignment.right
+              )}
+            >
               {bubbleData?.guestList
                 ? Array.isArray(bubbleData.guestList)
                   ? bubbleData.guestList.length
@@ -255,7 +271,12 @@ export default function BubbleView() {
                 })
               }
             >
-              <Text style={{ textAlign: "right" }}>
+              <Text
+                style={combineTextStyles(
+                  TEXT_STYLES.body.medium,
+                  TEXT_STYLES.alignment.right
+                )}
+              >
                 View Guest List <Feather name="chevron-right" />
               </Text>
             </TouchableOpacity>
@@ -382,10 +403,8 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "bold",
+    ...TEXT_STYLES.heading.medium,
     paddingBottom: 15,
-    color: COLORS.primary,
   },
   button: {
     padding: 10,
@@ -395,10 +414,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   buttonText: {
-    color: COLORS.text.primary,
-    fontSize: 14,
-    fontWeight: "500",
-    color: COLORS.primary,
+    ...TEXT_STYLES.button.primary,
   },
 
   // Icon properties
@@ -418,15 +434,12 @@ const styles = StyleSheet.create({
 
   // Card properties
   cardTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
+    ...TEXT_STYLES.card.title,
     paddingBottom: 10,
-    color: COLORS.primary,
   },
   cardText: {
-    fontSize: 14,
+    ...TEXT_STYLES.card.text,
     paddingBottom: 10,
-    color: COLORS.primary,
   },
 
   // Detail properties
