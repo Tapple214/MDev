@@ -415,6 +415,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     ...TEXT_STYLES.button.primary,
+    color: COLORS.primary,
   },
 
   // Icon properties
