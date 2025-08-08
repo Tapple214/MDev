@@ -92,17 +92,6 @@ export default function NavBar({
         <Feather name="log-out" size={30} color={COLORS.primary} />
       </TouchableOpacity>
 
-      {/* Home icon */}
-      <TouchableOpacity
-        onPress={() => {
-          if (currentRoute.name !== "Home") {
-            navigation.popToTop("Home");
-          }
-        }}
-      >
-        <Feather name="home" size={30} color={COLORS.primary} />
-      </TouchableOpacity>
-
       {/* Settings icon */}
       <TouchableOpacity
         onPress={() => {
@@ -112,20 +101,6 @@ export default function NavBar({
         }}
       >
         <Feather name="settings" size={30} color={COLORS.primary} />
-      </TouchableOpacity>
-
-      {/* Bubble Buddies icon */}
-      <TouchableOpacity>
-        <Feather
-          name="users"
-          size={30}
-          color={COLORS.primary}
-          onPress={() => {
-            if (currentRoute.name !== "BubbleBuddies") {
-              navigation.navigate("BubbleBuddies");
-            }
-          }}
-        />
       </TouchableOpacity>
 
       {/* Highlight icon */}
@@ -144,6 +119,31 @@ export default function NavBar({
           />
         </TouchableOpacity>
       </View>
+
+      {/* Bubble Buddies icon */}
+      <TouchableOpacity>
+        <Feather
+          name="users"
+          size={30}
+          color={COLORS.primary}
+          onPress={() => {
+            if (currentRoute.name !== "BubbleBuddies") {
+              navigation.navigate("BubbleBuddies");
+            }
+          }}
+        />
+      </TouchableOpacity>
+
+      {/* Home icon */}
+      <TouchableOpacity
+        onPress={() => {
+          if (currentRoute.name !== "Home") {
+            navigation.popToTop("Home");
+          }
+        }}
+      >
+        <Feather name="home" size={30} color={COLORS.primary} />
+      </TouchableOpacity>
     </View>
   );
 }

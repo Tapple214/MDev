@@ -259,7 +259,7 @@ export default function Home({ navigation }) {
                           styles.quickActionsTitle,
                           {
                             position: "absolute",
-                            bottom: 10,
+                            bottom: 8,
                             right: 0,
                           },
                         ]}
