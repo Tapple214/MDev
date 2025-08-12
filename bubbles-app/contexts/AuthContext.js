@@ -5,9 +5,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  GoogleAuthProvider,
-  signInWithCredential,
-  deleteUser as deleteAuthUser,
+  deleteUser as deleteFireAuth,
   reauthenticateWithCredential,
   EmailAuthProvider,
 } from "firebase/auth";
@@ -18,6 +16,9 @@ import {
 } from "../utils/firestore";
 import { initializeNotifications } from "../utils/notifications";
 
+// =============================================== AUTH CONTEXT ===============================================
+
+// Holds auth data for info access across the app
 const AuthContext = createContext({});
 
 export const useAuth = () => {
@@ -38,8 +39,6 @@ export const AuthProvider = ({ children }) => {
         try {
           const data = await getUser(user.uid);
           setUserData(data);
-
-          // Initialize notifications for the user
           await initializeNotifications(user.uid);
         } catch (error) {
           console.error("Error fetching user data:", error);
@@ -55,23 +54,7 @@ export const AuthProvider = ({ children }) => {
     return unsubscribe;
   }, []);
 
-  const addUserToFirestore = async (userId, userData) => {
-    try {
-      await addUser(userId, userData);
-    } catch (error) {
-      console.error("Error adding user to Firestore:", error);
-      throw error;
-    }
-  };
-
-  const getUserFromFirestore = async (userId) => {
-    try {
-      return await getUser(userId);
-    } catch (error) {
-      console.error("Error getting user from Firestore:", error);
-      throw error;
-    }
-  };
+  // =============================================== LOGIN/SIGN UP ===============================================
 
   const signup = async (email, password, name) => {
     try {
@@ -83,7 +66,7 @@ export const AuthProvider = ({ children }) => {
       const user = userCredential.user;
 
       // Add user data to Firestore with normalized email
-      await addUserToFirestore(user.uid, {
+      await addUser(user.uid, {
         name,
         email: email.toLowerCase().trim(),
       });
@@ -101,6 +84,7 @@ export const AuthProvider = ({ children }) => {
         email,
         password
       );
+
       return userCredential.user;
     } catch (error) {
       throw error;
@@ -115,15 +99,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signInWithGoogle = async (idToken) => {
-    try {
-      const credential = GoogleAuthProvider.credential(idToken);
-      const userCredential = await signInWithCredential(auth, credential);
-      return userCredential.user;
-    } catch (error) {
-      throw error;
-    }
-  };
+  // =============================================== ACCOUNT DELETION===============================================
 
   const deleteAccount = async (password) => {
     try {
@@ -140,7 +116,7 @@ export const AuthProvider = ({ children }) => {
       await deleteFirestoreUser(user.uid);
 
       // Delete the user account from Firebase Auth
-      await deleteAuthUser(user);
+      await deleteFireAuth(user);
 
       return true;
     } catch (error) {
@@ -155,9 +131,6 @@ export const AuthProvider = ({ children }) => {
     signup,
     login,
     logout,
-    signInWithGoogle,
-    addUserToFirestore,
-    getUserFromFirestore,
     deleteAccount,
     loading,
   };
