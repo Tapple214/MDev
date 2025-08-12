@@ -1,3 +1,5 @@
+// notifications sent to all users
+
 import * as Notifications from "expo-notifications";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";

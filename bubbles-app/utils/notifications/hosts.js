@@ -1,3 +1,5 @@
+// notifications sent to hosts
+
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import {
