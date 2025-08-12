@@ -1,0 +1,130 @@
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase";
+import {
+  getUserPushTokenByEmail,
+  sendPushNotification,
+  sendLocalNotification,
+} from "./core.js";
+
+// ============================================================================
+// NOTIFICATIONS FOR GUESTS
+// ============================================================================
+
+// Notification for guest when they receive an invite
+export const notifyGuestOfInvite = async (guestEmail, bubbleId) => {
+  try {
+    // Get bubble data
+    const bubbleRef = doc(db, "bubbles", bubbleId);
+    const bubbleSnap = await getDoc(bubbleRef);
+
+    if (!bubbleSnap.exists()) return;
+
+    const bubbleData = bubbleSnap.data();
+
+    // Get guest's push token
+    const guestToken = await getUserPushTokenByEmail(guestEmail);
+
+    const title = "New Bubble Invite!";
+    const body = `You have been invited by ${bubbleData.hostName} to "${bubbleData.name}"`;
+    const data = {
+      type: "bubble_invite",
+      bubbleId,
+      hostName: bubbleData.hostName,
+    };
+
+    // Send push notification if token is available
+    if (guestToken) {
+      await sendPushNotification(guestToken, title, body, data);
+    } else {
+      // Fallback to local notification for development
+      console.log("Sending local notification for bubble invite");
+      await sendLocalNotification(title, body, data);
+    }
+  } catch (error) {
+    console.error("Error notifying guest of invite:", error);
+  }
+};
+
+// Notification for guests when host makes changes to a bubble
+export const notifyGuestsOfBubbleChanges = async (bubbleId, hostName) => {
+  try {
+    // Get bubble data
+    const bubbleRef = doc(db, "bubbles", bubbleId);
+    const bubbleSnap = await getDoc(bubbleRef);
+
+    if (!bubbleSnap.exists()) return;
+
+    const bubbleData = bubbleSnap.data();
+    const guestList = bubbleData.guestList || [];
+
+    // Send notifications to all guests
+    for (const guestEmail of guestList) {
+      // Get guest's push token
+      const guestToken = await getUserPushTokenByEmail(guestEmail);
+
+      const title = "Bubble Updated!";
+      const body = `${hostName} made changes to "${bubbleData.name}". Check it out to stay in the loop!`;
+      const data = {
+        type: "bubble_updated",
+        bubbleId,
+        hostName,
+        bubbleName: bubbleData.name,
+      };
+
+      // Send push notification if token is available
+      if (guestToken) {
+        await sendPushNotification(guestToken, title, body, data);
+      } else {
+        // Fallback to local notification for development
+        console.log("Sending local notification for bubble update");
+        await sendLocalNotification(title, body, data);
+      }
+    }
+  } catch (error) {
+    console.error("Error notifying guests of bubble changes:", error);
+  }
+};
+
+// Notification for all invitees when a host deletes a bubble
+export const notifyGuestsOfBubbleDeletion = async (
+  bubbleId,
+  hostName,
+  bubbleName
+) => {
+  try {
+    // Get bubble data to find all invitees
+    const bubbleRef = doc(db, "bubbles", bubbleId);
+    const bubbleSnap = await getDoc(bubbleRef);
+
+    if (!bubbleSnap.exists()) return;
+
+    const bubbleData = bubbleSnap.data();
+    const guestList = bubbleData.guestList || [];
+
+    // Send notifications to all guests
+    for (const guestEmail of guestList) {
+      // Get guest's push token
+      const guestToken = await getUserPushTokenByEmail(guestEmail);
+
+      const title = "Bubble Deleted";
+      const body = `${hostName} deleted "${bubbleName}"`;
+      const data = {
+        type: "bubble_deleted",
+        bubbleId,
+        hostName,
+        bubbleName,
+      };
+
+      // Send push notification if token is available
+      if (guestToken) {
+        await sendPushNotification(guestToken, title, body, data);
+      } else {
+        // Fallback to local notification for development
+        console.log("Sending local notification for bubble deletion");
+        await sendLocalNotification(title, body, data);
+      }
+    }
+  } catch (error) {
+    console.error("Error notifying guests of bubble deletion:", error);
+  }
+};
