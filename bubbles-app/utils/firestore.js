@@ -213,8 +213,8 @@ export const getUserBubbles = async (userId, userEmail) => {
     const querySnapshot = await getDocs(bubblesRef);
     const bubbles = [];
 
-    // Normalize user email to lowercase for consistent comparison
-    const normalizedUserEmail = userEmail.toLowerCase().trim();
+    // Emails are already stored as lowercase, so no need to normalize
+    const userEmailToCheck = userEmail;
 
     querySnapshot.forEach((doc) => {
       const bubbleData = doc.data();
@@ -236,17 +236,16 @@ export const getUserBubbles = async (userId, userEmail) => {
           // If guestList is a string, split it into an array
           guestEmails = bubbleData.guestList
             .split(",")
-            .map((email) => email.trim().toLowerCase())
+            .map((email) => email.trim())
             .filter((email) => email.length > 0);
         } else if (Array.isArray(bubbleData.guestList)) {
-          // If guestList is already an array, normalize the emails
           guestEmails = bubbleData.guestList
-            .map((email) => email.trim().toLowerCase())
+            .map((email) => email.trim())
             .filter((email) => email.length > 0);
         }
 
         // Check if user is in the guest list
-        if (guestEmails.includes(normalizedUserEmail)) {
+        if (guestEmails.includes(userEmailToCheck)) {
           bubbles.push({
             id: doc.id,
             ...bubbleData,
@@ -263,7 +262,7 @@ export const getUserBubbles = async (userId, userEmail) => {
   }
 };
 
-// =============================================== GUEST SEARCH MANAGEMENT ===============================================
+// =============================================== GUEST SEARCH ===============================================
 
 // Function to find users by email
 export const findUser = async (searchTerm) => {
@@ -344,7 +343,7 @@ export const validateGuestEmails = async (emailList) => {
   }
 };
 
-// =============================================== GUEST INTERACTIONS MANAGEMENT ===============================================
+// =============================================== GUEST INTERACTION ===============================================
 
 // Update guest response for a bubble; accepted or declined
 export const updateGuestResponse = async (bubbleId, guestEmail, response) => {
@@ -360,11 +359,8 @@ export const updateGuestResponse = async (bubbleId, guestEmail, response) => {
     const bubbleData = bubbleSnap.data();
     const guestResponses = bubbleData.guestResponses || {};
 
-    // Normalize guest email to lowercase
-    const normalizedGuestEmail = guestEmail.toLowerCase().trim();
-
     // Update guest response with attended field defaulting to false
-    guestResponses[normalizedGuestEmail] = {
+    guestResponses[guestEmail] = {
       response: response,
       respondedAt: serverTimestamp(),
       attended: false, // Default to false, will be set to true when QR is scanned
@@ -406,9 +402,7 @@ export const getBubbleBuddies = async (currentUserId) => {
     const users = [];
 
     for (const email of bubbleBuddies) {
-      // Ensure email is lowercase for consistent querying
-      const normalizedEmail = email.toLowerCase().trim();
-      const q = query(usersRef, where("email", "==", normalizedEmail));
+      const q = query(usersRef, where("email", "==", email));
       const querySnapshot = await getDocs(q);
 
       querySnapshot.forEach((doc) => {
