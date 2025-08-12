@@ -65,7 +65,7 @@ export const savePushToken = async (uid, token) => {
   }
 };
 
-// generate push token from Expo and save it
+// generate push token from Expo and attach it to a user
 export const registerForPushNotifications = async (uid) => {
   try {
     // Request permissions first
