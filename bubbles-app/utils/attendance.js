@@ -45,7 +45,7 @@ export const generateAttendanceQR = (bubbleData) => {
   return JSON.stringify(qrData);
 };
 
-// =============================================== QR CODE VALIDATION/CLOCK IN ===============================================
+// =============================================== QR CODE VALIDATION ===============================================
 
 // Validate QR code for attendance
 export const validateAttendanceQR = (qrDataString, bubbleId) => {
@@ -93,6 +93,8 @@ export const validateAttendanceQR = (qrDataString, bubbleId) => {
     };
   }
 };
+
+// =============================================== QR CODE CONFIRMATION ===============================================
 
 // Confirm attendance for a guest (for QR code)
 export const confirmAttendanceByQR = async (bubbleId, guestEmail, qrData) => {
@@ -148,6 +150,77 @@ export const generateAttendanceCode = (bubbleId) => {
     expiresAt: new Date(Date.now() + 5 * 60 * 1000), // Set expiration to 5 minutes from now
   };
 };
+
+// =============================================== UNIQUE PIN VALIDATION ===============================================
+
+// Validate PIN code for attendance
+export const validateAttendancePin = (pinData, bubbleId) => {
+  try {
+    // Check if pinData exists and has required structure
+    if (!pinData || typeof pinData !== "object") {
+      return {
+        isValid: false,
+        message: "Invalid PIN data format.",
+      };
+    }
+
+    // Check if it's a valid attendance PIN
+    if (
+      !pinData.code ||
+      !pinData.bubbleId ||
+      !pinData.timestamp ||
+      !pinData.expiresAt
+    ) {
+      return {
+        isValid: false,
+        message: "Invalid PIN data structure.",
+      };
+    }
+
+    // Check if PIN is for the correct bubble
+    if (pinData.bubbleId !== bubbleId) {
+      return {
+        isValid: false,
+        message: "This PIN is not for this bubble.",
+      };
+    }
+
+    // Check if PIN has expired
+    const now = new Date();
+    const expiresAt = new Date(pinData.expiresAt);
+
+    if (now > expiresAt) {
+      return {
+        isValid: false,
+        message: "This PIN has expired.",
+      };
+    }
+
+    // Check if PIN is still within the 5-minute validity window
+    const pinTimestamp = new Date(pinData.timestamp);
+    const minutesDiff = (now - pinTimestamp) / (1000 * 60);
+
+    if (minutesDiff > 5) {
+      return {
+        isValid: false,
+        message: "This PIN has expired.",
+      };
+    }
+
+    return {
+      isValid: true,
+      message: "PIN is valid for attendance confirmation.",
+      data: pinData,
+    };
+  } catch (error) {
+    return {
+      isValid: false,
+      message: "Invalid PIN data.",
+    };
+  }
+};
+
+// =============================================== UNIQUE PIN CONFIRMATION ===============================================
 
 // Confirm attendance for a guest (via unique PIN)
 export const confirmAttendanceByPin = async (bubbleId, guestEmail, pinData) => {
