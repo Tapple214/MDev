@@ -2,6 +2,7 @@
 import { db } from "../firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 
+// Convert date and time to firestore acceptable timestamp
 export const dateToTimestamp = (date, time) => {
   const scheduleDate = new Date(date);
   scheduleDate.setHours(time.getHours());
@@ -12,7 +13,7 @@ export const dateToTimestamp = (date, time) => {
   return scheduleDate;
 };
 
-// Helper function to get user name by email; used for personalized notifications
+// Helper function to get user name by email; used mainly for personalized notifications
 export const getUserNameByEmail = async (email) => {
   try {
     const usersRef = collection(db, "users");
