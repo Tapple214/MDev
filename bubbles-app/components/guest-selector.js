@@ -10,7 +10,7 @@ import {
   ScrollView,
 } from "react-native";
 import { useAuth } from "../contexts/AuthContext";
-import { getBubbleBuddiesForSelection } from "../utils/firestore";
+import { getBubbleBuddies } from "../utils/firestore";
 import { COLORS } from "../utils/custom-styles";
 import { validateGuestEmails } from "../utils/firestore";
 import Feather from "react-native-vector-icons/Feather";
@@ -44,7 +44,7 @@ export default function GuestSelector({
 
     setLoading(true);
     try {
-      const bubbleBuddies = await getBubbleBuddiesForSelection(user.uid);
+      const bubbleBuddies = await getBubbleBuddies(user.uid);
       setUsers(bubbleBuddies);
     } catch (error) {
       console.error("Error loading bubble buddies:", error);

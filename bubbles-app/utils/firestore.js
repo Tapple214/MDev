@@ -19,6 +19,8 @@ import {
   notifyGuestsOfBubbleChanges,
 } from "./notifications";
 
+// =============================================== ACCOUNT MANAGEMENT ===============================================
+
 // Sign up functionality
 export const addUser = async (userId, userData) => {
   try {
@@ -39,7 +41,19 @@ export const addUser = async (userId, userData) => {
   }
 };
 
-// For disaplying user info in the app where needed
+// Delete user data from Firestore
+export const deleteUser = async (userId) => {
+  try {
+    const userRef = doc(db, "users", userId);
+    await deleteDoc(userRef);
+    return true;
+  } catch (error) {
+    console.error("Error deleting user from Firestore:", error);
+    throw error;
+  }
+};
+
+// Retrieving user data from Firestore
 export const getUser = async (userId) => {
   try {
     const userRef = doc(db, "users", userId);
@@ -55,6 +69,8 @@ export const getUser = async (userId) => {
     throw error;
   }
 };
+
+// =============================================== BUBBLE MANAGEMENT ===============================================
 
 // Create a new bubble
 export const createBubble = async (bubbleData) => {
@@ -79,16 +95,14 @@ export const createBubble = async (bubbleData) => {
 
     // Generate QR code data if needQR is true
     let qrCodeData = null;
-    console.log("Creating bubble with needQR:", bubbleData.needQR);
     if (bubbleData.needQR) {
-      const tempBubbleData = {
+      const bubbleDataQR = {
         id: newBubbleRef.id,
         name: bubbleData.name,
         hostName: bubbleData.hostName,
         schedule: scheduleDate,
       };
-      qrCodeData = generateEntryQRCode(tempBubbleData);
-      console.log("Generated QR code data:", qrCodeData);
+      qrCodeData = generateEntryQRCode(bubbleDataQR);
     }
 
     const bubbleDoc = {
@@ -107,12 +121,6 @@ export const createBubble = async (bubbleData) => {
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
-
-    console.log("Final bubbleDoc to save:", {
-      name: bubbleDoc.name,
-      needQR: bubbleDoc.needQR,
-      qrCodeData: bubbleDoc.qrCodeData ? "exists" : "null",
-    });
 
     await setDoc(newBubbleRef, bubbleDoc);
 
@@ -155,16 +163,14 @@ export const updateBubble = async (bubbleData) => {
 
     // Generate QR code data if needQR is true
     let qrCodeData = null;
-    console.log("Updating bubble with needQR:", bubbleData.needQR);
     if (bubbleData.needQR) {
-      const tempBubbleData = {
+      const bubbleDataQR = {
         id: bubbleData.bubbleId,
         name: bubbleData.name,
         hostName: bubbleData.hostName,
         schedule: scheduleDate,
       };
-      qrCodeData = generateEntryQRCode(tempBubbleData);
-      console.log("Generated QR code data:", qrCodeData);
+      qrCodeData = generateEntryQRCode(bubbleDataQR);
     }
 
     const bubbleDoc = {
@@ -182,12 +188,6 @@ export const updateBubble = async (bubbleData) => {
       hostUid: bubbleData.hostUid,
       updatedAt: serverTimestamp(),
     };
-
-    console.log("Final bubbleDoc to update:", {
-      name: bubbleDoc.name,
-      needQR: bubbleDoc.needQR,
-      qrCodeData: bubbleDoc.qrCodeData ? "exists" : "null",
-    });
 
     await updateDoc(bubbleRef, bubbleDoc);
 
@@ -263,42 +263,16 @@ export const getUserBubbles = async (userId, userEmail) => {
   }
 };
 
-// Delete user data from Firestore
-export const deleteUser = async (userId) => {
-  try {
-    const userRef = doc(db, "users", userId);
-    await deleteDoc(userRef);
-    return true;
-  } catch (error) {
-    console.error("Error deleting user from Firestore:", error);
-    throw error;
-  }
-};
+// =============================================== GUEST SEARCH MANAGEMENT ===============================================
 
-// Validate email format
-export const isValidEmail = (email) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email.trim());
-};
-
-// Unified function to find users by email or name
-export const findUser = async (searchTerm, searchType = "email") => {
+// Function to find users by email
+export const findUser = async (searchTerm) => {
   try {
     const usersRef = collection(db, "users");
-    let q;
-
-    if (searchType === "email") {
-      q = query(
-        usersRef,
-        where("email", "==", searchTerm.toLowerCase().trim())
-      );
-    } else if (searchType === "name") {
-      q = query(
-        usersRef,
-        where("name", ">=", searchTerm),
-        where("name", "<=", searchTerm + "\uf8ff")
-      );
-    }
+    const q = query(
+      usersRef,
+      where("email", "==", searchTerm.toLowerCase().trim())
+    );
 
     const querySnapshot = await getDocs(q);
     const users = [];
@@ -312,7 +286,7 @@ export const findUser = async (searchTerm, searchType = "email") => {
 
     return users;
   } catch (error) {
-    console.error(`Error finding user by ${searchType}:`, error);
+    console.error("Error finding user by email:", error);
     throw error;
   }
 };
@@ -320,12 +294,18 @@ export const findUser = async (searchTerm, searchType = "email") => {
 // Check if a single email exists as a user
 export const checkEmailExists = async (email) => {
   try {
-    const users = await findUser(email, "email");
+    const users = await findUser(email);
     return users.length > 0;
   } catch (error) {
     console.error("Error checking if email exists:", error);
     throw error;
   }
+};
+
+// Validate email format
+export const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email.trim());
 };
 
 // Validate multiple emails and check if they exist in database
@@ -364,7 +344,9 @@ export const validateGuestEmails = async (emailList) => {
   }
 };
 
-// Update guest response for a bubble
+// =============================================== GUEST INTERACTIONS MANAGEMENT ===============================================
+
+// Update guest response for a bubble; accepted or declined
 export const updateGuestResponse = async (bubbleId, guestEmail, response) => {
   try {
     const bubbleRef = doc(db, "bubbles", bubbleId);
@@ -383,7 +365,7 @@ export const updateGuestResponse = async (bubbleId, guestEmail, response) => {
 
     // Update guest response with attended field defaulting to false
     guestResponses[normalizedGuestEmail] = {
-      response: response, // 'accepted' or 'declined'
+      response: response,
       respondedAt: serverTimestamp(),
       attended: false, // Default to false, will be set to true when QR is scanned
     };
@@ -404,34 +386,10 @@ export const updateGuestResponse = async (bubbleId, guestEmail, response) => {
   }
 };
 
-// Get all users for bubble buddy selection (excluding current user)
-export const getAllUsersForSelection = async (currentUserId) => {
-  try {
-    const usersRef = collection(db, "users");
-    const querySnapshot = await getDocs(usersRef);
-    const users = [];
-
-    querySnapshot.forEach((doc) => {
-      const userData = doc.data();
-      // Exclude current user from the list
-      if (doc.id !== currentUserId) {
-        users.push({
-          id: doc.id,
-          name: userData.name,
-          email: userData.email,
-        });
-      }
-    });
-
-    return users;
-  } catch (error) {
-    console.error("Error getting all users for selection:", error);
-    throw error;
-  }
-};
+// =============================================== BUBBLE BUDDY MANAGEMENT ===============================================
 
 // Get user's bubble buddies for selection
-export const getBubbleBuddiesForSelection = async (currentUserId) => {
+export const getBubbleBuddies = async (currentUserId) => {
   try {
     const userRef = doc(db, "users", currentUserId);
     const userSnap = await getDoc(userRef);
@@ -503,37 +461,6 @@ export const addBubbleBuddies = async (userId, emails) => {
     return true;
   } catch (error) {
     console.error("Error adding bubble buddies:", error);
-    throw error;
-  }
-};
-
-// Search users by name or email across the entire database
-export const searchUsersInDatabase = async (searchTerm) => {
-  try {
-    const usersRef = collection(db, "users");
-    const querySnapshot = await getDocs(usersRef);
-    const users = [];
-
-    querySnapshot.forEach((doc) => {
-      const userData = doc.data();
-      const searchLower = searchTerm.toLowerCase();
-
-      // Check if search term matches name or email
-      if (
-        userData.name.toLowerCase().includes(searchLower) ||
-        userData.email.toLowerCase().includes(searchLower)
-      ) {
-        users.push({
-          id: doc.id,
-          name: userData.name,
-          email: userData.email,
-        });
-      }
-    });
-
-    return users;
-  } catch (error) {
-    console.error("Error searching users in database:", error);
     throw error;
   }
 };

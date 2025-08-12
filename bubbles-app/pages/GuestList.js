@@ -48,7 +48,7 @@ export default function GuestList() {
         // Get user details from database
         let userName = guestEmail; // Default to email if name not found
         try {
-          const users = await findUser(guestEmail, "email");
+          const users = await findUser(guestEmail);
           if (users.length > 0) {
             userName = users[0].name;
           }
