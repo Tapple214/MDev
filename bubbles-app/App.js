@@ -28,7 +28,6 @@ function NavigationContent() {
   // Initialize notifications when user is authenticated
   useEffect(() => {
     if (user) {
-      // Initialize notifications
       initializeAppNotifications(user);
     }
   }, [user]);

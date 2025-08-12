@@ -53,3 +53,51 @@ export const notifyHostOfGuestResponse = async (
     console.error("Error notifying host of guest response:", error);
   }
 };
+
+// ============================================ GUEST CLOCKS ATTENDANCE VIA CODE ===============================================
+
+export const notifyHostOfGuestAttendance = async (
+  bubbleId,
+  guestEmail,
+  qrData
+) => {
+  try {
+    // Get bubble data
+    const bubbleRef = doc(db, "bubbles", bubbleId);
+    const bubbleSnap = await getDoc(bubbleRef);
+
+    if (!bubbleSnap.exists()) return;
+
+    const bubbleData = bubbleSnap.data();
+    const hostUid = bubbleData.hostUid;
+
+    // Get host's push token
+    const hostToken = await getUserPushToken(hostUid);
+
+    // Get guest's name
+    const guestName = await getUserNameByEmail(guestEmail);
+
+    const title = "Guest Attendance Confirmed!";
+    const body = `${
+      guestName || guestEmail
+    } has successfully clocked attendance for "${bubbleData.name}"!`;
+    const data = {
+      type: "guest_attendance_confirmed",
+      bubbleId,
+      guestEmail,
+      guestName: guestName || guestEmail,
+      bubbleName: bubbleData.name,
+      qrData,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Send push notification if token is available
+    if (hostToken) {
+      await sendPushNotification(hostToken, title, body, data);
+    } else {
+      await sendLocalNotification(title, body, data);
+    }
+  } catch (error) {
+    console.error("Error notifying host of guest attendance:", error);
+  }
+};

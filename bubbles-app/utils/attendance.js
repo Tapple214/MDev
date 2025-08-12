@@ -1,5 +1,6 @@
 import { updateDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
+import { notifyHostOfGuestAttendance } from "./notifications/hosts.js";
 
 // ===== QR CODE GENERATION =====
 
@@ -153,6 +154,17 @@ export const confirmAttendance = async (bubbleId, guestEmail, qrData) => {
         attended: true, // Mark as attended when QR is scanned
       },
     });
+
+    // Notify the host about the guest's attendance
+    try {
+      await notifyHostOfGuestAttendance(bubbleId, guestEmail, qrData);
+    } catch (notificationError) {
+      console.error(
+        "Error sending attendance notification:",
+        notificationError
+      );
+      // Don't fail the attendance confirmation if notification fails
+    }
 
     return {
       success: true,
