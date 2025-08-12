@@ -265,8 +265,8 @@ export const getUserBubbles = async (userId, userEmail) => {
 
 // =============================================== GUEST SEARCH ===============================================
 
-// Function to find users by email
-export const findUser = async (searchTerm) => {
+// Function to find users by email with optional existence check
+export const findUser = async (searchTerm, checkExistsOnly = false) => {
   try {
     const usersRef = collection(db, "users");
     const q = query(
@@ -275,8 +275,12 @@ export const findUser = async (searchTerm) => {
     );
 
     const querySnapshot = await getDocs(q);
-    const users = [];
 
+    if (checkExistsOnly) {
+      return querySnapshot.size > 0;
+    }
+
+    const users = [];
     querySnapshot.forEach((doc) => {
       users.push({
         id: doc.id,
@@ -287,17 +291,6 @@ export const findUser = async (searchTerm) => {
     return users;
   } catch (error) {
     console.error("Error finding user by email:", error);
-    throw error;
-  }
-};
-
-// Check if a single email exists as a user
-export const checkEmailExists = async (email) => {
-  try {
-    const users = await findUser(email);
-    return users.length > 0;
-  } catch (error) {
-    console.error("Error checking if email exists:", error);
     throw error;
   }
 };
@@ -328,8 +321,8 @@ export const validateGuestEmails = async (emailList) => {
         continue;
       }
 
-      // Check if email exists in database
-      const exists = await checkEmailExists(email);
+      // Check if email exists in database using findUser with checkExistsOnly flag
+      const exists = await findUser(email, true);
       if (exists) {
         results.valid.push(email);
       } else {
