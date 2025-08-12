@@ -95,7 +95,7 @@ export const validateAttendanceQR = (qrDataString, bubbleId) => {
 };
 
 // Confirm attendance for a guest (for QR code)
-export const confirmAttendance = async (bubbleId, guestEmail, qrData) => {
+export const confirmAttendanceByQR = async (bubbleId, guestEmail, qrData) => {
   try {
     const bubbleRef = doc(db, "bubbles", bubbleId);
 

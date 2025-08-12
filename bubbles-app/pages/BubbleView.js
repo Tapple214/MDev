@@ -22,7 +22,10 @@ import GuestRespondBtns from "../components/guest-respond-btns";
 
 // Utility function/Hooks imports
 import { COLORS, TEXT_STYLES } from "../utils/custom-styles";
-import { confirmAttendance, validateAttendanceQR } from "../utils/attendance";
+import {
+  confirmAttendanceByQR,
+  validateAttendanceQR,
+} from "../utils/attendance";
 import { generateEntryQRCode } from "../utils/attendance";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -181,7 +184,7 @@ export default function BubbleView() {
                 Alert.alert("Error", "User not authenticated");
                 return;
               }
-              const result = await confirmAttendance(
+              const result = await confirmAttendanceByQR(
                 bubbleDetails.bubbleId,
                 user.email,
                 qrData
@@ -231,7 +234,7 @@ export default function BubbleView() {
                 Alert.alert("Error", "User not authenticated");
                 return;
               }
-              const result = await confirmAttendance(
+              const result = await confirmAttendanceByQR(
                 bubbleDetails.bubbleId,
                 user.email,
                 codeData
