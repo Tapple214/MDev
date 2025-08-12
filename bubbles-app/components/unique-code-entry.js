@@ -17,6 +17,7 @@ export default function UniqueCodeEntry({
   onCodeSubmitted,
   bubbleName,
   hostName,
+  bubbleId,
 }) {
   const [code, setCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,22 +30,22 @@ export default function UniqueCodeEntry({
 
     setIsSubmitting(true);
 
-    // Simulate code validation
-    const mockCodeData = {
+    // Create code data for PIN validation
+    const codeData = {
       type: "bubble_entry",
-      bubbleId: "mock-bubble-id",
+      bubbleId: bubbleId || "unknown-bubble-id",
       bubbleName: bubbleName || "Coffee Meetup",
       hostName: hostName || "John Doe",
-      schedule: "2024-01-15T18:00:00.000Z",
-      uniqueId: "mock-uuid",
+      schedule: new Date().toISOString(),
+      uniqueId: Date.now().toString(),
       timestamp: new Date().toISOString(),
       entryCode: code.trim(),
     };
 
     Alert.alert(
       "Code Submitted!",
-      `Bubble: ${mockCodeData.bubbleName}\nHost: ${
-        mockCodeData.hostName
+      `Bubble: ${codeData.bubbleName}\nHost: ${
+        codeData.hostName
       }\nCode: ${code.trim()}\n\nWould you like to confirm your attendance?`,
       [
         {
@@ -57,7 +58,7 @@ export default function UniqueCodeEntry({
         {
           text: "Yes",
           onPress: () => {
-            onCodeSubmitted(mockCodeData);
+            onCodeSubmitted(codeData);
             onClose();
             setCode("");
             setIsSubmitting(false);

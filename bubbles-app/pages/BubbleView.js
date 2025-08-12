@@ -24,7 +24,9 @@ import GuestRespondBtns from "../components/guest-respond-btns";
 import { COLORS, TEXT_STYLES } from "../utils/custom-styles";
 import {
   confirmAttendanceByQR,
+  confirmAttendanceByPin,
   validateAttendanceQR,
+  validateAttendancePin,
 } from "../utils/attendance";
 import { generateEntryQRCode } from "../utils/attendance";
 import { useAuth } from "../contexts/AuthContext";
@@ -209,7 +211,15 @@ export default function BubbleView() {
   };
 
   const handleCodeSubmitted = async (codeData) => {
-    const validation = validateAttendanceQR(codeData, bubbleDetails.bubbleId);
+    // Create PIN data structure for validation
+    const pinData = {
+      code: codeData.entryCode,
+      bubbleId: bubbleDetails.bubbleId,
+      timestamp: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes from now
+    };
+
+    const validation = validateAttendancePin(pinData, bubbleDetails.bubbleId);
 
     if (!validation.isValid) {
       Alert.alert("Invalid Code", validation.message);
@@ -234,10 +244,10 @@ export default function BubbleView() {
                 Alert.alert("Error", "User not authenticated");
                 return;
               }
-              const result = await confirmAttendanceByQR(
+              const result = await confirmAttendanceByPin(
                 bubbleDetails.bubbleId,
                 user.email,
-                codeData
+                pinData
               );
 
               if (result.success) {
@@ -485,6 +495,7 @@ export default function BubbleView() {
             onCodeSubmitted={handleCodeSubmitted}
             bubbleName={bubbleData?.name}
             hostName={bubbleData?.hostName}
+            bubbleId={bubbleDetails.bubbleId}
           />
         </View>
       </ScrollView>

@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { COLORS } from "../utils/custom-styles";
+import { generateAttendanceCode } from "../utils/attendance";
 
 export default function UniqueCodeDisplay({
   isVisible,
@@ -17,21 +18,35 @@ export default function UniqueCodeDisplay({
   bubbleId,
 }) {
   const [attendanceCode, setAttendanceCode] = useState("");
+  const [pinData, setPinData] = useState(null);
   const [timeRemaining, setTimeRemaining] = useState(300); // 5 minutes in seconds
 
   // Generate a unique 6-digit code
   useEffect(() => {
     if (isVisible) {
-      generateAttendanceCode();
-      startTimer();
+      generateNewAttendanceCode();
     }
   }, [isVisible]);
 
-  const generateAttendanceCode = () => {
-    // Generate a 6-digit code based on bubbleId and current time
-    const timestamp = Date.now();
-    const code = Math.floor((timestamp % 1000000) + 100000);
-    setAttendanceCode(code.toString());
+  // Start timer when PIN data is available
+  useEffect(() => {
+    if (pinData && isVisible) {
+      const now = new Date();
+      const expiresAt = new Date(pinData.expiresAt);
+      const remainingSeconds = Math.max(
+        0,
+        Math.floor((expiresAt - now) / 1000)
+      );
+      setTimeRemaining(remainingSeconds);
+      startTimer();
+    }
+  }, [pinData, isVisible]);
+
+  const generateNewAttendanceCode = () => {
+    // Generate a proper attendance code using the utility function
+    const generatedPin = generateAttendanceCode(bubbleId);
+    setAttendanceCode(generatedPin.code);
+    setPinData(generatedPin);
   };
 
   const startTimer = () => {
@@ -51,9 +66,7 @@ export default function UniqueCodeDisplay({
               {
                 text: "Generate New",
                 onPress: () => {
-                  generateAttendanceCode();
-                  setTimeRemaining(300);
-                  startTimer();
+                  generateNewAttendanceCode();
                 },
               },
             ]
@@ -90,9 +103,7 @@ export default function UniqueCodeDisplay({
         {
           text: "Generate",
           onPress: () => {
-            generateAttendanceCode();
-            setTimeRemaining(300);
-            startTimer();
+            generateNewAttendanceCode();
           },
         },
       ]
