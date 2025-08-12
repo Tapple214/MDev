@@ -312,10 +312,9 @@ export default function BubbleView() {
             />
 
             <Text
-              style={combineTextStyles(
-                styles.cardTitle,
-                TEXT_STYLES.alignment.right
-              )}
+              style={combineTextStyles(styles.cardTitle, {
+                textAlign: "right",
+              })}
             >
               {bubbleDetails.userRole === "host"
                 ? "Are you excited?"
@@ -338,19 +337,15 @@ export default function BubbleView() {
           {/* Guest List */}
           <View style={[styles.cell, { flex: 1 }]}>
             <Text
-              style={combineTextStyles(
-                styles.cardTitle,
-                TEXT_STYLES.alignment.right
-              )}
+              style={combineTextStyles(styles.cardTitle, {
+                textAlign: "right",
+              })}
             >
               Guests
             </Text>
 
             <Text
-              style={combineTextStyles(
-                styles.cardText,
-                TEXT_STYLES.alignment.right
-              )}
+              style={combineTextStyles(styles.cardText, { textAlign: "right" })}
             >
               {bubbleData?.guestList
                 ? Array.isArray(bubbleData.guestList)
@@ -378,10 +373,9 @@ export default function BubbleView() {
               }
             >
               <Text
-                style={combineTextStyles(
-                  TEXT_STYLES.body.medium,
-                  TEXT_STYLES.alignment.right
-                )}
+                style={combineTextStyles(TEXT_STYLES.body.medium, {
+                  textAlign: "right",
+                })}
               >
                 View Guest List <Feather name="chevron-right" />
               </Text>

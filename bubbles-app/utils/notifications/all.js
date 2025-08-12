@@ -1,4 +1,4 @@
-// notifications sent to all users
+// Notifications sent to all users
 
 import * as Notifications from "expo-notifications";
 import { doc, getDoc } from "firebase/firestore";

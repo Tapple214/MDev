@@ -1,46 +1,43 @@
-// 🎨 Custom Styles System
-// Centralized color and text styling definitions for consistent theming
+// Design System for Bubbles
 
-// ===== COLOR SYSTEM =====
 export const COLORS = {
-  // Primary Colors (Core Brand)
-  background: "#EEDCAD", // Main page backgrounds
-  primary: "#452A17", // Primary text, category tabs, primary buttons
-  surface: "#FEFADF", // Form backgrounds, card backgrounds, clickable elements
+  // Primary
+  background: "#EEDCAD",
+  primary: "#452A17", // Text, Buttons
+  surface: "#FEFADF", // Card backgrounds, Clickable elements
 
-  // Action Colors (User Interactions)
-  confirm: "#5D5820", // Confirm/Accept buttons, success states
-  reject: "#BD3526", // Reject/Decline buttons, error states
+  // Action Colors
+  confirm: "#5D5820",
+  reject: "#BD3526",
 
-  // Elemental Colors (Bubble Icons & Accents)
+  // Accent; Autumn themed
   elemental: {
-    beige: "#D4A373", // Warm beige - bubble icon backgrounds
-    orange: "#E89349", // Orange - bubble icon backgrounds (default)
-    rust: "#BD6C26", // Rust orange - bubble icon backgrounds
-    sage: "#778A31", // Sage green - tags, secondary accents
-    brown: "#9D5E1D", // Brown - tags, secondary accents
+    beige: "#D4A373",
+    orange: "#E89349",
+    rust: "#BD6C26",
+    sage: "#778A31",
+    brown: "#9D5E1D",
   },
 
   // Text Colors
   text: {
-    primary: "#452A17", // Primary text color
-    secondary: "#5D5820", // Secondary text color
-    onSurface: "#452A17", // Text on surface backgrounds
-    onPrimary: "#FEFADF", // Text on primary backgrounds
-    onConfirm: "#FEFADF", // Text on confirm buttons
-    onReject: "#FEFADF", // Text on reject buttons
+    primary: "#452A17",
+    secondary: "#5D5820",
+    onSurface: "#452A17",
+    onPrimary: "#FEFADF",
+    onConfirm: "#FEFADF",
+    onReject: "#FEFADF",
   },
 
   // Status Colors
   status: {
-    success: "#5D5820", // Success states
-    error: "#BD3526", // Error states
-    warning: "#BD6C26", // Warning states
-    info: "#778A31", // Info states
+    success: "#5D5820",
+    error: "#BD3526",
+    warning: "#BD6C26",
+    info: "#778A31",
   },
 };
 
-// ===== TEXT STYLE SYSTEM =====
 export const TEXT_STYLES = {
   // Heading Styles
   heading: {
@@ -158,32 +155,6 @@ export const TEXT_STYLES = {
       fontSize: 14,
       fontWeight: "500",
       color: COLORS.status.info,
-    },
-  },
-
-  // Alignment Helpers
-  alignment: {
-    center: {
-      textAlign: "center",
-    },
-    left: {
-      textAlign: "left",
-    },
-    right: {
-      textAlign: "right",
-    },
-  },
-
-  // Spacing Helpers
-  spacing: {
-    tight: {
-      marginBottom: 5,
-    },
-    normal: {
-      marginBottom: 10,
-    },
-    loose: {
-      marginBottom: 15,
     },
   },
 };
