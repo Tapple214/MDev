@@ -95,6 +95,7 @@ export const createBubble = async (bubbleData) => {
 
     // Generate QR code data if needQR is true
     let qrCodeData = null;
+
     if (bubbleData.needQR) {
       const bubbleDataQR = {
         id: newBubbleRef.id,
@@ -102,6 +103,7 @@ export const createBubble = async (bubbleData) => {
         hostName: bubbleData.hostName,
         schedule: scheduleDate,
       };
+
       qrCodeData = generateEntryQRCode(bubbleDataQR);
     }
 
@@ -151,6 +153,7 @@ export const updateBubble = async (bubbleData) => {
       bubbleData.selectedDate,
       bubbleData.selectedTime
     );
+
     // Convert guest emails to lowercase
     const guestList = bubbleData.guestList
       ? bubbleData.guestList
