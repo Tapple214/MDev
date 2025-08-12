@@ -5,10 +5,10 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import {
   getUserPushTokenByEmail,
-  getUserNameByEmail,
   sendPushNotification,
   sendLocalNotification,
 } from "./core.js";
+import { getUserNameByEmail } from "../helper.js";
 
 // =============================================== ITEM ADDED TO BUBBLE BOOK ===============================================
 

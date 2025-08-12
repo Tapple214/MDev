@@ -4,10 +4,10 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import {
   getUserPushToken,
-  getUserNameByEmail,
   sendPushNotification,
   sendLocalNotification,
 } from "./core.js";
+import { getUserNameByEmail } from "../helper.js";
 
 // ============================================ GUEST ACCEPTS/DECLINES INVITE ===============================================
 

@@ -182,24 +182,6 @@ export const sendLocalNotification = async (title, body, data = {}) => {
   }
 };
 
-// Helper function to get user name by email; used for personalized notifications
-export const getUserNameByEmail = async (email) => {
-  try {
-    const usersRef = collection(db, "users");
-    const q = query(usersRef, where("email", "==", email.toLowerCase().trim()));
-    const querySnapshot = await getDocs(q);
-
-    if (!querySnapshot.empty) {
-      const userDoc = querySnapshot.docs[0];
-      return userDoc.data().name;
-    }
-    return null;
-  } catch (error) {
-    console.error("Error getting user name by email:", error);
-    return null;
-  }
-};
-
 // =============================================== NOTIFICATION INITIALIZATION ===============================================
 
 // Initialize notifications when app starts (permissions + push token registration)
