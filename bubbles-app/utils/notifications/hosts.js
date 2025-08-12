@@ -7,11 +7,8 @@ import {
   sendLocalNotification,
 } from "./core.js";
 
-// ============================================================================
-// NOTIFICATIONS FOR HOSTS
-// ============================================================================
+// ============================================ GUEST ACCEPTS/DECLINES INVITE ===============================================
 
-// Notification for host when guest accepts/declines invite
 export const notifyHostOfGuestResponse = async (
   bubbleId,
   guestEmail,
@@ -48,8 +45,6 @@ export const notifyHostOfGuestResponse = async (
     if (hostToken) {
       await sendPushNotification(hostToken, title, body, data);
     } else {
-      // Fallback to local notification for development
-      console.log("Sending local notification for guest response");
       await sendLocalNotification(title, body, data);
     }
   } catch (error) {

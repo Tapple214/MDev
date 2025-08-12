@@ -6,11 +6,8 @@ import {
   sendLocalNotification,
 } from "./core.js";
 
-// ============================================================================
-// NOTIFICATIONS FOR GUESTS
-// ============================================================================
+// ============================================ RECIEVING AN INVITE ===============================================
 
-// Notification for guest when they receive an invite
 export const notifyGuestOfInvite = async (guestEmail, bubbleId) => {
   try {
     // Get bubble data
@@ -36,8 +33,6 @@ export const notifyGuestOfInvite = async (guestEmail, bubbleId) => {
     if (guestToken) {
       await sendPushNotification(guestToken, title, body, data);
     } else {
-      // Fallback to local notification for development
-      console.log("Sending local notification for bubble invite");
       await sendLocalNotification(title, body, data);
     }
   } catch (error) {
@@ -45,7 +40,8 @@ export const notifyGuestOfInvite = async (guestEmail, bubbleId) => {
   }
 };
 
-// Notification for guests when host makes changes to a bubble
+// =============================================== HOST EDITS BUBBLE ===============================================
+
 export const notifyGuestsOfBubbleChanges = async (bubbleId, hostName) => {
   try {
     // Get bubble data
@@ -75,8 +71,6 @@ export const notifyGuestsOfBubbleChanges = async (bubbleId, hostName) => {
       if (guestToken) {
         await sendPushNotification(guestToken, title, body, data);
       } else {
-        // Fallback to local notification for development
-        console.log("Sending local notification for bubble update");
         await sendLocalNotification(title, body, data);
       }
     }
@@ -84,6 +78,8 @@ export const notifyGuestsOfBubbleChanges = async (bubbleId, hostName) => {
     console.error("Error notifying guests of bubble changes:", error);
   }
 };
+
+// =============================================== HOST DELETES BUBBLE ===============================================
 
 // Notification for all invitees when a host deletes a bubble
 export const notifyGuestsOfBubbleDeletion = async (
@@ -107,7 +103,7 @@ export const notifyGuestsOfBubbleDeletion = async (
       const guestToken = await getUserPushTokenByEmail(guestEmail);
 
       const title = "Bubble Deleted";
-      const body = `${hostName} deleted "${bubbleName}"`;
+      const body = `${hostName} cancelled "${bubbleName}"`;
       const data = {
         type: "bubble_deleted",
         bubbleId,
@@ -119,8 +115,6 @@ export const notifyGuestsOfBubbleDeletion = async (
       if (guestToken) {
         await sendPushNotification(guestToken, title, body, data);
       } else {
-        // Fallback to local notification for development
-        console.log("Sending local notification for bubble deletion");
         await sendLocalNotification(title, body, data);
       }
     }
