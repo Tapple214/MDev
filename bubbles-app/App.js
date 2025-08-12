@@ -4,11 +4,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 
 // Custom hooks and utility functions
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import {
-  setupNotificationListeners,
-  initializeAppNotifications,
-  cleanupNotificationListeners,
-} from "./utils/notifications/core.js";
+import { initializeAppNotifications } from "./utils/notifications/core.js";
 
 // Import page components
 import Login from "./pages/Login";
@@ -29,15 +25,11 @@ function NavigationContent() {
   // Custom Hook
   const { user } = useAuth();
 
-  // Set up notification listeners and initialize notifications when user is authenticated
+  // Initialize notifications when user is authenticated
   useEffect(() => {
     if (user) {
       // Initialize notifications
       initializeAppNotifications(user);
-
-      // Set up notification listeners
-      const cleanup = setupNotificationListeners();
-      return () => cleanupNotificationListeners(cleanup);
     }
   }, [user]);
 
