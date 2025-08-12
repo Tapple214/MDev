@@ -1,6 +1,3 @@
-// 🔥 Firebase Configuration
-// Centralized Firebase project configuration
-
 export const firebaseConfig = {
   apiKey: "AIzaSyBWr89kHTDaKqTHMkwJUvZ7tWuf6RB4gzE",
   authDomain: "bubbles-3164d.firebaseapp.com",
