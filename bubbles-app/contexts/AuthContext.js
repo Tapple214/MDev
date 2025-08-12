@@ -12,7 +12,7 @@ import {
 import {
   addUser,
   getUser,
-  deleteUser as deleteFirestoreUser,
+  deleteUser as deleteFirestore,
 } from "../utils/firestore";
 import { initializeNotifications } from "../utils/notifications";
 
@@ -113,7 +113,7 @@ export const AuthProvider = ({ children }) => {
       await reauthenticateWithCredential(user, credential);
 
       // Delete user data from Firestore first
-      await deleteFirestoreUser(user.uid);
+      await deleteFirestore(user.uid);
 
       // Delete the user account from Firebase Auth
       await deleteFireAuth(user);
