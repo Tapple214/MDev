@@ -332,7 +332,7 @@ export default function CreateBubble() {
         </Text>
 
         <View style={styles.switchContainer}>
-          <Text style={styles.inputTitle}>Need QR Code for attendance?</Text>
+          <Text style={styles.inputTitle}>Need attendance checking?</Text>
           <Switch
             value={needQR}
             onValueChange={setNeedQR}
