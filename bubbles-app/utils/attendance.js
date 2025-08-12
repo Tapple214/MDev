@@ -2,52 +2,16 @@ import { updateDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
 import { notifyHostOfGuestAttendance } from "./notifications/hosts.js";
 
-// ===== QR CODE GENERATION =====
+// =============================================== QR CODE GENERATION ===============================================
 
-// Generate a unique ID without uuid dependency
+// A unique ID generator (without uuid dependency)
 const generateUniqueId = () => {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 };
 
-// Generate a unique QR code data for a bubble
-export const generateBubbleQRData = (
-  bubbleId,
-  bubbleName,
-  hostName,
-  schedule
-) => {
-  // Create a unique identifier for this bubble
-  const uniqueId = generateUniqueId();
-
-  // Format the schedule date
-  const scheduleDate =
-    schedule instanceof Date ? schedule.toISOString() : schedule;
-
-  // Create QR data object
-  const qrData = {
-    type: "bubble_entry",
-    bubbleId: bubbleId,
-    bubbleName: bubbleName,
-    hostName: hostName,
-    schedule: scheduleDate,
-    uniqueId: uniqueId,
-    timestamp: new Date().toISOString(),
-  };
-
-  // Return as JSON string for QR code
-  return JSON.stringify(qrData);
-};
-
-// Generate a simple QR code data (alternative format)
-export const generateSimpleQRData = (bubbleId, bubbleName) => {
-  return `BUBBLE:${bubbleId}:${bubbleName}`;
-};
-
-// Generate QR code for bubble entry verification
-export const generateEntryQRCode = (bubbleData) => {
+// Generate QR code for bubble attendance check-in
+export const generateAttendanceQR = (bubbleData) => {
   const { id, name, hostName, schedule } = bubbleData;
-
-  console.log("generateEntryQRCode called with:", bubbleData);
 
   // Check if all required fields exist
   if (!id || !name || !hostName) {
@@ -59,52 +23,44 @@ export const generateEntryQRCode = (bubbleData) => {
     return null;
   }
 
-  const qrData = generateBubbleQRData(id, name, hostName, schedule);
-  console.log("Generated QR data:", qrData);
+  // Create a unique identifier for this bubble
+  const uniqueId = generateUniqueId();
 
-  return qrData;
+  // Format the schedule date
+  const scheduleDate =
+    schedule instanceof Date ? schedule.toISOString() : schedule;
+
+  // Create QR data object for attendance
+  const qrData = {
+    type: "bubble_attendance",
+    bubbleId: id,
+    bubbleName: name,
+    hostName: hostName,
+    schedule: scheduleDate,
+    uniqueId: uniqueId,
+    timestamp: new Date().toISOString(),
+  };
+
+  // Return as JSON string for QR code
+  return JSON.stringify(qrData);
 };
 
-// Generate QR code for bubble sharing
-export const generateShareQRCode = (bubbleData) => {
-  const { id, name, hostName, schedule } = bubbleData;
+// =============================================== QR CODE VALIDATION/CLOCK IN ===============================================
 
-  return generateSimpleQRData(id, name);
-};
-
-// ===== QR CODE VALIDATION =====
-
-// Validate QR code data
-export const validateQRData = (qrDataString) => {
+// Validate QR code for attendance
+export const validateAttendanceQR = (qrDataString, bubbleId) => {
   try {
+    // Parse QR data string
     const qrData = JSON.parse(qrDataString);
 
     // Check if it's a valid bubble QR code
-    if (qrData.type === "bubble_entry" && qrData.bubbleId) {
+    if (qrData.type !== "bubble_attendance" || !qrData.bubbleId) {
       return {
-        isValid: true,
-        data: qrData,
-        message: "Valid bubble QR code",
+        isValid: false,
+        message: "Invalid QR code format.",
       };
     }
 
-    return {
-      isValid: false,
-      data: null,
-      message: "Invalid QR code format",
-    };
-  } catch (error) {
-    return {
-      isValid: false,
-      data: null,
-      message: "Invalid QR code data",
-    };
-  }
-};
-
-// Validate QR code for attendance
-export const validateAttendanceQR = (qrData, bubbleId) => {
-  try {
     // Check if QR code is for the correct bubble
     if (qrData.bubbleId !== bubbleId) {
       return {
@@ -128,18 +84,17 @@ export const validateAttendanceQR = (qrData, bubbleId) => {
     return {
       isValid: true,
       message: "QR code is valid for attendance confirmation.",
+      data: qrData,
     };
   } catch (error) {
     return {
       isValid: false,
-      message: "Invalid QR code format.",
+      message: "Invalid QR code data.",
     };
   }
 };
 
-// ===== ATTENDANCE CONFIRMATION =====
-
-// Confirm attendance for a guest
+// Confirm attendance for a guest (for QR code)
 export const confirmAttendance = async (bubbleId, guestEmail, qrData) => {
   try {
     const bubbleRef = doc(db, "bubbles", bubbleId);
@@ -158,6 +113,61 @@ export const confirmAttendance = async (bubbleId, guestEmail, qrData) => {
     // Notify the host about the guest's attendance
     try {
       await notifyHostOfGuestAttendance(bubbleId, guestEmail, qrData);
+    } catch (notificationError) {
+      console.error(
+        "Error sending attendance notification:",
+        notificationError
+      );
+      // Don't fail the attendance confirmation if notification fails
+    }
+
+    return {
+      success: true,
+      message: "Attendance confirmed successfully!",
+    };
+  } catch (error) {
+    console.error("Error confirming attendance:", error);
+    return {
+      success: false,
+      message: "Failed to confirm attendance. Please try again.",
+    };
+  }
+};
+
+// =============================================== UNIQUE PIN GENERATION ===============================================
+
+// Generate a unique 6-digit attendance code
+export const generateAttendanceCode = (bubbleId) => {
+  // Generate a 6-digit code based on bubbleId and current time
+  const timestamp = Date.now();
+  const code = Math.floor((timestamp % 1000000) + 100000);
+  return {
+    code: code.toString(),
+    timestamp: new Date().toISOString(),
+    bubbleId: bubbleId,
+    expiresAt: new Date(Date.now() + 5 * 60 * 1000), // Set expiration to 5 minutes from now
+  };
+};
+
+// Confirm attendance for a guest (via unique PIN)
+export const confirmAttendanceByPin = async (bubbleId, guestEmail, pinData) => {
+  try {
+    const bubbleRef = doc(db, "bubbles", bubbleId);
+
+    // Update the guest response to confirmed and mark as attended
+    await updateDoc(bubbleRef, {
+      [`guestResponses.${guestEmail}`]: {
+        response: "confirmed",
+        confirmedAt: new Date().toISOString(),
+        pinEntered: true,
+        pinData: pinData,
+        attended: true, // Mark as attended when PIN is entered
+      },
+    });
+
+    // Notify the host about the guest's attendance
+    try {
+      await notifyHostOfGuestAttendance(bubbleId, guestEmail, pinData);
     } catch (notificationError) {
       console.error(
         "Error sending attendance notification:",
