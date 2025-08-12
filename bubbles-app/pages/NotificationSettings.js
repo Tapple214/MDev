@@ -15,7 +15,9 @@ import { COLORS, TEXT_STYLES, combineTextStyles } from "../utils/custom-styles";
 import {
   requestNotificationPermissions,
   getUserPushToken,
-} from "../utils/notifications";
+  registerForPushNotifications,
+  sendLocalNotification,
+} from "../utils/notifications/core.js";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -46,6 +48,14 @@ export default function NotificationSettings() {
       if (user) {
         const token = await getUserPushToken(user.uid);
         setPushToken(token);
+
+        // If no token exists, try to register for notifications
+        if (!token) {
+          const newToken = await registerForPushNotifications(user.uid);
+          if (newToken) {
+            setPushToken(newToken);
+          }
+        }
       }
     } catch (error) {
       console.error("Error checking notification status:", error);
@@ -58,6 +68,19 @@ export default function NotificationSettings() {
       if (granted) {
         Alert.alert("Success", "Notification permissions granted!");
         setPermissionStatus("granted");
+
+        // Try to register for push notifications
+        if (user) {
+          const token = await registerForPushNotifications(user.uid);
+          if (token) {
+            setPushToken(token);
+            Alert.alert(
+              "Success",
+              "Push notifications registered successfully!"
+            );
+          }
+        }
+
         await checkNotificationStatus();
       } else {
         Alert.alert(
@@ -133,6 +156,36 @@ export default function NotificationSettings() {
               <Feather name="bell" size={20} color="#FFFFFF" />
               <Text style={[styles.buttonText, styles.permissionButtonText]}>
                 Request Permissions
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {permissionStatus === "granted" && !pushToken && (
+            <TouchableOpacity
+              style={[styles.button, styles.permissionButton]}
+              onPress={handlePermissionRequest}
+            >
+              <Feather name="refresh-cw" size={20} color="#FFFFFF" />
+              <Text style={[styles.buttonText, styles.permissionButtonText]}>
+                Refresh Push Token
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {permissionStatus === "granted" && (
+            <TouchableOpacity
+              style={[styles.button, { backgroundColor: COLORS.surface }]}
+              onPress={() =>
+                sendLocalNotification(
+                  "Test Notification",
+                  "This is a test notification",
+                  { type: "test" }
+                )
+              }
+            >
+              <Feather name="bell" size={20} color={COLORS.primary} />
+              <Text style={[styles.buttonText, { color: COLORS.primary }]}>
+                Send Test Notification
               </Text>
             </TouchableOpacity>
           )}
