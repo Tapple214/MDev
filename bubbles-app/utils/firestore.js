@@ -265,7 +265,7 @@ export const getUserBubbles = async (userId, userEmail) => {
 
 // =============================================== GUEST SEARCH ===============================================
 
-// Function to find users by email with optional existence check
+// Finds existence of validated emails in the system
 export const findUser = async (searchTerm, checkExistsOnly = false) => {
   try {
     const usersRef = collection(db, "users");
@@ -321,7 +321,7 @@ export const validateGuestEmails = async (emailList) => {
         continue;
       }
 
-      // Check if email exists in database using findUser with checkExistsOnly flag
+      // Check if email exists in database using findUser
       const exists = await findUser(email, true);
       if (exists) {
         results.valid.push(email);
