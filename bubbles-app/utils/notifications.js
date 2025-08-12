@@ -1,10 +1,8 @@
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
-import { Platform } from "react-native";
 import { db } from "../firebase";
 import {
   doc,
-  setDoc,
   getDoc,
   updateDoc,
   collection,
@@ -335,6 +333,83 @@ export const scheduleBubbleNotifications = async (bubbleId) => {
     await notifyUpcomingBubble(bubbleId, 6);
   } catch (error) {
     console.error("Error scheduling bubble notifications:", error);
+  }
+};
+
+// Notification for when a user is added as a bubble buddy
+export const notifyUserAddedAsBubbleBuddy = async (
+  addedByEmail,
+  addedUserEmail
+) => {
+  try {
+    // Get the user who was added's push token
+    const addedUserToken = await getUserPushTokenByEmail(addedUserEmail);
+
+    // Get the name of the user who added them
+    const addedByName = await getUserNameByEmail(addedByEmail);
+
+    const title = "New Bubble Buddy!";
+    const body = `${addedByName || addedByEmail} added you as a bubble buddy!`;
+    const data = {
+      type: "bubble_buddy_added",
+      addedByEmail,
+      addedByName: addedByName || addedByEmail,
+    };
+
+    // Send push notification if token is available
+    if (addedUserToken) {
+      await sendPushNotification(addedUserToken, title, body, data);
+    } else {
+      // Fallback to local notification for development
+      console.log("Sending local notification for bubble buddy addition");
+      await sendLocalNotification(title, body, data);
+    }
+  } catch (error) {
+    console.error("Error notifying user of bubble buddy addition:", error);
+  }
+};
+
+// Notification for all invitees when a host deletes a bubble
+export const notifyGuestsOfBubbleDeletion = async (
+  bubbleId,
+  hostName,
+  bubbleName
+) => {
+  try {
+    // Get bubble data to find all invitees
+    const bubbleRef = doc(db, "bubbles", bubbleId);
+    const bubbleSnap = await getDoc(bubbleRef);
+
+    if (!bubbleSnap.exists()) return;
+
+    const bubbleData = bubbleSnap.data();
+    const guestList = bubbleData.guestList || [];
+
+    // Send notifications to all guests
+    for (const guestEmail of guestList) {
+      // Get guest's push token
+      const guestToken = await getUserPushTokenByEmail(guestEmail);
+
+      const title = "Bubble Deleted";
+      const body = `${hostName} deleted "${bubbleName}"`;
+      const data = {
+        type: "bubble_deleted",
+        bubbleId,
+        hostName,
+        bubbleName,
+      };
+
+      // Send push notification if token is available
+      if (guestToken) {
+        await sendPushNotification(guestToken, title, body, data);
+      } else {
+        // Fallback to local notification for development
+        console.log("Sending local notification for bubble deletion");
+        await sendLocalNotification(title, body, data);
+      }
+    }
+  } catch (error) {
+    console.error("Error notifying guests of bubble deletion:", error);
   }
 };
 
