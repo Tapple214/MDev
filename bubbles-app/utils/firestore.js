@@ -18,6 +18,7 @@ import {
   notifyHostOfGuestResponse,
   notifyGuestsOfBubbleChanges,
 } from "./notifications";
+import { dateToTimestamp } from "./helper";
 
 // =============================================== ACCOUNT MANAGEMENT ===============================================
 
@@ -79,11 +80,10 @@ export const createBubble = async (bubbleData) => {
     const newBubbleRef = doc(bubblesRef);
 
     // Create a proper date object from the selected date and time
-    const scheduleDate = new Date(bubbleData.selectedDate);
-    scheduleDate.setHours(bubbleData.selectedTime.getHours());
-    scheduleDate.setMinutes(bubbleData.selectedTime.getMinutes());
-    scheduleDate.setSeconds(0);
-    scheduleDate.setMilliseconds(0);
+    const scheduleDate = dateToTimestamp(
+      bubbleData.selectedDate,
+      bubbleData.selectedTime
+    );
 
     // Convert guest emails to lowercase
     const guestList = bubbleData.guestList
@@ -147,12 +147,10 @@ export const updateBubble = async (bubbleData) => {
     const bubbleRef = doc(db, "bubbles", bubbleData.bubbleId);
 
     // Create a proper date object from the selected date and time
-    const scheduleDate = new Date(bubbleData.selectedDate);
-    scheduleDate.setHours(bubbleData.selectedTime.getHours());
-    scheduleDate.setMinutes(bubbleData.selectedTime.getMinutes());
-    scheduleDate.setSeconds(0);
-    scheduleDate.setMilliseconds(0);
-
+    const scheduleDate = dateToTimestamp(
+      bubbleData.selectedDate,
+      bubbleData.selectedTime
+    );
     // Convert guest emails to lowercase
     const guestList = bubbleData.guestList
       ? bubbleData.guestList
