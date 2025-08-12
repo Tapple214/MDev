@@ -26,6 +26,7 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "../firebase";
+import { notifyBubbleParticipantsOfNewItem } from "../utils/notifications/all";
 
 // Component imports
 import NavBar from "../components/navbar";
@@ -250,6 +251,19 @@ export default function BubbleBook() {
 
       setPhotos((prevPhotos) => [newPhoto, ...prevPhotos]);
       setUserPhotoCount((prev) => prev + 1);
+
+      // Notify all participants of the bubble about the new item
+      try {
+        await notifyBubbleParticipantsOfNewItem(
+          bubbleId,
+          user.email,
+          bubbleName
+        );
+      } catch (error) {
+        console.error("Error sending notifications:", error);
+        // Don't show error to user as this is just a notification
+      }
+
       Alert.alert("Success", "Photo added to BubbleBook!");
     } catch (error) {
       console.error("Error adding photo:", error);

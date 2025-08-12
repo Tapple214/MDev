@@ -10,6 +10,120 @@ import {
   sendLocalNotification,
 } from "./core.js";
 
+// =============================================== ITEM ADDED TO BUBBLE BOOK ===============================================
+
+// Get all participants (host + guests) of a bubble, excluding the specific user
+export const getBubbleParticipants = async (bubbleId, excludeEmail = null) => {
+  try {
+    const bubbleRef = doc(db, "bubbles", bubbleId);
+    const bubbleSnap = await getDoc(bubbleRef);
+
+    if (!bubbleSnap.exists()) {
+      console.error("Bubble not found");
+      return new Set();
+    }
+
+    const bubbleData = bubbleSnap.data();
+    const participants = new Set();
+
+    // Add host if they exist
+    if (bubbleData.hostUid) {
+      const hostUserRef = doc(db, "users", bubbleData.hostUid);
+      const hostUserSnap = await getDoc(hostUserRef);
+      if (hostUserSnap.exists()) {
+        const hostData = hostUserSnap.data();
+        if (
+          hostData.email &&
+          (!excludeEmail ||
+            hostData.email.toLowerCase() !== excludeEmail.toLowerCase())
+        ) {
+          participants.add(hostData.email.toLowerCase());
+        }
+      }
+    }
+
+    // Add all guests (excluding the specified user)
+    if (bubbleData.guestList && Array.isArray(bubbleData.guestList)) {
+      bubbleData.guestList.forEach((guestEmail) => {
+        if (
+          !excludeEmail ||
+          guestEmail.toLowerCase() !== excludeEmail.toLowerCase()
+        ) {
+          participants.add(guestEmail.toLowerCase());
+        }
+      });
+    }
+
+    return participants;
+  } catch (error) {
+    console.error("Error getting bubble participants:", error);
+    return new Set();
+  }
+};
+
+export const notifyBubbleParticipantsOfNewItem = async (
+  bubbleId,
+  addedByEmail,
+  bubbleName
+) => {
+  try {
+    // Get all participants (host + guests) to notify, excluding the person who added the item
+    const participantsToNotify = await getBubbleParticipants(
+      bubbleId,
+      addedByEmail
+    );
+
+    if (participantsToNotify.size === 0) {
+      console.log("No participants to notify for bubble:", bubbleName);
+      return;
+    }
+
+    // Get the name of the user who added the item
+    const addedByName = await getUserNameByEmail(addedByEmail);
+
+    // Prepare notification content
+    const title = "New Item Added to BubbleBook!";
+    const body = `${
+      addedByName || addedByEmail
+    } added an item to ${bubbleName}, check bubble book out!`;
+    const data = {
+      type: "item_added_to_bubble_book",
+      bubbleId,
+      bubbleName,
+      addedByEmail,
+      addedByName: addedByName || addedByEmail,
+    };
+
+    // Send notifications to all participants
+    for (const participantEmail of participantsToNotify) {
+      try {
+        const participantToken = await getUserPushTokenByEmail(
+          participantEmail
+        );
+
+        if (participantToken) {
+          await sendPushNotification(participantToken, title, body, data);
+        } else {
+          // Fallback to local notification for development
+          await sendLocalNotification(title, body, data);
+        }
+      } catch (error) {
+        console.error(
+          `Error sending notification to ${participantEmail}:`,
+          error
+        );
+        // Continue with other participants even if one fails
+      }
+    }
+
+    console.log(
+      `Notifications sent to ${participantsToNotify.size} participants for bubble: ${bubbleName}`
+    );
+  } catch (error) {
+    console.error("Error notifying bubble participants of new item:", error);
+  }
+};
+
 // =============================================== ADDED TO BUBBLE BUDDY ===============================================
 
 export const notifyUserAddedAsBubbleBuddy = async (
