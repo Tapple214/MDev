@@ -8,11 +8,8 @@ import {
   sendLocalNotification,
 } from "./core.js";
 
-// ============================================================================
-// NOTIFICATIONS FOR ALL USERS
-// ============================================================================
+// =============================================== ADDED TO BUBBLE BUDDY ===============================================
 
-// Notification for when a user is added as a bubble buddy
 export const notifyUserAddedAsBubbleBuddy = async (
   addedByEmail,
   addedUserEmail
@@ -21,11 +18,13 @@ export const notifyUserAddedAsBubbleBuddy = async (
     // Get the user who was added's push token
     const addedUserToken = await getUserPushTokenByEmail(addedUserEmail);
 
-    // Get the name of the user who added them
+    // Get the name of the user who added them (logged in user)
     const addedByName = await getUserNameByEmail(addedByEmail);
 
     const title = "New Bubble Buddy!";
-    const body = `${addedByName || addedByEmail} added you as a bubble buddy!`;
+    const body = `${
+      addedByName || addedByEmail
+    } added you as a bubble buddy! Add them back!`;
     const data = {
       type: "bubble_buddy_added",
       addedByEmail,
@@ -37,7 +36,6 @@ export const notifyUserAddedAsBubbleBuddy = async (
       await sendPushNotification(addedUserToken, title, body, data);
     } else {
       // Fallback to local notification for development
-      console.log("Sending local notification for bubble buddy addition");
       await sendLocalNotification(title, body, data);
     }
   } catch (error) {
@@ -45,7 +43,8 @@ export const notifyUserAddedAsBubbleBuddy = async (
   }
 };
 
-// Notification for upcoming bubble (1 day and 6 hours before)
+// =============================================== BUBBLE REMINDERS ===============================================
+
 export const notifyUpcomingBubble = async (bubbleId, hoursBefore = 24) => {
   try {
     const bubbleRef = doc(db, "bubbles", bubbleId);
