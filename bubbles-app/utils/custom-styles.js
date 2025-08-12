@@ -1,5 +1,7 @@
 // Design System for Bubbles
 
+// =============================================== COLOR ===============================================
+
 export const COLORS = {
   // Primary
   background: "#EEDCAD",
@@ -37,6 +39,8 @@ export const COLORS = {
     info: "#778A31",
   },
 };
+
+// =============================================== TEXT STYLING ===============================================
 
 export const TEXT_STYLES = {
   // Heading Styles
