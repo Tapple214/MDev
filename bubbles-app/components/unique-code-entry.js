@@ -92,7 +92,7 @@ export default function UniqueCodeEntry({
           </View>
 
           <Text style={styles.instructionText}>
-            Ask the host for the unique attendance code
+            Ask the host for the 6-digit attendance PIN
           </Text>
 
           <View style={styles.codeInputContainer}>
@@ -109,7 +109,7 @@ export default function UniqueCodeEntry({
           </View>
 
           <Text style={styles.hintText}>
-            The code is usually displayed on the host's device
+            The PIN is displayed on the host's device
           </Text>
         </View>
 

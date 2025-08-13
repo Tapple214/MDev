@@ -11,87 +11,27 @@ import { Feather } from "@expo/vector-icons";
 
 // Custom hooks and utility functions
 import { COLORS } from "../utils/custom-styles";
-import { generateAttendanceCode } from "../utils/attendance";
 
 export default function UniqueCodeDisplay({
   isVisible,
   onClose,
   bubbleName,
   bubbleId,
+  attendancePin,
 }) {
-  const [attendanceCode, setAttendanceCode] = useState("");
-  const [pinData, setPinData] = useState(null);
-  const [timeRemaining, setTimeRemaining] = useState(300); // 5 minutes in seconds
+  const [pin, setPin] = useState("");
 
-  // Generate a unique 6-digit code
+  // Set the PIN when component becomes visible
   useEffect(() => {
-    if (isVisible) {
-      generateNewAttendanceCode();
+    if (isVisible && attendancePin?.pin) {
+      setPin(attendancePin.pin);
     }
-  }, [isVisible]);
+  }, [isVisible, attendancePin]);
 
-  // Start timer when PIN data is available
-  useEffect(() => {
-    if (pinData && isVisible) {
-      const now = new Date();
-      const expiresAt = new Date(pinData.expiresAt);
-      const remainingSeconds = Math.max(
-        0,
-        Math.floor((expiresAt - now) / 1000)
-      );
-      setTimeRemaining(remainingSeconds);
-      startTimer();
-    }
-  }, [pinData, isVisible]);
-
-  const generateNewAttendanceCode = () => {
-    // Generate a proper attendance code using the utility function
-    const generatedPin = generateAttendanceCode(bubbleId);
-    setAttendanceCode(generatedPin.code);
-    setPinData(generatedPin);
-  };
-
-  const startTimer = () => {
-    const interval = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          Alert.alert(
-            "Code Expired",
-            "The attendance code has expired. Generate a new one?",
-            [
-              {
-                text: "Cancel",
-                style: "cancel",
-                onPress: onClose,
-              },
-              {
-                text: "Generate New",
-                onPress: () => {
-                  generateNewAttendanceCode();
-                },
-              },
-            ]
-          );
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  };
-
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-  };
-
-  const handleRefreshCode = () => {
+  const handleRefreshPin = () => {
     Alert.alert(
-      "Generate New Code",
-      "Are you sure you want to generate a new attendance code?",
+      "Generate New PIN",
+      "Are you sure you want to generate a new attendance PIN? This will invalidate the current PIN.",
       [
         {
           text: "Cancel",
@@ -100,18 +40,46 @@ export default function UniqueCodeDisplay({
         {
           text: "Generate",
           onPress: () => {
-            generateNewAttendanceCode();
+            // For now, just show an alert that this feature needs to be implemented
+            Alert.alert(
+              "Feature Coming Soon",
+              "PIN regeneration will be available in a future update. The current PIN remains valid."
+            );
           },
         },
       ]
     );
   };
 
+  if (!attendancePin?.pin) {
+    return (
+      <Modal visible={isVisible} animationType="slide">
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Attendance PIN</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Feather name="x" size={24} color={COLORS.primary} />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.content}>
+            <View style={styles.iconContainer}>
+              <Feather name="alert-circle" size={80} color={COLORS.primary} />
+            </View>
+            <Text style={styles.bubbleName}>{bubbleName}</Text>
+            <Text style={styles.instructionText}>
+              No attendance PIN found for this bubble
+            </Text>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+
   return (
     <Modal visible={isVisible} animationType="slide">
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Attendance Code</Text>
+          <Text style={styles.headerTitle}>Attendance PIN</Text>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Feather name="x" size={24} color={COLORS.primary} />
           </TouchableOpacity>
@@ -124,21 +92,21 @@ export default function UniqueCodeDisplay({
 
           <Text style={styles.bubbleName}>{bubbleName}</Text>
           <Text style={styles.instructionText}>
-            Share this code with your guests
+            Share this PIN with your guests
           </Text>
 
           <View style={styles.codeContainer}>
-            <Text style={styles.codeLabel}>Attendance Code</Text>
-            <Text style={styles.codeText}>{attendanceCode}</Text>
+            <Text style={styles.codeLabel}>Attendance PIN</Text>
+            <Text style={styles.codeText}>{pin}</Text>
             <Text style={styles.codeHint}>
-              Guests enter this code to confirm attendance
+              Guests enter this PIN to confirm attendance
             </Text>
           </View>
 
-          <View style={styles.timerContainer}>
-            <Feather name="clock" size={20} color={COLORS.primary} />
-            <Text style={styles.timerText}>
-              Expires in {formatTime(timeRemaining)}
+          <View style={styles.infoContainer}>
+            <Feather name="info" size={20} color={COLORS.primary} />
+            <Text style={styles.infoText}>
+              This PIN is permanent and won't expire
             </Text>
           </View>
         </View>
@@ -146,10 +114,10 @@ export default function UniqueCodeDisplay({
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.refreshButton}
-            onPress={handleRefreshCode}
+            onPress={handleRefreshPin}
           >
             <Feather name="refresh-cw" size={20} color={COLORS.surface} />
-            <Text style={styles.refreshButtonText}>New Code</Text>
+            <Text style={styles.refreshButtonText}>Regenerate PIN</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -223,14 +191,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontStyle: "italic",
   },
-  timerContainer: {
+  infoContainer: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 20,
+    backgroundColor: COLORS.surfaceLight,
+    marginTop: 20,
   },
-  timerText: {
+  infoText: {
     fontSize: 14,
     color: COLORS.primary,
     marginLeft: 5,

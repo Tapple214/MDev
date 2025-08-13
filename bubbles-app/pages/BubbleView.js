@@ -95,7 +95,7 @@ export default function BubbleView() {
             onPress: () => handleShowQRCode(),
           },
           {
-            text: "Unique Code",
+            text: "Attendance PIN",
             onPress: () => setShowUniqueCodeDisplay(true),
           },
           {
@@ -115,7 +115,7 @@ export default function BubbleView() {
             onPress: () => setShowQRScanner(true),
           },
           {
-            text: "Enter Code",
+            text: "Enter PIN",
             onPress: () => setShowUniqueCodeEntry(true),
           },
           {
@@ -215,11 +215,22 @@ export default function BubbleView() {
     const pinData = {
       code: codeData.entryCode,
       bubbleId: bubbleDetails.bubbleId,
-      timestamp: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes from now
     };
 
-    const validation = validateAttendancePin(pinData, bubbleDetails.bubbleId);
+    // Get the stored PIN from bubble data
+    const storedPin = bubbleData?.attendancePin?.pin;
+
+    if (!storedPin) {
+      Alert.alert("Error", "No attendance PIN found for this bubble");
+      setShowUniqueCodeEntry(false);
+      return;
+    }
+
+    const validation = validateAttendancePin(
+      pinData,
+      bubbleDetails.bubbleId,
+      storedPin
+    );
 
     if (!validation.isValid) {
       Alert.alert("Invalid Code", validation.message);
@@ -247,7 +258,11 @@ export default function BubbleView() {
               const result = await confirmAttendanceByPin(
                 bubbleDetails.bubbleId,
                 user.email,
-                pinData
+                {
+                  code: codeData.entryCode,
+                  bubbleId: bubbleDetails.bubbleId,
+                  timestamp: new Date().toISOString(),
+                }
               );
 
               if (result.success) {
@@ -487,6 +502,7 @@ export default function BubbleView() {
             onClose={() => setShowUniqueCodeDisplay(false)}
             bubbleName={bubbleData?.name}
             bubbleId={bubbleDetails.bubbleId}
+            attendancePin={bubbleData?.attendancePin}
           />
 
           {/* Unique Code Entry Modal (for guests) */}

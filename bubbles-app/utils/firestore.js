@@ -11,7 +11,7 @@ import {
   deleteDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { generateEntryQRCode } from "./attendance";
+import { generateEntryQRCode, generateAttendancePin } from "./attendance";
 import {
   notifyGuestOfInvite,
   notifyGuestsOfBubbleChanges,
@@ -93,8 +93,9 @@ export const createBubble = async (bubbleData) => {
           .filter((email) => email.length > 0)
       : [];
 
-    // Generate QR code data if needQR is true
+    // Generate QR code data and attendance PIN if needQR is true
     let qrCodeData = null;
+    let attendancePin = null;
 
     if (bubbleData.needQR) {
       const bubbleDataQR = {
@@ -105,6 +106,7 @@ export const createBubble = async (bubbleData) => {
       };
 
       qrCodeData = generateEntryQRCode(bubbleDataQR);
+      attendancePin = generateAttendancePin(newBubbleRef.id);
     }
 
     const bubbleDoc = {
@@ -115,6 +117,7 @@ export const createBubble = async (bubbleData) => {
       guestList: guestList,
       needQR: bubbleData.needQR,
       qrCodeData: qrCodeData,
+      attendancePin: attendancePin,
       icon: bubbleData.icon || "heart",
       backgroundColor: bubbleData.backgroundColor || "#E89349",
       tags: bubbleData.tags || [],
@@ -162,8 +165,10 @@ export const updateBubble = async (bubbleData) => {
           .filter((email) => email.length > 0)
       : [];
 
-    // Generate QR code data if needQR is true
+    // Generate QR code data and attendance PIN if needQR is true
     let qrCodeData = null;
+    let attendancePin = null;
+
     if (bubbleData.needQR) {
       const bubbleDataQR = {
         id: bubbleData.bubbleId,
@@ -172,6 +177,19 @@ export const updateBubble = async (bubbleData) => {
         schedule: scheduleDate,
       };
       qrCodeData = generateEntryQRCode(bubbleDataQR);
+
+      // Generate new attendance PIN if it doesn't exist or if needQR was changed from false to true
+      const existingBubble = await getDoc(bubbleRef);
+      if (existingBubble.exists()) {
+        const existingData = existingBubble.data();
+        if (!existingData.attendancePin || !existingData.needQR) {
+          attendancePin = generateAttendancePin(bubbleData.bubbleId);
+        } else {
+          attendancePin = existingData.attendancePin; // Keep existing PIN
+        }
+      } else {
+        attendancePin = generateAttendancePin(bubbleData.bubbleId);
+      }
     }
 
     const bubbleDoc = {
@@ -182,6 +200,7 @@ export const updateBubble = async (bubbleData) => {
       guestList: guestList,
       needQR: bubbleData.needQR,
       qrCodeData: qrCodeData,
+      attendancePin: attendancePin,
       icon: bubbleData.icon || "heart",
       backgroundColor: bubbleData.backgroundColor || "#E89349",
       tags: bubbleData.tags || [],
