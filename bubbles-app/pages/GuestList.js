@@ -3,9 +3,6 @@ import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 
-// Components
-// (No component imports in this file)
-
 // Custom hooks and utility functions
 import { COLORS } from "../utils/custom-styles";
 import { findUser } from "../utils/firestore";
@@ -45,8 +42,7 @@ export default function GuestList() {
       const guestDetails = [];
 
       for (const guestEmail of guests) {
-        const normalizedEmail = guestEmail.toLowerCase().trim();
-        const response = guestResponses[normalizedEmail];
+        const response = guestResponses[guestEmail];
 
         // Get user details from database
         let userName = guestEmail; // Default to email if name not found
