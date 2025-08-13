@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
+import * as DocumentPicker from "expo-document-picker";
 import { Feather } from "@expo/vector-icons";
 import {
   doc,
@@ -48,14 +49,16 @@ export default function BubbleBook() {
 
   // State
   const [photos, setPhotos] = useState([]);
+  const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [selectedDocument, setSelectedDocument] = useState(null);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
-  const [userPhotoCount, setUserPhotoCount] = useState(0);
+  const [showDocumentModal, setShowDocumentModal] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  // Fetch photos from Firestore for this specific bubble
+  // Fetch photos and documents from Firestore for this specific bubble
   const fetchPhotos = async () => {
     try {
       setLoading(true);
@@ -68,26 +71,28 @@ export default function BubbleBook() {
       const querySnapshot = await getDocs(q);
 
       const fetchedPhotos = [];
-      let currentUserCount = 0;
+      const fetchedDocuments = [];
 
       querySnapshot.forEach((doc) => {
-        const photoData = {
+        const itemData = {
           id: doc.id,
           ...doc.data(),
         };
-        fetchedPhotos.push(photoData);
 
-        // Count photos by current user
-        if (user?.email && photoData.addedBy === user.email) {
-          currentUserCount++;
+        // Separate photos and documents based on type
+        if (itemData.type === "document") {
+          fetchedDocuments.push(itemData);
+        } else {
+          // Default to photo type for backward compatibility
+          fetchedPhotos.push(itemData);
         }
       });
 
       setPhotos(fetchedPhotos);
-      setUserPhotoCount(currentUserCount);
+      setDocuments(fetchedDocuments);
     } catch (error) {
-      console.error("Error fetching photos:", error);
-      Alert.alert("Error", "Failed to load photos. Please try again.");
+      console.error("Error fetching items:", error);
+      Alert.alert("Error", "Failed to load items. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -122,21 +127,8 @@ export default function BubbleBook() {
     return true;
   };
 
-  // Check if user can add more photos
-  const canAddPhoto = () => {
-    return userPhotoCount < 3;
-  };
-
   // Add photo from camera
   const takePhoto = async () => {
-    if (!canAddPhoto()) {
-      Alert.alert(
-        "Photo Limit Reached",
-        "You have already added 3 photos to this bubble's BubbleBook. You cannot add more photos."
-      );
-      return;
-    }
-
     const hasPermission = await requestPermissions();
     if (!hasPermission) return;
 
@@ -159,14 +151,6 @@ export default function BubbleBook() {
 
   // Add photo from gallery
   const pickImage = async () => {
-    if (!canAddPhoto()) {
-      Alert.alert(
-        "Photo Limit Reached",
-        "You have already added 3 photos to this bubble's BubbleBook. You cannot add more photos."
-      );
-      return;
-    }
-
     const hasPermission = await requestPermissions();
     if (!hasPermission) return;
 
@@ -235,6 +219,7 @@ export default function BubbleBook() {
       const photoData = {
         imageBase64: base64Image,
         source: source,
+        type: "photo",
         addedBy: user.email,
         addedByName: user.displayName || user.email,
         bubbleId: bubbleId,
@@ -250,7 +235,6 @@ export default function BubbleBook() {
       };
 
       setPhotos((prevPhotos) => [newPhoto, ...prevPhotos]);
-      setUserPhotoCount((prev) => prev + 1);
 
       // Notify all participants of the bubble about the new item
       try {
@@ -284,12 +268,6 @@ export default function BubbleBook() {
         prevPhotos.filter((photo) => photo.id !== photoId)
       );
 
-      // Update user photo count if the deleted photo was by current user
-      const deletedPhoto = photos.find((photo) => photo.id === photoId);
-      if (deletedPhoto && user?.email && deletedPhoto.addedBy === user.email) {
-        setUserPhotoCount((prev) => prev - 1);
-      }
-
       setShowPhotoModal(false);
       setSelectedPhoto(null);
       Alert.alert("Success", "Photo deleted from BubbleBook!");
@@ -303,6 +281,136 @@ export default function BubbleBook() {
   const openPhotoModal = (photo) => {
     setSelectedPhoto(photo);
     setShowPhotoModal(true);
+  };
+
+  // Add PDF document
+  const pickDocument = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "application/pdf",
+        copyToCacheDirectory: true,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        await addDocumentToCollection(result.assets[0]);
+      }
+    } catch (error) {
+      console.error("Error picking document:", error);
+      Alert.alert("Error", "Failed to pick document. Please try again.");
+    }
+  };
+
+  // Convert PDF to base64
+  const convertPdfToBase64 = async (fileUri) => {
+    try {
+      // Check file size first (limit to 10MB to avoid Firestore limits)
+      const fileInfo = await FileSystem.getInfoAsync(fileUri);
+      const fileSizeInMB = fileInfo.size / (1024 * 1024);
+
+      if (fileSizeInMB > 10) {
+        throw new Error(
+          "PDF file is too large. Please choose a file smaller than 10MB."
+        );
+      }
+
+      const base64 = await FileSystem.readAsStringAsync(fileUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      // Check if base64 string is too long for Firestore (1MB limit)
+      const base64SizeInMB = (base64.length * 3) / 4 / (1024 * 1024);
+      if (base64SizeInMB > 1) {
+        throw new Error(
+          "PDF is too large after conversion. Please choose a smaller file."
+        );
+      }
+
+      return `data:application/pdf;base64,${base64}`;
+    } catch (error) {
+      console.error("Error converting PDF to base64:", error);
+      throw error;
+    }
+  };
+
+  // Add document to Firestore collection
+  const addDocumentToCollection = async (documentAsset) => {
+    try {
+      setUploading(true);
+      const photosRef = collection(db, "bubbleBook");
+      if (!user?.email) {
+        Alert.alert("Error", "User not authenticated");
+        return;
+      }
+
+      // Convert PDF to base64
+      const base64Document = await convertPdfToBase64(documentAsset.uri);
+
+      const documentData = {
+        pdfBase64: base64Document,
+        fileName: documentAsset.name,
+        fileSize: documentAsset.size,
+        type: "document",
+        addedBy: user.email,
+        addedByName: user.displayName || user.email,
+        bubbleId: bubbleId,
+        bubbleName: bubbleName,
+        createdAt: serverTimestamp(),
+        description: "",
+      };
+
+      const docRef = await addDoc(photosRef, documentData);
+      const newDocument = {
+        id: docRef.id,
+        ...documentData,
+      };
+
+      setDocuments((prevDocuments) => [newDocument, ...prevDocuments]);
+
+      // Notify all participants of the bubble about the new item
+      try {
+        await notifyBubbleParticipantsOfNewItem(
+          bubbleId,
+          user.email,
+          bubbleName
+        );
+      } catch (error) {
+        console.error("Error sending notifications:", error);
+        // Don't show error to user as this is just a notification
+      }
+
+      Alert.alert("Success", "PDF document added to BubbleBook!");
+    } catch (error) {
+      console.error("Error adding document:", error);
+      Alert.alert(
+        "Error",
+        error.message || "Failed to add document. Please try again."
+      );
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Delete document
+  const deleteDocument = async (documentId) => {
+    try {
+      await deleteDoc(doc(db, "bubbleBook", documentId));
+      setDocuments((prevDocuments) =>
+        prevDocuments.filter((doc) => doc.id !== documentId)
+      );
+
+      setShowDocumentModal(false);
+      setSelectedDocument(null);
+      Alert.alert("Success", "Document deleted from BubbleBook!");
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      Alert.alert("Error", "Failed to delete document. Please try again.");
+    }
+  };
+
+  // Show document modal
+  const openDocumentModal = (document) => {
+    setSelectedDocument(document);
+    setShowDocumentModal(true);
   };
 
   // Render photo grid
@@ -351,76 +459,97 @@ export default function BubbleBook() {
     );
   };
 
-  // Add photo buttons with limit indicator
-  const renderAddPhotoButtons = () => {
-    const canAdd = canAddPhoto() && !uploading;
+  // Render document grid
+  const renderDocumentGrid = () => {
+    if (documents.length === 0) {
+      return null; // Don't show anything if no documents
+    }
 
     return (
-      <View style={styles.addPhotoContainer}>
-        <TouchableOpacity
-          style={[
-            styles.addPhotoButton,
-            (!canAdd || uploading) && styles.disabledButton,
-          ]}
-          onPress={takePhoto}
-          disabled={!canAdd}
-        >
-          <Feather
-            name="camera"
-            size={24}
-            color={canAdd ? COLORS.surface : COLORS.text.secondary}
-          />
-          <Text
-            style={[
-              styles.addPhotoText,
-              (!canAdd || uploading) && styles.disabledText,
-            ]}
-          >
-            {uploading ? "Uploading..." : "Take Photo"}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.addPhotoButton,
-            (!canAdd || uploading) && styles.disabledButton,
-          ]}
-          onPress={pickImage}
-          disabled={!canAdd}
-        >
-          <Feather
-            name="image"
-            size={24}
-            color={canAdd ? COLORS.surface : COLORS.text.secondary}
-          />
-          <Text
-            style={[
-              styles.addPhotoText,
-              (!canAdd || uploading) && styles.disabledText,
-            ]}
-          >
-            {uploading ? "Uploading..." : "Choose Photo"}
-          </Text>
-        </TouchableOpacity>
+      <View style={styles.documentsSection}>
+        <Text style={styles.sectionTitle}>Documents</Text>
+        <View style={styles.documentGrid}>
+          {documents.map((document) => (
+            <TouchableOpacity
+              key={document.id}
+              style={styles.documentContainer}
+              onPress={() => openDocumentModal(document)}
+            >
+              <View style={styles.documentIcon}>
+                <Feather name="file-text" size={40} color={COLORS.primary} />
+              </View>
+              <Text style={styles.documentName} numberOfLines={2}>
+                {document.fileName}
+              </Text>
+              <Text style={styles.documentAddedBy}>{document.addedByName}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
     );
   };
 
-  // Render photo limit indicator
-  const renderPhotoLimitIndicator = () => {
+  // Add photo and document buttons
+  const renderAddButtons = () => {
     return (
-      <View style={styles.limitContainer}>
-        <Text style={styles.limitText}>Your photos: {userPhotoCount}/3</Text>
-        {uploading && (
-          <Text style={styles.uploadingText}>
-            Converting and uploading image...
-          </Text>
-        )}
-        {userPhotoCount >= 3 && (
-          <Text style={styles.limitWarning}>
-            You've reached the maximum of 3 photos for this bubble
-          </Text>
-        )}
+      <View style={styles.addButtonsContainer}>
+        <View style={styles.addPhotoContainer}>
+          <TouchableOpacity
+            style={[styles.addPhotoButton, uploading && styles.disabledButton]}
+            onPress={takePhoto}
+            disabled={uploading}
+          >
+            <Feather
+              name="camera"
+              size={24}
+              color={uploading ? COLORS.text.secondary : COLORS.surface}
+            />
+            <Text
+              style={[styles.addPhotoText, uploading && styles.disabledText]}
+            >
+              {uploading ? "Uploading..." : "Take Photo"}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.addPhotoButton, uploading && styles.disabledButton]}
+            onPress={pickImage}
+            disabled={uploading}
+          >
+            <Feather
+              name="image"
+              size={24}
+              color={uploading ? COLORS.text.secondary : COLORS.surface}
+            />
+            <Text
+              style={[styles.addPhotoText, uploading && styles.disabledText]}
+            >
+              {uploading ? "Uploading..." : "Choose Photo"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.addDocumentContainer}>
+          <TouchableOpacity
+            style={[
+              styles.addDocumentButton,
+              uploading && styles.disabledButton,
+            ]}
+            onPress={pickDocument}
+            disabled={uploading}
+          >
+            <Feather
+              name="file-text"
+              size={24}
+              color={uploading ? COLORS.text.secondary : COLORS.surface}
+            />
+            <Text
+              style={[styles.addDocumentText, uploading && styles.disabledText]}
+            >
+              {uploading ? "Uploading..." : "Add PDF"}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   };
@@ -442,15 +571,16 @@ export default function BubbleBook() {
           <Text style={styles.title}>BubbleBook</Text>
           <Text style={styles.subtitle}>
             {bubbleName
-              ? `${bubbleName}'s Photo Album`
-              : "Collective Photo Album"}
+              ? `${bubbleName}'s Photo Album & Documents`
+              : "Collective Photo Album & Documents"}
           </Text>
         </View>
 
-        {renderPhotoLimitIndicator()}
-        {renderAddPhotoButtons()}
+        {renderAddButtons()}
 
         <View style={styles.photosContainer}>{renderPhotoGrid()}</View>
+
+        {renderDocumentGrid()}
       </ScrollView>
 
       {/* Photo Modal */}
@@ -526,6 +656,79 @@ export default function BubbleBook() {
         </View>
       </Modal>
 
+      {/* Document Modal */}
+      <Modal
+        visible={showDocumentModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowDocumentModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Document Details</Text>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setShowDocumentModal(false)}
+              >
+                <Feather name="x" size={24} color={COLORS.text.primary} />
+              </TouchableOpacity>
+            </View>
+
+            {selectedDocument && (
+              <>
+                <View style={styles.documentModalIcon}>
+                  <Feather name="file-text" size={80} color={COLORS.primary} />
+                </View>
+                <View style={styles.modalInfo}>
+                  <Text style={styles.modalInfoText}>
+                    File Name: {selectedDocument.fileName}
+                  </Text>
+                  <Text style={styles.modalInfoText}>
+                    File Size:{" "}
+                    {(selectedDocument.fileSize / 1024 / 1024).toFixed(2)} MB
+                  </Text>
+                  <Text style={styles.modalInfoText}>
+                    Added by: {selectedDocument.addedByName}
+                  </Text>
+                  {selectedDocument.createdAt && (
+                    <Text style={styles.modalInfoText}>
+                      Date:{" "}
+                      {selectedDocument.createdAt
+                        .toDate?.()
+                        ?.toLocaleDateString() || "Unknown"}
+                    </Text>
+                  )}
+                </View>
+
+                {user?.email && selectedDocument.addedBy === user.email && (
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => {
+                      Alert.alert(
+                        "Delete Document",
+                        "Are you sure you want to delete this document?",
+                        [
+                          { text: "Cancel", style: "cancel" },
+                          {
+                            text: "Delete",
+                            style: "destructive",
+                            onPress: () => deleteDocument(selectedDocument.id),
+                          },
+                        ]
+                      );
+                    }}
+                  >
+                    <Feather name="trash-2" size={20} color={COLORS.surface} />
+                    <Text style={styles.deleteButtonText}>Delete Document</Text>
+                  </TouchableOpacity>
+                )}
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
+
       <NavBar page="BubbleBook" />
     </View>
   );
@@ -552,36 +755,33 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.text.secondary,
   },
-  limitContainer: {
-    paddingHorizontal: 15,
-    paddingBottom: 15,
-  },
-  limitText: {
-    fontSize: 14,
-    color: COLORS.text.secondary,
-    textAlign: "center",
-  },
-  uploadingText: {
-    fontSize: 12,
-    color: COLORS.confirm,
-    textAlign: "center",
-    marginTop: 5,
-    fontStyle: "italic",
-  },
-  limitWarning: {
-    fontSize: 12,
-    color: COLORS.reject,
-    textAlign: "center",
-    marginTop: 5,
-    fontStyle: "italic",
-  },
-  addPhotoContainer: {
+  addButtonsContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
     paddingHorizontal: 15,
     paddingBottom: 20,
+    gap: 10,
+  },
+  addPhotoContainer: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  addDocumentContainer: {
+    flex: 1,
   },
   addPhotoButton: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    minWidth: 120,
+    justifyContent: "center",
+  },
+  addDocumentButton: {
     backgroundColor: COLORS.primary,
     paddingHorizontal: 20,
     paddingVertical: 12,
@@ -602,12 +802,63 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
   },
+  addDocumentText: {
+    color: COLORS.surface,
+    fontSize: 14,
+    fontWeight: "600",
+  },
   disabledText: {
     color: COLORS.text.secondary,
   },
   photosContainer: {
     flex: 1,
     paddingHorizontal: 15,
+  },
+  documentsSection: {
+    paddingHorizontal: 15,
+    paddingBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: COLORS.text.primary,
+    marginBottom: 10,
+  },
+  documentGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  documentContainer: {
+    width: (screenWidth - 45) / 2,
+    height: (screenWidth - 45) / 2,
+    marginBottom: 15,
+    borderRadius: 10,
+    overflow: "hidden",
+    backgroundColor: COLORS.surface,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 10,
+  },
+  documentIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: COLORS.elemental.beige,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  documentName: {
+    fontSize: 14,
+    color: COLORS.text.primary,
+    fontWeight: "500",
+    textAlign: "center",
+    marginBottom: 5,
+  },
+  documentAddedBy: {
+    fontSize: 12,
+    color: COLORS.text.secondary,
   },
   centerContainer: {
     flex: 1,
@@ -717,5 +968,14 @@ const styles = StyleSheet.create({
     color: COLORS.surface,
     fontSize: 14,
     fontWeight: "600",
+  },
+  documentModalIcon: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: COLORS.elemental.beige,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 15,
   },
 });
