@@ -329,15 +329,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
-  cardTitle: {
-    fontSize: 15,
-    fontWeight: "bold",
-    paddingBottom: 2,
-  },
-  cardText: {
-    fontSize: 12,
-    paddingBottom: 10,
-  },
   categoriesContainer: {
     paddingBottom: 15,
     flex: 0,
