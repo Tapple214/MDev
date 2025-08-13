@@ -24,6 +24,8 @@ import { COLORS } from "../utils/custom-styles";
 
 export default function BubbleBuddies() {
   const { user } = useAuth();
+
+  // States
   const [userData, setUserData] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
