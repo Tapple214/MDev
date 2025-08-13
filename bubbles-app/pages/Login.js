@@ -190,8 +190,6 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 15,
     fontSize: 16,
-    borderWidth: 1,
-    borderColor: "#ddd",
   },
   button: {
     backgroundColor: COLORS.primary,
