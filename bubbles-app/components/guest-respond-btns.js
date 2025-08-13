@@ -3,9 +3,6 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
 
-// Components
-// (No component imports in this file)
-
 // Custom hooks and utility functions
 import { COLORS } from "../utils/custom-styles";
 
