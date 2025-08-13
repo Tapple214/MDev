@@ -4,7 +4,7 @@
     "slug": "bubbles-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/create-bubble.png",
+    "icon": "./assets/login.jpeg",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -17,26 +17,26 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/create-bubble.png",
+        "foregroundImage": "./assets/login.jpeg",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
-      "favicon": "./assets/create-bubble.png"
+      "favicon": "./assets/login.jpeg"
     },
     "plugins": [
       "expo-barcode-scanner",
       [
         "expo-notifications",
         {
-          "icon": "./assets/create-bubble.png",
+          "icon": "./assets/login.jpeg",
           "color": "#ffffff"
         }
       ]
     ],
     "notification": {
-      "icon": "./assets/create-bubble.png",
+      "icon": "./assets/login.jpeg",
       "color": "#ffffff",
       "iosDisplayInForeground": true,
       "androidMode": "default",
