@@ -19,7 +19,7 @@ import {
   getUser,
   deleteUser as deleteFirestore,
 } from "../utils/firestore";
-import { initializeNotifications } from "../utils/notifications";
+import { initializeAppNotifications } from "../utils/notifications/core";
 
 // =============================================== AUTH CONTEXT ===============================================
 
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
         try {
           const data = await getUser(user.uid);
           setUserData(data);
-          await initializeNotifications(user.uid);
+          await initializeAppNotifications(user);
         } catch (error) {
           console.error("Error fetching user data:", error);
           setUserData(null);

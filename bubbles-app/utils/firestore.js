@@ -14,10 +14,10 @@ import {
 import { generateEntryQRCode } from "./attendance";
 import {
   notifyGuestOfInvite,
-  scheduleBubbleNotifications,
-  notifyHostOfGuestResponse,
   notifyGuestsOfBubbleChanges,
-} from "./notifications";
+} from "./notifications/guests";
+import { scheduleBubbleNotifications } from "./notifications/all";
+import { notifyHostOfGuestResponse } from "./notifications/hosts";
 import { dateToTimestamp } from "./helper";
 
 // =============================================== ACCOUNT MANAGEMENT ===============================================
