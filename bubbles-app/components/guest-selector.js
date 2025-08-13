@@ -11,9 +11,6 @@ import {
 } from "react-native";
 import Feather from "react-native-vector-icons/Feather";
 
-// Components
-// (No component imports in this file)
-
 // Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
 import { getBubbleBuddies, validateGuestEmails } from "../utils/firestore";
@@ -35,7 +32,6 @@ export default function GuestSelector({
   const [showUserSelector, setShowUserSelector] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (showUserSelector) {
@@ -46,15 +42,12 @@ export default function GuestSelector({
   const loadBubbleBuddies = async () => {
     if (!user) return;
 
-    setLoading(true);
     try {
       const bubbleBuddies = await getBubbleBuddies(user.uid);
       setUsers(bubbleBuddies);
     } catch (error) {
       console.error("Error loading bubble buddies:", error);
       Alert.alert("Error", "Failed to load bubble buddies");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -74,6 +67,7 @@ export default function GuestSelector({
     }
   };
 
+  // To allow users to select guest from their bubble buddies
   const handleUserSelect = (selectedUser) => {
     const isSelected = selectedUsers.find(
       (user) => user.id === selectedUser.id

@@ -20,7 +20,7 @@ import AIDescriptionGenerator from "../components/ai-description-generator";
 
 // Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
-import { createBubble, validateGuestEmails } from "../utils/firestore";
+import { createBubble } from "../utils/firestore";
 
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { COLORS } from "../utils/custom-styles";
