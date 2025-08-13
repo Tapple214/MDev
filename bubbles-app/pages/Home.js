@@ -11,8 +11,6 @@ import {
   ImageBackground,
 } from "react-native";
 
-// TODO: create a typography util file
-
 // Components
 import NavBar from "../components/navbar";
 import BubbleItem from "../components/bubble-item";
@@ -25,6 +23,7 @@ import {
   updateGuestResponse,
 } from "../utils/firestore";
 import { COLORS } from "../utils/custom-styles";
+import useBubbleResponse from "../utils/bubble-response";
 
 // Quick actions that are displayed on the home screen
 const quickActions = [
@@ -52,9 +51,6 @@ const categories = [
 ];
 
 export default function Home({ navigation }) {
-  // Custom Hook
-  const { user } = useAuth();
-
   // States
   const [userData, setUserData] = useState(null);
   const [bubblesData, setBubblesData] = useState([]);
@@ -142,62 +138,10 @@ export default function Home({ navigation }) {
     setSelectedCategory(categoryId);
   };
 
-  // TODO: make into a custom hook??
-  // Guest respond to bubble buttons; used by two different components/pages (i.e. BubbleView and BubbleItem)
-  // Accept, Decline, Retract Buttons
-  const handleAcceptBubble = async (bubbleId) => {
-    try {
-      if (!user?.email) {
-        Alert.alert("Error", "User not authenticated");
-        return;
-      }
-      // Update bubble status in database
-      await updateGuestResponse(bubbleId, user.email, "accepted");
-      Alert.alert("Success!", "You've confirmed you're coming to this bubble!");
-      // Refresh the data to show updated status
-      await fetchData();
-    } catch (error) {
-      console.error("Error accepting bubble:", error);
-      Alert.alert("Error", "Failed to accept bubble. Please try again.");
-    }
-  };
-
-  const handleDeclineBubble = async (bubbleId) => {
-    try {
-      if (!user?.email) {
-        Alert.alert("Error", "User not authenticated");
-        return;
-      }
-      // Update bubble status in database
-      await updateGuestResponse(bubbleId, user.email, "declined");
-      Alert.alert("Declined", "You've declined this bubble invitation.");
-      // Refresh the data to show updated status
-      await fetchData();
-    } catch (error) {
-      console.error("Error declining bubble:", error);
-      Alert.alert("Error", "Failed to decline bubble. Please try again.");
-    }
-  };
-
-  const handleRetractBubble = async (bubbleId) => {
-    try {
-      if (!user?.email) {
-        Alert.alert("Error", "User not authenticated");
-        return;
-      }
-      // Update bubble status in database
-      await updateGuestResponse(bubbleId, user.email, "pending");
-      Alert.alert(
-        "Retracted",
-        "You've retracted your invitation to this bubble."
-      );
-      // Refresh the data to show updated status
-      await fetchData();
-    } catch (error) {
-      console.error("Error retracting bubble:", error);
-      Alert.alert("Error", "Failed to retract bubble. Please try again.");
-    }
-  };
+  // Custom Hook
+  const { user } = useAuth();
+  const { handleAcceptBubble, handleDeclineBubble, handleRetractBubble } =
+    useBubbleResponse({ user, fetchData, updateGuestResponse });
 
   return (
     <View style={styles.generalContainer}>
