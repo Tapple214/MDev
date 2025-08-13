@@ -10,20 +10,17 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-// Components
-// (No component imports in this file)
-
 // Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
 import { COLORS } from "../utils/custom-styles";
 
-export default function Login({ navigation }) {
+export default function Login() {
   // Custom Hook
   const { login, signup } = useAuth();
 
   // States
   const [loading, setLoading] = useState(false);
-  const [isLogin, setIsLogin] = useState(true); // login or signup
+  const [isLogin, setIsLogin] = useState(true); // login, if false then signup
   const [formData, setFormData] = useState({
     email: "",
     name: "",
@@ -45,7 +42,7 @@ export default function Login({ navigation }) {
     />
   );
 
-  // To check whether the form is filled in correctly
+  // Check on whether the form is filled in correctly
   const validateForm = () => {
     if (!formData.email || !formData.password) {
       Alert.alert("Error", "Please fill in all fields");
@@ -151,7 +148,7 @@ export default function Login({ navigation }) {
         )}
       </TouchableOpacity>
 
-      {/* Switch button */}
+      {/* Switch button; switches between login and signup */}
       <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
         <Text style={styles.switchText}>
           {isLogin
