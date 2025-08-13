@@ -70,7 +70,7 @@ export default function EditBubble() {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [selectedTags, setSelectedTags] = useState(bubbleData?.tags || []);
 
-  // Available options
+  // Customization options
   const iconOptions = [
     { name: "heart", icon: "heart" },
     { name: "star", icon: "star" },
@@ -85,6 +85,7 @@ export default function EditBubble() {
     { name: "Rust", value: COLORS.elemental.rust },
   ];
 
+  // Tag Options
   const tagOptions = [
     "casual",
     "formal",
