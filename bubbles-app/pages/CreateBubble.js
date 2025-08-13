@@ -22,7 +22,6 @@ import AIDescriptionGenerator from "../components/ai-description-generator";
 import { useAuth } from "../contexts/AuthContext";
 import { createBubble, validateGuestEmails } from "../utils/firestore";
 
-// TODO: create a date util file
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { COLORS } from "../utils/custom-styles";
 
@@ -30,8 +29,7 @@ export default function CreateBubble() {
   // Hooks
   const { user, userData } = useAuth();
 
-  // State
-  // General Details
+  // States
   const [isLoading, setIsLoading] = useState(false);
   const [bubbleName, setBubbleName] = useState("");
   const [bubbleDescription, setBubbleDescription] = useState("");
@@ -56,7 +54,7 @@ export default function CreateBubble() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [showAIGenerator, setShowAIGenerator] = useState(false);
 
-  // Available options
+  // Customization Options
   const iconOptions = [
     { name: "heart", icon: "heart" },
     { name: "star", icon: "star" },
@@ -71,6 +69,7 @@ export default function CreateBubble() {
     { name: "Rust", value: COLORS.elemental.rust },
   ];
 
+  // Tag Options
   const tagOptions = [
     "casual",
     "formal",
@@ -166,6 +165,7 @@ export default function CreateBubble() {
     return true;
   };
 
+  // Function when submit button is clicked
   const handleCreateBubble = async () => {
     if (!validateForm()) return;
 
@@ -220,8 +220,6 @@ export default function CreateBubble() {
       setIsLoading(false);
     }
   };
-
-  // TODO: create a separate util file for this
 
   return (
     <View style={styles.generalContainer}>
@@ -636,32 +634,6 @@ const styles = StyleSheet.create({
   },
   pickerContainer: {
     flexDirection: "row",
-  },
-  validationContainer: {
-    marginHorizontal: 15,
-    marginBottom: 15,
-  },
-  validationItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 5,
-  },
-  validationText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: COLORS.elemental.sage,
-  },
-  validEmail: {
-    fontSize: 14,
-    color: COLORS.status.success,
-  },
-  invalidEmail: {
-    fontSize: 14,
-    color: COLORS.status.error,
-  },
-  notFoundEmail: {
-    fontSize: 14,
-    color: COLORS.status.warning,
   },
   switchContainer: {
     flexDirection: "row",
