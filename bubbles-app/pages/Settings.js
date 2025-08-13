@@ -118,18 +118,18 @@ export default function Settings() {
   const getPermissionStatusText = () => {
     switch (permissionStatus) {
       case "granted":
-        return "Granted ✅";
+        return "Granted";
       case "denied":
-        return "Denied ❌";
+        return "Denied";
       case "undetermined":
-        return "Not Requested ⚠️";
+        return "Not Requested";
       default:
-        return "Unknown ❓";
+        return "Unknown";
     }
   };
 
   const getTokenStatusText = () => {
-    return pushToken ? "Available ✅" : "Not Available ❌";
+    return pushToken ? "Available" : "Not Available";
   };
 
   return (
@@ -234,7 +234,7 @@ export default function Settings() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Local Notification Settings</Text>
           <Text style={styles.sectionDescription}>
-            Local notifications work even when push notifications are
+            Local notifications will work even when push notifications are
             unavailable
           </Text>
 
@@ -274,23 +274,6 @@ export default function Settings() {
               </Text>
             </TouchableOpacity>
           )}
-        </View>
-
-        {/* Information */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Information</Text>
-          <Text style={styles.infoText}>
-            • Push notifications require a physical device
-          </Text>
-          <Text style={styles.infoText}>
-            • Local notifications work on simulator and as backup
-          </Text>
-          <Text style={styles.infoText}>
-            • Local notifications ensure you never miss important updates
-          </Text>
-          <Text style={styles.infoText}>
-            • You can change notification settings in your device settings
-          </Text>
         </View>
       </ScrollView>
     </View>
