@@ -10,9 +10,6 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
-// Components
-// (No component imports in this file)
-
 // Custom hooks and utility functions
 import { COLORS } from "../utils/custom-styles";
 
@@ -38,9 +35,9 @@ export default function UniqueCodeEntry({
     // Create code data for PIN validation
     const codeData = {
       type: "bubble_entry",
-      bubbleId: bubbleId || "unknown-bubble-id",
-      bubbleName: bubbleName || "Coffee Meetup",
-      hostName: hostName || "John Doe",
+      bubbleId: bubbleId || "",
+      bubbleName: bubbleName,
+      hostName: hostName,
       schedule: new Date().toISOString(),
       uniqueId: Date.now().toString(),
       timestamp: new Date().toISOString(),
