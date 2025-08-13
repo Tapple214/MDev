@@ -9,13 +9,11 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
-// Components
-// (No component imports in this file)
-
-// Custom hooks and utility functions
 import { COLORS } from "../utils/custom-styles";
 
 export default function QRCodeScannerSimple({
+  bubbleName,
+  bubbleHost,
   isVisible,
   onClose,
   onQRCodeScanned,
@@ -25,26 +23,18 @@ export default function QRCodeScannerSimple({
   const handleSimulateScan = () => {
     setScanned(true);
 
-    // Simulate scanning a QR code
     const mockQRData = {
-      type: "bubble_entry",
       bubbleId: "mock-bubble-id",
-      bubbleName: "Coffee Meetup",
-      hostName: "John Doe",
-      schedule: "2024-01-15T18:00:00.000Z",
+      bubbleName: bubbleName,
+      hostName: bubbleHost,
       uniqueId: "mock-uuid",
-      timestamp: new Date().toISOString(),
     };
 
     Alert.alert(
       "QR Code Scanned!",
       `Bubble: ${mockQRData.bubbleName}\nHost: ${mockQRData.hostName}`,
       [
-        {
-          text: "Cancel",
-          style: "cancel",
-          onPress: () => setScanned(false),
-        },
+        { text: "Cancel", style: "cancel", onPress: () => setScanned(false) },
         {
           text: "Join Bubble",
           onPress: () => {
@@ -72,7 +62,6 @@ export default function QRCodeScannerSimple({
         </View>
 
         <View style={styles.scannerContainer}>
-          {/* Placeholder for camera view */}
           <View style={styles.cameraPlaceholder}>
             <Feather name="camera" size={80} color={COLORS.primary} />
             <Text style={styles.placeholderText}>Camera Scanner</Text>
@@ -81,7 +70,6 @@ export default function QRCodeScannerSimple({
             </Text>
           </View>
 
-          {/* Scanner overlay */}
           <View style={styles.overlay}>
             <View style={styles.scanFrame}>
               <View style={styles.corner} />
@@ -92,20 +80,19 @@ export default function QRCodeScannerSimple({
           </View>
         </View>
 
-        <TouchableOpacity
-          style={styles.scanButton}
-          onPress={handleSimulateScan}
-        >
+        <TouchableOpacity style={styles.button} onPress={handleSimulateScan}>
           <Feather name="qr-code" size={24} color={COLORS.surface} />
-          <Text style={styles.scanButtonText}>Simulate QR Scan</Text>
+          <Text style={styles.buttonText}>Simulate QR Scan</Text>
         </TouchableOpacity>
 
         {scanned && (
           <TouchableOpacity
-            style={styles.rescanButton}
+            style={[styles.button, { bottom: 50 }]}
             onPress={() => setScanned(false)}
           >
-            <Text style={styles.rescanButtonText}>Tap to Scan Again</Text>
+            <Text style={[styles.buttonText, { marginLeft: 0 }]}>
+              Tap to Scan Again
+            </Text>
           </TouchableOpacity>
         )}
       </View>
@@ -125,7 +112,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 50,
     paddingBottom: 20,
-    backgroundColor: COLORS.background,
   },
   headerTitle: {
     fontSize: 18,
@@ -144,7 +130,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     margin: 20,
-    borderRadius: 15,
   },
   placeholderText: {
     fontSize: 18,
@@ -198,24 +183,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 0,
     borderTopWidth: 0,
   },
-  instructionContainer: {
-    position: "absolute",
-    bottom: 150,
-    left: 0,
-    right: 0,
-    alignItems: "center",
-  },
-  instructionText: {
-    color: COLORS.surface,
-    fontSize: 16,
-    fontWeight: "600",
-    textAlign: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  scanButton: {
+  button: {
     position: "absolute",
     bottom: 100,
     left: 20,
@@ -227,25 +195,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
   },
-  scanButtonText: {
+  buttonText: {
     color: COLORS.surface,
     fontSize: 16,
     fontWeight: "bold",
     marginLeft: 10,
-  },
-  rescanButton: {
-    position: "absolute",
-    bottom: 50,
-    left: 20,
-    right: 20,
-    backgroundColor: COLORS.primary,
-    paddingVertical: 15,
-    borderRadius: 25,
-    alignItems: "center",
-  },
-  rescanButtonText: {
-    color: COLORS.surface,
-    fontSize: 16,
-    fontWeight: "bold",
   },
 });

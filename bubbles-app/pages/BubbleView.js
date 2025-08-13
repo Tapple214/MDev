@@ -474,6 +474,8 @@ export default function BubbleView() {
 
           {/* QR Code Scanner Modal (for guests; currently a simulator for now */}
           <QRCodeScanner
+            bubbleName={bubbleData?.name}
+            bubbleHost={bubbleData?.hostName}
             isVisible={showQRScanner}
             onClose={() => setShowQRScanner(false)}
             onQRCodeScanned={handleQRCodeScanned}
