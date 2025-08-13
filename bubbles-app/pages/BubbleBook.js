@@ -35,6 +35,7 @@ import { COLORS } from "../utils/custom-styles";
 import { useAuth } from "../contexts/AuthContext";
 import { db } from "../firebase";
 import { notifyBubbleParticipantsOfNewItem } from "../utils/notifications/all";
+import { useNavBar } from "../contexts/NavBarContext";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -42,6 +43,7 @@ export default function BubbleBook() {
   // Hooks
   const { user } = useAuth();
   const route = useRoute();
+  const { registerNavBarFunctions } = useNavBar();
 
   // Extract bubbleId from route params
   const { bubbleId, bubbleName } = route.params || {};
@@ -102,6 +104,15 @@ export default function BubbleBook() {
       fetchPhotos();
     }
   }, [bubbleId]);
+
+  // Register NavBar functions when component mounts
+  useEffect(() => {
+    registerNavBarFunctions("BubbleBook", {
+      onTakePhoto: takePhoto,
+      onPickImage: pickImage,
+      onPickDocument: pickDocument,
+    });
+  }, [takePhoto, pickImage, pickDocument]);
 
   const onRefresh = async () => {
     setRefreshing(true);

@@ -23,7 +23,7 @@ export default function NavBar({
   const { logout } = useAuth();
   const navigation = useNavigation();
   const state = navigation.getState();
-  const currentRoute = state.routes[state.index];
+  const currentRoute = state?.routes?.[state?.index];
 
   //   Logout function
   const handleLogout = async () => {
@@ -136,7 +136,7 @@ export default function NavBar({
       {/* Settings icon */}
       <TouchableOpacity
         onPress={() => {
-          if (currentRoute.name !== "Settings") {
+          if (currentRoute?.name !== "Settings") {
             navigation.navigate("Settings");
           }
         }}
@@ -162,24 +162,21 @@ export default function NavBar({
       </View>
 
       {/* Bubble Buddies icon */}
-      <TouchableOpacity>
-        <Feather
-          name="users"
-          size={30}
-          color={COLORS.primary}
-          onPress={() => {
-            if (currentRoute.name !== "BubbleBuddies") {
-              navigation.navigate("BubbleBuddies");
-            }
-          }}
-        />
+      <TouchableOpacity
+        onPress={() => {
+          if (currentRoute?.name !== "BubbleBuddies") {
+            navigation.navigate("BubbleBuddies");
+          }
+        }}
+      >
+        <Feather name="users" size={30} color={COLORS.primary} />
       </TouchableOpacity>
 
       {/* Home icon */}
       <TouchableOpacity
         onPress={() => {
-          if (currentRoute.name !== "Home") {
-            navigation.popToTop("Home");
+          if (currentRoute?.name !== "Home") {
+            navigation.goBack("Home");
           }
         }}
       >

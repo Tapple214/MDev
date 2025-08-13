@@ -27,6 +27,7 @@ import {
 } from "../utils/attendance";
 import { generateEntryQRCode } from "../utils/attendance";
 import { useAuth } from "../contexts/AuthContext";
+import { useNavBar } from "../contexts/NavBarContext";
 import { db } from "../firebase";
 
 export default function BubbleView() {
@@ -34,6 +35,7 @@ export default function BubbleView() {
   const route = useRoute();
   const navigation = useNavigation();
   const { user } = useAuth();
+  const { registerNavBarFunctions } = useNavBar();
 
   // Extract details from route params (From Home.js)
   const { bubbleDetails } = route.params;
@@ -71,6 +73,16 @@ export default function BubbleView() {
       loadBubbleData();
     }
   }, [bubbleDetails.bubbleId]);
+
+  // Register NavBar functions when component mounts
+  useEffect(() => {
+    registerNavBarFunctions("BubbleView", {
+      userRole: bubbleDetails.userRole,
+      handleEditBubble: () => {
+        navigation.navigate("EditBubble", { bubbleDetails });
+      },
+    });
+  }, [bubbleDetails.userRole, navigation]);
 
   // Handle attendance confirmation methods
   const handleShowAttendanceOptions = () => {

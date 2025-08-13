@@ -14,6 +14,7 @@ import Feather from "react-native-vector-icons/Feather";
 
 // Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
+import { useNavBar } from "../contexts/NavBarContext";
 import {
   getUser,
   validateGuestEmails,
@@ -23,6 +24,7 @@ import { COLORS } from "../utils/custom-styles";
 
 export default function BubbleBuddies() {
   const { user } = useAuth();
+  const { registerNavBarFunctions } = useNavBar();
 
   // States
   const [userData, setUserData] = useState(null);
@@ -43,6 +45,13 @@ export default function BubbleBuddies() {
     };
     fetchUserData();
   }, [user]);
+
+  // Register NavBar functions when component mounts
+  useEffect(() => {
+    registerNavBarFunctions("BubbleBuddies", {
+      onAddPerson: () => setShowAddModal(true),
+    });
+  }, []);
 
   const handleSearchQueryChange = async (text) => {
     setSearchQuery(text);
