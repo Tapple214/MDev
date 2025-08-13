@@ -15,6 +15,9 @@ export default function NavBar({
   onAddPerson,
   handleEditBubble,
   userRole,
+  onTakePhoto,
+  onPickImage,
+  onPickDocument,
 }) {
   // Hooks
   const { logout } = useAuth();
@@ -43,9 +46,44 @@ export default function NavBar({
     ]);
   };
 
+  // Handle upload options for BubbleBook
+  const handleUploadOptions = () => {
+    Alert.alert("Upload Options", "What would you like to upload?", [
+      {
+        text: "Take Photo",
+        onPress: () => {
+          if (onTakePhoto) onTakePhoto();
+        },
+      },
+      {
+        text: "Choose Photo",
+        onPress: () => {
+          if (onPickImage) onPickImage();
+        },
+      },
+      {
+        text: "Add PDF",
+        onPress: () => {
+          if (onPickDocument) onPickDocument();
+        },
+      },
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+    ]);
+  };
+
   // Dynamic highlight icon that will change based on the page; placed on far right of navbar
   const getHighlightIconConfig = () => {
     switch (page) {
+      case "BubbleBook":
+        return {
+          icon: "upload",
+          onPress: handleUploadOptions,
+          color: COLORS.background,
+          backgroundColor: COLORS.primary,
+        };
       case "BubbleBuddies":
         return {
           icon: "user-plus",

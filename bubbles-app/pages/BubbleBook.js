@@ -418,18 +418,21 @@ export default function BubbleBook() {
     if (loading) {
       return (
         <View style={styles.centerContainer}>
-          <Text style={styles.loadingText}>Loading photos...</Text>
+          <Text style={styles.loadingText}>Loading content...</Text>
         </View>
       );
     }
 
-    if (photos.length === 0) {
+    if (photos.length === 0 && documents.length === 0) {
       return (
         <View style={styles.centerContainer}>
-          <Feather name="image" size={60} color={COLORS.text.primary} />
-          <Text style={styles.emptyText}>No photos yet</Text>
+          <View style={styles.emptyIconContainer}>
+            <Feather name="image" size={40} color={COLORS.primary} />
+            <Feather name="file-text" size={40} color={COLORS.primary} />
+          </View>
+          <Text style={styles.emptyText}>No content yet</Text>
           <Text style={styles.emptySubtext}>
-            Add the first photo to start the album!
+            Add photos or PDF documents to start your collection!
           </Text>
         </View>
       );
@@ -489,71 +492,6 @@ export default function BubbleBook() {
     );
   };
 
-  // Add photo and document buttons
-  const renderAddButtons = () => {
-    return (
-      <View style={styles.addButtonsContainer}>
-        <View style={styles.addPhotoContainer}>
-          <TouchableOpacity
-            style={[styles.addPhotoButton, uploading && styles.disabledButton]}
-            onPress={takePhoto}
-            disabled={uploading}
-          >
-            <Feather
-              name="camera"
-              size={24}
-              color={uploading ? COLORS.text.secondary : COLORS.surface}
-            />
-            <Text
-              style={[styles.addPhotoText, uploading && styles.disabledText]}
-            >
-              {uploading ? "Uploading..." : "Take Photo"}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.addPhotoButton, uploading && styles.disabledButton]}
-            onPress={pickImage}
-            disabled={uploading}
-          >
-            <Feather
-              name="image"
-              size={24}
-              color={uploading ? COLORS.text.secondary : COLORS.surface}
-            />
-            <Text
-              style={[styles.addPhotoText, uploading && styles.disabledText]}
-            >
-              {uploading ? "Uploading..." : "Choose Photo"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.addDocumentContainer}>
-          <TouchableOpacity
-            style={[
-              styles.addDocumentButton,
-              uploading && styles.disabledButton,
-            ]}
-            onPress={pickDocument}
-            disabled={uploading}
-          >
-            <Feather
-              name="file-text"
-              size={24}
-              color={uploading ? COLORS.text.secondary : COLORS.surface}
-            />
-            <Text
-              style={[styles.addDocumentText, uploading && styles.disabledText]}
-            >
-              {uploading ? "Uploading..." : "Add PDF"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  };
-
   return (
     <View style={styles.generalContainer}>
       <ScrollView
@@ -571,12 +509,10 @@ export default function BubbleBook() {
           <Text style={styles.title}>BubbleBook</Text>
           <Text style={styles.subtitle}>
             {bubbleName
-              ? `${bubbleName}'s Photo Album & Documents`
-              : "Collective Photo Album & Documents"}
+              ? `${bubbleName}'s Content Collection`
+              : "Collective Content Collection"}
           </Text>
         </View>
-
-        {renderAddButtons()}
 
         <View style={styles.photosContainer}>{renderPhotoGrid()}</View>
 
@@ -729,7 +665,12 @@ export default function BubbleBook() {
         </View>
       </Modal>
 
-      <NavBar page="BubbleBook" />
+      <NavBar
+        page="BubbleBook"
+        onTakePhoto={takePhoto}
+        onPickImage={pickImage}
+        onPickDocument={pickDocument}
+      />
     </View>
   );
 }
@@ -755,116 +696,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.text.secondary,
   },
-  addButtonsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingHorizontal: 15,
-    paddingBottom: 20,
-    gap: 10,
-  },
-  addPhotoContainer: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  addDocumentContainer: {
-    flex: 1,
-  },
-  addPhotoButton: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 25,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    minWidth: 120,
-    justifyContent: "center",
-  },
-  addDocumentButton: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 25,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    minWidth: 120,
-    justifyContent: "center",
-  },
-  disabledButton: {
-    backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.text.secondary,
-  },
-  addPhotoText: {
-    color: COLORS.surface,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  addDocumentText: {
-    color: COLORS.surface,
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  disabledText: {
-    color: COLORS.text.secondary,
-  },
   photosContainer: {
     flex: 1,
     paddingHorizontal: 15,
-  },
-  documentsSection: {
-    paddingHorizontal: 15,
-    paddingBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: COLORS.text.primary,
-    marginBottom: 10,
-  },
-  documentGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  documentContainer: {
-    width: (screenWidth - 45) / 2,
-    height: (screenWidth - 45) / 2,
-    marginBottom: 15,
-    borderRadius: 10,
-    overflow: "hidden",
-    backgroundColor: COLORS.surface,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 10,
-  },
-  documentIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: COLORS.elemental.beige,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 10,
-  },
-  documentName: {
-    fontSize: 14,
-    color: COLORS.text.primary,
-    fontWeight: "500",
-    textAlign: "center",
-    marginBottom: 5,
-  },
-  documentAddedBy: {
-    fontSize: 12,
-    color: COLORS.text.secondary,
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 60,
+  },
+  emptyIconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 15,
+    marginBottom: 15,
   },
   loadingText: {
     fontSize: 16,
@@ -968,6 +814,52 @@ const styles = StyleSheet.create({
     color: COLORS.surface,
     fontSize: 14,
     fontWeight: "600",
+  },
+  documentsSection: {
+    paddingHorizontal: 15,
+    paddingBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: COLORS.text.primary,
+    marginBottom: 10,
+  },
+  documentGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  documentContainer: {
+    width: (screenWidth - 45) / 2,
+    height: (screenWidth - 45) / 2,
+    marginBottom: 15,
+    borderRadius: 10,
+    overflow: "hidden",
+    backgroundColor: COLORS.surface,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 10,
+  },
+  documentIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: COLORS.elemental.beige,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  documentName: {
+    fontSize: 14,
+    color: COLORS.text.primary,
+    fontWeight: "500",
+    textAlign: "center",
+    marginBottom: 5,
+  },
+  documentAddedBy: {
+    fontSize: 12,
+    color: COLORS.text.secondary,
   },
   documentModalIcon: {
     width: 100,
