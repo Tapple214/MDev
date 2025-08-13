@@ -23,9 +23,7 @@ import GuestRespondBtns from "../components/guest-respond-btns";
 import { COLORS, TEXT_STYLES } from "../utils/custom-styles";
 import {
   confirmAttendanceByQR,
-  confirmAttendanceByPin,
   validateAttendanceQR,
-  validateAttendancePin,
 } from "../utils/attendance";
 import { generateEntryQRCode } from "../utils/attendance";
 import { useAuth } from "../contexts/AuthContext";
@@ -204,79 +202,6 @@ export default function BubbleView() {
               );
             }
             setShowQRScanner(false);
-          },
-        },
-      ]
-    );
-  };
-
-  const handleCodeSubmitted = async (codeData) => {
-    // Create PIN data structure for validation
-    const pinData = {
-      code: codeData.entryCode,
-      bubbleId: bubbleDetails.bubbleId,
-    };
-
-    // Get the stored PIN from bubble data
-    const storedPin = bubbleData?.attendancePin?.pin;
-
-    if (!storedPin) {
-      Alert.alert("Error", "No attendance PIN found for this bubble");
-      setShowUniqueCodeEntry(false);
-      return;
-    }
-
-    const validation = validateAttendancePin(
-      pinData,
-      bubbleDetails.bubbleId,
-      storedPin
-    );
-
-    if (!validation.isValid) {
-      Alert.alert("Invalid Code", validation.message);
-      setShowUniqueCodeEntry(false);
-      return;
-    }
-
-    Alert.alert(
-      "Confirm Attendance",
-      `Bubble: ${codeData.bubbleName}\nHost: ${codeData.hostName}\nCode: ${codeData.entryCode}\n\nWould you like to confirm your attendance?`,
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-          onPress: () => setShowUniqueCodeEntry(false),
-        },
-        {
-          text: "Yes",
-          onPress: async () => {
-            try {
-              if (!user?.email) {
-                Alert.alert("Error", "User not authenticated");
-                return;
-              }
-              const result = await confirmAttendanceByPin(
-                bubbleDetails.bubbleId,
-                user.email,
-                {
-                  code: codeData.entryCode,
-                  bubbleId: bubbleDetails.bubbleId,
-                  timestamp: new Date().toISOString(),
-                }
-              );
-
-              if (result.success) {
-                Alert.alert("Success", result.message);
-              } else {
-                Alert.alert("Error", result.message);
-              }
-            } catch (error) {
-              Alert.alert(
-                "Error",
-                "Failed to confirm attendance. Please try again."
-              );
-            }
-            setShowUniqueCodeEntry(false);
           },
         },
       ]
@@ -509,10 +434,10 @@ export default function BubbleView() {
           <UniqueCodeEntry
             isVisible={showUniqueCodeEntry}
             onClose={() => setShowUniqueCodeEntry(false)}
-            onCodeSubmitted={handleCodeSubmitted}
             bubbleName={bubbleData?.name}
             hostName={bubbleData?.hostName}
             bubbleId={bubbleDetails.bubbleId}
+            storedPin={bubbleData?.attendancePin?.pin}
           />
         </View>
       </ScrollView>

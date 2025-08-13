@@ -12,27 +12,50 @@ import { Feather } from "@expo/vector-icons";
 
 // Custom hooks and utility functions
 import { COLORS } from "../utils/custom-styles";
+import {
+  confirmAttendanceByPin,
+  validateAttendancePin,
+} from "../utils/attendance";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function UniqueCodeEntry({
   isVisible,
   onClose,
-  onCodeSubmitted,
   bubbleName,
   hostName,
   bubbleId,
+  storedPin,
 }) {
   const [code, setCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAuth();
 
-  const handleSubmitCode = () => {
+  const handleSubmitCode = async () => {
     if (!code.trim()) {
       Alert.alert("Error", "Please enter a code");
       return;
     }
 
-    setIsSubmitting(true);
+    if (!storedPin) {
+      Alert.alert("Error", "No attendance PIN found for this bubble");
+      onClose();
+      return;
+    }
 
-    // Create code data for PIN validation
+    // Create PIN data structure for validation
+    const pinData = {
+      code: code.trim(),
+      bubbleId: bubbleId,
+    };
+
+    const validation = validateAttendancePin(pinData, bubbleId, storedPin);
+
+    if (!validation.isValid) {
+      Alert.alert("Invalid Code", validation.message);
+      return;
+    }
+
+    // Create code data for attendance confirmation
     const codeData = {
       type: "bubble_entry",
       bubbleId: bubbleId || "",
@@ -45,7 +68,7 @@ export default function UniqueCodeEntry({
     };
 
     Alert.alert(
-      "Code Submitted!",
+      "Confirm Attendance",
       `Bubble: ${codeData.bubbleName}\nHost: ${
         codeData.hostName
       }\nCode: ${code.trim()}\n\nWould you like to confirm your attendance?`,
@@ -59,8 +82,35 @@ export default function UniqueCodeEntry({
         },
         {
           text: "Yes",
-          onPress: () => {
-            onCodeSubmitted(codeData);
+          onPress: async () => {
+            try {
+              if (!user?.email) {
+                Alert.alert("Error", "User not authenticated");
+                return;
+              }
+
+              const result = await confirmAttendanceByPin(
+                bubbleId,
+                user.email,
+                {
+                  code: codeData.entryCode,
+                  bubbleId: bubbleId,
+                  timestamp: new Date().toISOString(),
+                }
+              );
+
+              if (result.success) {
+                Alert.alert("Success", result.message);
+              } else {
+                Alert.alert("Error", result.message);
+              }
+            } catch (error) {
+              Alert.alert(
+                "Error",
+                "Failed to confirm attendance. Please try again."
+              );
+            }
+
             onClose();
             setCode("");
             setIsSubmitting(false);
