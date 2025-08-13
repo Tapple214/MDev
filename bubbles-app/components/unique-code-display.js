@@ -9,9 +9,6 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
-// Components
-// (No component imports in this file)
-
 // Custom hooks and utility functions
 import { COLORS } from "../utils/custom-styles";
 import { generateAttendanceCode } from "../utils/attendance";
@@ -91,11 +88,6 @@ export default function UniqueCodeDisplay({
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
-  const handleCopyCode = () => {
-    // In a real app, you'd use Clipboard API
-    Alert.alert("Code Copied", "Attendance code copied to clipboard");
-  };
-
   const handleRefreshCode = () => {
     Alert.alert(
       "Generate New Code",
@@ -152,11 +144,6 @@ export default function UniqueCodeDisplay({
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.copyButton} onPress={handleCopyCode}>
-            <Feather name="copy" size={20} color={COLORS.primary} />
-            <Text style={styles.copyButtonText}>Copy Code</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity
             style={styles.refreshButton}
             onPress={handleRefreshCode}
@@ -239,7 +226,6 @@ const styles = StyleSheet.create({
   timerContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.surface,
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 20,
@@ -251,37 +237,17 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 20,
     paddingBottom: 100,
-    gap: 15,
-  },
-  copyButton: {
-    flex: 1,
-    backgroundColor: COLORS.surface,
-    paddingVertical: 15,
-    borderRadius: 25,
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: COLORS.primary,
-  },
-  copyButtonText: {
-    color: COLORS.primary,
-    fontSize: 16,
-    fontWeight: "bold",
-    marginLeft: 8,
   },
   refreshButton: {
-    flex: 1,
     backgroundColor: COLORS.primary,
     paddingVertical: 15,
+    paddingHorizontal: 30,
     borderRadius: 25,
     alignItems: "center",
     flexDirection: "row",
-    justifyContent: "center",
   },
   refreshButtonText: {
     color: COLORS.surface,
