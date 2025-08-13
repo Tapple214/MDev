@@ -14,7 +14,7 @@ import {
 import { Feather } from "@expo/vector-icons";
 
 // Components
-import NavBar from "../components/navbar";
+
 import GuestSelector from "../components/guest-selector";
 import AIDescriptionGenerator from "../components/ai-description-generator";
 
@@ -601,8 +601,6 @@ export default function CreateBubble() {
         isVisible={showAIGenerator}
         onClose={() => setShowAIGenerator(false)}
       />
-
-      <NavBar />
     </View>
   );
 }
@@ -613,7 +611,6 @@ const styles = StyleSheet.create({
     height: "100%",
     paddingVertical: 15,
     paddingHorizontal: 15,
-    paddingBottom: 100,
   },
   title: {
     fontSize: 20,

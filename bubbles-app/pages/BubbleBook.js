@@ -29,7 +29,6 @@ import {
 import { useRoute } from "@react-navigation/native";
 
 // Components
-import NavBar from "../components/navbar";
 
 // Custom hooks and utility functions
 import { COLORS } from "../utils/custom-styles";
@@ -664,13 +663,6 @@ export default function BubbleBook() {
           </View>
         </View>
       </Modal>
-
-      <NavBar
-        page="BubbleBook"
-        onTakePhoto={takePhoto}
-        onPickImage={pickImage}
-        onPickDocument={pickDocument}
-      />
     </View>
   );
 }
@@ -680,7 +672,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     height: "100%",
     paddingTop: 15,
-    paddingBottom: 100,
   },
   headerContainer: {
     paddingHorizontal: 15,

@@ -12,7 +12,6 @@ import {
 } from "react-native";
 
 // Components
-import NavBar from "../components/navbar";
 import BubbleItem from "../components/bubble-item";
 
 // Custom hooks and utility functions
@@ -303,8 +302,6 @@ export default function Home({ navigation }) {
           )}
         </View>
       </ScrollView>
-
-      <NavBar />
     </View>
   );
 }
@@ -316,7 +313,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     height: "100%",
     paddingTop: 15,
-    paddingBottom: 100,
   },
   headerContainer: {
     flexDirection: "row",

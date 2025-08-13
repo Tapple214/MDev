@@ -16,6 +16,7 @@ import Settings from "./pages/Settings";
 // Custom hooks and utility functions
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { initializeAppNotifications } from "./utils/notifications/core.js";
+import NavBar from "./components/navbar";
 
 const Stack = createStackNavigator();
 
@@ -33,42 +34,46 @@ function NavigationContent() {
   }, [user]);
 
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: "#EEDCAD",
-          borderBottomWidth: 0,
-          elevation: 0,
-          shadowOpacity: 0,
-        },
-        headerTintColor: "#452A17",
-        headerTitleStyle: {
-          fontWeight: "bold",
-          color: "#452A17",
-        },
-      }}
-    >
-      {user ? (
-        // User is signed in
-        <>
-          <Stack.Screen name="Home" component={Home} />
-          <Stack.Screen name="BubbleView" component={BubbleView} />
-          <Stack.Screen name="BubbleBook" component={BubbleBook} />
-          <Stack.Screen name="BubbleBuddies" component={BubbleBuddies} />
-          <Stack.Screen name="CreateBubble" component={CreateBubble} />
-          <Stack.Screen name="EditBubble" component={EditBubble} />
-          <Stack.Screen name="GuestList" component={GuestList} />
-          <Stack.Screen name="Settings" component={Settings} />
-        </>
-      ) : (
-        // User is not signed in
-        <Stack.Screen
-          name="Login"
-          component={Login}
-          options={{ headerShown: false }}
-        />
-      )}
-    </Stack.Navigator>
+    <>
+      {" "}
+      <Stack.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: "#EEDCAD",
+            borderBottomWidth: 0,
+            elevation: 0,
+            shadowOpacity: 0,
+          },
+          headerTintColor: "#452A17",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            color: "#452A17",
+          },
+        }}
+      >
+        {user ? (
+          // User is signed in
+          <>
+            <Stack.Screen name="Home" component={Home} />
+            <Stack.Screen name="BubbleView" component={BubbleView} />
+            <Stack.Screen name="BubbleBook" component={BubbleBook} />
+            <Stack.Screen name="BubbleBuddies" component={BubbleBuddies} />
+            <Stack.Screen name="CreateBubble" component={CreateBubble} />
+            <Stack.Screen name="EditBubble" component={EditBubble} />
+            <Stack.Screen name="GuestList" component={GuestList} />
+            <Stack.Screen name="Settings" component={Settings} />
+          </>
+        ) : (
+          // User is not signed in
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{ headerShown: false }}
+          />
+        )}
+      </Stack.Navigator>
+      <NavBar />
+    </>
   );
 }
 

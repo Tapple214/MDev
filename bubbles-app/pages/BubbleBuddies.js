@@ -11,7 +11,6 @@ import {
 import Feather from "react-native-vector-icons/Feather";
 
 // Components
-import NavBar from "../components/navbar";
 
 // Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
@@ -198,8 +197,6 @@ export default function BubbleBuddies() {
           </View>
         </View>
       </Modal>
-
-      <NavBar page="BubbleBuddies" onAddPerson={() => setShowAddModal(true)} />
     </View>
   );
 }

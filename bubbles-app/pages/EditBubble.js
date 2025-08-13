@@ -16,7 +16,7 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 // Components
-import NavBar from "../components/navbar";
+
 import GuestSelector from "../components/guest-selector";
 
 // Custom hooks and utility functions
@@ -582,8 +582,6 @@ export default function EditBubble() {
           </View>
         </View>
       </Modal>
-
-      <NavBar />
     </View>
   );
 }
@@ -594,7 +592,6 @@ const styles = StyleSheet.create({
     height: "100%",
     paddingVertical: 15,
     paddingHorizontal: 15,
-    paddingBottom: 100,
   },
   title: {
     fontSize: 20,

@@ -12,7 +12,7 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import { getDoc, doc } from "firebase/firestore";
 
 // Components
-import NavBar from "../components/navbar";
+
 import QRCodeDisplay from "../components/qr-code-display";
 import QRCodeScanner from "../components/qr-code-scanner-simple";
 import UniqueCodeDisplay from "../components/unique-code-display";
@@ -441,11 +441,6 @@ export default function BubbleView() {
           />
         </View>
       </ScrollView>
-      <NavBar
-        page="BubbleView"
-        userRole={bubbleDetails.userRole}
-        handleEditBubble={handleEditBubble}
-      />
     </View>
   );
 }
@@ -457,7 +452,6 @@ const styles = StyleSheet.create({
     height: "100%",
     paddingTop: 15,
     paddingHorizontal: 15,
-    paddingBottom: 100,
   },
   title: {
     ...TEXT_STYLES.heading.medium,
