@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 // Components
 import NavBar from "../components/navbar";
@@ -21,9 +22,6 @@ import GuestSelector from "../components/guest-selector";
 // Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
 import { updateBubble, validateGuestEmails } from "../utils/firestore";
-
-// TODO: create a date util file
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { COLORS } from "../utils/custom-styles";
 
 export default function EditBubble() {

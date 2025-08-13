@@ -1,11 +1,14 @@
 import React from "react";
 import { View, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
-// Utility function/Hooks imports
+// Components
+// (No component imports in this file)
+
+// Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
 import { COLORS } from "../utils/custom-styles";
-import { useNavigation } from "@react-navigation/native";
 
 export default function NavBar({
   page = "default",

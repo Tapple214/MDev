@@ -1,9 +1,12 @@
+import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { COLORS } from "../utils/custom-styles";
 
-// Component imports
+// Components
 import GuestRespondBtns from "./guest-respond-btns";
+
+// Custom hooks and utility functions
+import { COLORS } from "../utils/custom-styles";
 
 export default function BubbleItem({
   cardTitle,

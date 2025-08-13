@@ -10,9 +10,8 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { getDoc, doc } from "firebase/firestore";
-import { db } from "../firebase";
 
-// Component imports
+// Components
 import NavBar from "../components/navbar";
 import QRCodeDisplay from "../components/qr-code-display";
 import QRCodeScanner from "../components/qr-code-scanner-simple";
@@ -20,7 +19,7 @@ import UniqueCodeDisplay from "../components/unique-code-display";
 import UniqueCodeEntry from "../components/unique-code-entry";
 import GuestRespondBtns from "../components/guest-respond-btns";
 
-// Utility function/Hooks imports
+// Custom hooks and utility functions
 import { COLORS, TEXT_STYLES } from "../utils/custom-styles";
 import {
   confirmAttendanceByQR,
@@ -30,6 +29,7 @@ import {
 } from "../utils/attendance";
 import { generateEntryQRCode } from "../utils/attendance";
 import { useAuth } from "../contexts/AuthContext";
+import { db } from "../firebase";
 
 export default function BubbleView() {
   // Hooks

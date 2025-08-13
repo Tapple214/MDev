@@ -1,5 +1,4 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
-import { auth } from "../firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -9,6 +8,12 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
 } from "firebase/auth";
+
+// Components
+// (No component imports in this file)
+
+// Custom hooks and utility functions
+import { auth } from "../firebase";
 import {
   addUser,
   getUser,

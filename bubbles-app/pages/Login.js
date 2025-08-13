@@ -10,7 +10,10 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-// Custom hooks
+// Components
+// (No component imports in this file)
+
+// Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
 import { COLORS } from "../utils/custom-styles";
 

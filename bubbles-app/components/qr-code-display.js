@@ -10,6 +10,11 @@ import {
 } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { Feather } from "@expo/vector-icons";
+
+// Components
+// (No component imports in this file)
+
+// Custom hooks and utility functions
 import { COLORS } from "../utils/custom-styles";
 
 export default function QRCodeDisplay({

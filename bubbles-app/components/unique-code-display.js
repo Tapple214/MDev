@@ -8,6 +8,11 @@ import {
   Alert,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+
+// Components
+// (No component imports in this file)
+
+// Custom hooks and utility functions
 import { COLORS } from "../utils/custom-styles";
 import { generateAttendanceCode } from "../utils/attendance";
 

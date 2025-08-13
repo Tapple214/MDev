@@ -25,16 +25,16 @@ import {
   deleteDoc,
   where,
 } from "firebase/firestore";
-import { db } from "../firebase";
-import { notifyBubbleParticipantsOfNewItem } from "../utils/notifications/all";
+import { useRoute } from "@react-navigation/native";
 
-// Component imports
+// Components
 import NavBar from "../components/navbar";
 
-// Utility function/Hooks imports
+// Custom hooks and utility functions
 import { COLORS } from "../utils/custom-styles";
 import { useAuth } from "../contexts/AuthContext";
-import { useRoute } from "@react-navigation/native";
+import { db } from "../firebase";
+import { notifyBubbleParticipantsOfNewItem } from "../utils/notifications/all";
 
 const { width: screenWidth } = Dimensions.get("window");
 

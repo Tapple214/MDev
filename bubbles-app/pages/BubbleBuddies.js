@@ -8,14 +8,18 @@ import {
   Modal,
   Alert,
 } from "react-native";
+import Feather from "react-native-vector-icons/Feather";
+
+// Components
 import NavBar from "../components/navbar";
+
+// Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
 import {
   getUser,
   validateGuestEmails,
   addBubbleBuddies,
 } from "../utils/firestore";
-import Feather from "react-native-vector-icons/Feather";
 import { COLORS } from "../utils/custom-styles";
 
 export default function BubbleBuddies() {

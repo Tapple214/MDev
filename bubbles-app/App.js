@@ -2,11 +2,7 @@ import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
-// Custom hooks and utility functions
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { initializeAppNotifications } from "./utils/notifications/core.js";
-
-// Import page components
+// Components
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import BubbleView from "./pages/BubbleView";
@@ -16,6 +12,10 @@ import CreateBubble from "./pages/CreateBubble";
 import EditBubble from "./pages/EditBubble";
 import GuestList from "./pages/GuestList";
 import NotificationSettings from "./pages/NotificationSettings";
+
+// Custom hooks and utility functions
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { initializeAppNotifications } from "./utils/notifications/core.js";
 
 const Stack = createStackNavigator();
 

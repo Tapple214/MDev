@@ -9,6 +9,11 @@ import {
   Modal,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+
+// Components
+// (No component imports in this file)
+
+// Custom hooks and utility functions
 import { COLORS } from "../utils/custom-styles";
 import { generateEventDescription } from "../utils/ai-service";
 

@@ -1,8 +1,12 @@
+import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
 
-// Utility function/Hooks imports
+// Components
+// (No component imports in this file)
+
+// Custom hooks and utility functions
 import { COLORS } from "../utils/custom-styles";
 
 export default function GuestRespondBtns({

@@ -9,11 +9,15 @@ import {
   Modal,
   ScrollView,
 } from "react-native";
-import { useAuth } from "../contexts/AuthContext";
-import { getBubbleBuddies } from "../utils/firestore";
-import { COLORS } from "../utils/custom-styles";
-import { validateGuestEmails } from "../utils/firestore";
 import Feather from "react-native-vector-icons/Feather";
+
+// Components
+// (No component imports in this file)
+
+// Custom hooks and utility functions
+import { useAuth } from "../contexts/AuthContext";
+import { getBubbleBuddies, validateGuestEmails } from "../utils/firestore";
+import { COLORS } from "../utils/custom-styles";
 
 export default function GuestSelector({
   value,

@@ -10,6 +10,12 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { doc, updateDoc } from "firebase/firestore";
+
+// Components
+// (No component imports in this file)
+
+// Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
 import { COLORS, TEXT_STYLES, combineTextStyles } from "../utils/custom-styles";
 import {
@@ -18,7 +24,6 @@ import {
   registerForPushNotifications,
   sendLocalNotification,
 } from "../utils/notifications/core.js";
-import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
 export default function NotificationSettings() {

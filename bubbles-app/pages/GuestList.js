@@ -1,9 +1,12 @@
-import { useRoute } from "@react-navigation/native";
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { useRoute } from "@react-navigation/native";
 
-// Utility function/Hooks imports
+// Components
+// (No component imports in this file)
+
+// Custom hooks and utility functions
 import { COLORS } from "../utils/custom-styles";
 import { findUser } from "../utils/firestore";
 
