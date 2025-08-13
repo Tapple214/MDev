@@ -11,9 +11,6 @@ import {
 import QRCode from "react-native-qrcode-svg";
 import { Feather } from "@expo/vector-icons";
 
-// Components
-// (No component imports in this file)
-
 // Custom hooks and utility functions
 import { COLORS } from "../utils/custom-styles";
 
@@ -22,17 +19,7 @@ export default function QRCodeDisplay({
   bubbleName,
   isVisible,
   onClose,
-  onShare,
 }) {
-  const [qrSize, setQrSize] = useState(200);
-
-  // Debug logging
-  console.log("QRCodeDisplay props:", {
-    qrCodeData: qrCodeData ? "exists" : "null",
-    bubbleName,
-    isVisible,
-  });
-
   const handleShare = async () => {
     if (!qrCodeData) {
       Alert.alert("Error", "No QR code data available");
@@ -50,21 +37,13 @@ export default function QRCodeDisplay({
   };
 
   const handleCopyToClipboard = () => {
-    // For now, just show an alert. In a real app, you'd use Clipboard API
+    // Just show alert for now
     Alert.alert("Info", "QR code data copied to clipboard");
   };
 
   if (!qrCodeData || !isVisible) {
-    console.log(
-      "QRCodeDisplay: Not showing - qrCodeData:",
-      !!qrCodeData,
-      "isVisible:",
-      isVisible
-    );
     return null;
   }
-
-  console.log("QRCodeDisplay: Rendering modal with isVisible:", isVisible);
 
   return (
     <Modal
@@ -85,7 +64,7 @@ export default function QRCodeDisplay({
           <View style={styles.qrContainer}>
             <QRCode
               value={qrCodeData}
-              size={qrSize}
+              size={200}
               color={COLORS.primary}
               backgroundColor={COLORS.surface}
               logoSize={30}
