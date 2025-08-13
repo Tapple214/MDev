@@ -415,10 +415,9 @@ export default function BubbleView() {
           </View>
         </View>
 
-        {/* TODO: add images into db */}
         {/* Row 4: Quick Actions; Buttons for BubbleBook and Attendance */}
         <View style={styles.quickActionsContainer}>
-          {/* Attendance Button and BubbleBook Button; will only show if user has accepted the bubble or if uses is host */}
+          {/* Attendance Button; will only show if user has accepted the bubble or if uses is host + BubbleBook Button */}
           {((user &&
             bubbleData?.guestResponses?.[user.email?.toLowerCase()]
               ?.response === "accepted") ||
@@ -473,7 +472,7 @@ export default function BubbleView() {
             onClose={() => setShowQRCode(false)}
           />
 
-          {/* QR Code Scanner Modal (for guests) */}
+          {/* QR Code Scanner Modal (for guests; currently a simulator for now */}
           <QRCodeScanner
             isVisible={showQRScanner}
             onClose={() => setShowQRScanner(false)}
