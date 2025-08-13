@@ -98,8 +98,8 @@ export default function NavBar({
       {/* Settings icon */}
       <TouchableOpacity
         onPress={() => {
-          if (currentRoute.name !== "NotificationSettings") {
-            navigation.navigate("NotificationSettings");
+          if (currentRoute.name !== "Settings") {
+            navigation.navigate("Settings");
           }
         }}
       >

@@ -11,7 +11,7 @@ import BubbleBuddies from "./pages/BubbleBuddies";
 import CreateBubble from "./pages/CreateBubble";
 import EditBubble from "./pages/EditBubble";
 import GuestList from "./pages/GuestList";
-import NotificationSettings from "./pages/NotificationSettings";
+import Settings from "./pages/Settings";
 
 // Custom hooks and utility functions
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
@@ -58,10 +58,7 @@ function NavigationContent() {
           <Stack.Screen name="CreateBubble" component={CreateBubble} />
           <Stack.Screen name="EditBubble" component={EditBubble} />
           <Stack.Screen name="GuestList" component={GuestList} />
-          <Stack.Screen
-            name="NotificationSettings"
-            component={NotificationSettings}
-          />
+          <Stack.Screen name="Settings" component={Settings} />
         </>
       ) : (
         // User is not signed in

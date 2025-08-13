@@ -9,15 +9,11 @@ import {
   Switch,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
 import { doc, updateDoc } from "firebase/firestore";
-
-// Components
-// (No component imports in this file)
 
 // Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
-import { COLORS, TEXT_STYLES, combineTextStyles } from "../utils/custom-styles";
+import { COLORS, TEXT_STYLES } from "../utils/custom-styles";
 import {
   requestNotificationPermissions,
   getUserPushToken,
@@ -26,17 +22,17 @@ import {
 } from "../utils/notifications/core.js";
 import { db } from "../firebase";
 
-export default function NotificationSettings() {
-  const navigation = useNavigation();
-  const { user, userData } = useAuth();
+export default function Settings() {
+  const { user } = useAuth();
 
+  // States
   const [permissionStatus, setPermissionStatus] = useState(null);
   const [pushToken, setPushToken] = useState(null);
   const [notificationSettings, setNotificationSettings] = useState({
     guestResponses: true,
     bubbleInvites: true,
     upcomingReminders: true,
-    testNotifications: false,
+    localNotifications: true,
   });
 
   useEffect(() => {
@@ -176,24 +172,6 @@ export default function NotificationSettings() {
               </Text>
             </TouchableOpacity>
           )}
-
-          {permissionStatus === "granted" && (
-            <TouchableOpacity
-              style={[styles.button, { backgroundColor: COLORS.surface }]}
-              onPress={() =>
-                sendLocalNotification(
-                  "Test Notification",
-                  "This is a test notification",
-                  { type: "test" }
-                )
-              }
-            >
-              <Feather name="bell" size={20} color={COLORS.primary} />
-              <Text style={[styles.buttonText, { color: COLORS.primary }]}>
-                Send Test Notification
-              </Text>
-            </TouchableOpacity>
-          )}
         </View>
 
         {/* Notification Preferences */}
@@ -252,6 +230,52 @@ export default function NotificationSettings() {
           </View>
         </View>
 
+        {/* Local Notification Settings */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Local Notification Settings</Text>
+          <Text style={styles.sectionDescription}>
+            Local notifications work even when push notifications are
+            unavailable
+          </Text>
+
+          <View style={styles.settingRow}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingTitle}>
+                Enable Local Notifications
+              </Text>
+              <Text style={styles.settingDescription}>
+                Use local notifications as a backup when push notifications fail
+              </Text>
+            </View>
+            <Switch
+              value={notificationSettings.localNotifications}
+              onValueChange={() => handleSettingToggle("localNotifications")}
+              trackColor={{ false: "#767577", true: COLORS.primary }}
+              thumbColor={
+                notificationSettings.localNotifications ? "#fff" : "#f4f3f4"
+              }
+            />
+          </View>
+
+          {notificationSettings.localNotifications && (
+            <TouchableOpacity
+              style={[styles.button, { backgroundColor: COLORS.surface }]}
+              onPress={() =>
+                sendLocalNotification(
+                  "Local Notification Test",
+                  "This is a test of your local notification system",
+                  { type: "local_test" }
+                )
+              }
+            >
+              <Feather name="bell" size={20} color={COLORS.primary} />
+              <Text style={[styles.buttonText, { color: COLORS.primary }]}>
+                Test Local Notification
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
         {/* Information */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Information</Text>
@@ -259,7 +283,10 @@ export default function NotificationSettings() {
             • Push notifications require a physical device
           </Text>
           <Text style={styles.infoText}>
-            • Local notifications work on simulator
+            • Local notifications work on simulator and as backup
+          </Text>
+          <Text style={styles.infoText}>
+            • Local notifications ensure you never miss important updates
           </Text>
           <Text style={styles.infoText}>
             • You can change notification settings in your device settings
@@ -288,6 +315,11 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     ...TEXT_STYLES.card.title,
+    marginBottom: 15,
+  },
+  sectionDescription: {
+    ...TEXT_STYLES.body.small,
+    color: "#666",
     marginBottom: 15,
   },
   statusRow: {
