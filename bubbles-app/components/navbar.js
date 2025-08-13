@@ -176,7 +176,10 @@ export default function NavBar({
       <TouchableOpacity
         onPress={() => {
           if (currentRoute?.name !== "Home") {
-            navigation.goBack("Home");
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "Home" }],
+            });
           }
         }}
       >

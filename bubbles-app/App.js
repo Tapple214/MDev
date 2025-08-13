@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
@@ -12,19 +12,20 @@ import CreateBubble from "./pages/CreateBubble";
 import EditBubble from "./pages/EditBubble";
 import GuestList from "./pages/GuestList";
 import Settings from "./pages/Settings";
+import NavBar from "./components/navbar";
 
 // Custom hooks and utility functions
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { initializeAppNotifications } from "./utils/notifications/core.js";
-import NavBar from "./components/navbar";
+import { NavBarProvider, useNavBar } from "./contexts/NavBarContext";
 
 const Stack = createStackNavigator();
-
-// TODO: add a navbar component that will be used on all pages
 
 function NavigationContent() {
   // Custom Hook
   const { user } = useAuth();
+  const [currentRoute, setCurrentRoute] = useState("Home");
+  const { getNavBarFunctions } = useNavBar();
 
   // Initialize notifications when user is authenticated
   useEffect(() => {
@@ -33,9 +34,36 @@ function NavigationContent() {
     }
   }, [user]);
 
+  // Function to get NavBar props based on current route
+  const getNavBarProps = (routeName) => {
+    const registeredFunctions = getNavBarFunctions(routeName);
+
+    switch (routeName) {
+      case "BubbleBook":
+        return {
+          page: "BubbleBook",
+          onTakePhoto: registeredFunctions.onTakePhoto || (() => {}),
+          onPickImage: registeredFunctions.onPickImage || (() => {}),
+          onPickDocument: registeredFunctions.onPickDocument || (() => {}),
+        };
+      case "BubbleBuddies":
+        return {
+          page: "BubbleBuddies",
+          onAddPerson: registeredFunctions.onAddPerson || (() => {}),
+        };
+      case "BubbleView":
+        return {
+          page: "BubbleView",
+          userRole: registeredFunctions.userRole || "host",
+          handleEditBubble: registeredFunctions.handleEditBubble || (() => {}),
+        };
+      default:
+        return { page: "default" };
+    }
+  };
+
   return (
     <>
-      {" "}
       <Stack.Navigator
         screenOptions={{
           headerStyle: {
@@ -48,6 +76,14 @@ function NavigationContent() {
           headerTitleStyle: {
             fontWeight: "bold",
             color: "#452A17",
+          },
+        }}
+        screenListeners={{
+          state: (e) => {
+            if (e.data?.state?.routes) {
+              const routeName = e.data.state.routes[e.data.state.index].name;
+              setCurrentRoute(routeName);
+            }
           },
         }}
       >
@@ -72,7 +108,9 @@ function NavigationContent() {
           />
         )}
       </Stack.Navigator>
-      <NavBar />
+      {user && currentRoute && currentRoute !== "Login" && (
+        <NavBar {...getNavBarProps(currentRoute)} />
+      )}
     </>
   );
 }
@@ -80,9 +118,11 @@ function NavigationContent() {
 export default function BubblesApp() {
   return (
     <AuthProvider>
-      <NavigationContainer>
-        <NavigationContent />
-      </NavigationContainer>
+      <NavBarProvider>
+        <NavigationContainer>
+          <NavigationContent />
+        </NavigationContainer>
+      </NavBarProvider>
     </AuthProvider>
   );
 }
