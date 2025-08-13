@@ -299,7 +299,7 @@ export default function CreateBubble() {
 
         <Text style={styles.inputTitle}>Date and Time</Text>
         <View style={styles.pickerContainer}>
-          <View style={[styles.input, { marginRight: 10 }]}>
+          <View style={[styles.input, { marginRight: 10, flex: 1 }]}>
             <TouchableOpacity
               onPress={() => setShowDatePicker(true)}
               disabled={isLoading}
@@ -630,7 +630,6 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     backgroundColor: COLORS.surface,
-    flex: 1,
   },
   pickerContainer: {
     flexDirection: "row",
