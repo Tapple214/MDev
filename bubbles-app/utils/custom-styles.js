@@ -24,7 +24,7 @@ export const COLORS = {
   // Text Colors
   text: {
     primary: "#452A17",
-    secondary: "#5D5820",
+    secondary: "#2f2e4780",
     onSurface: "#452A17",
     onPrimary: "#FEFADF",
     onConfirm: "#FEFADF",

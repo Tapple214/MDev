@@ -10,9 +10,6 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
-// Components
-// (No component imports in this file)
-
 // Custom hooks and utility functions
 import { COLORS } from "../utils/custom-styles";
 import { generateEventDescription } from "../utils/ai-service";
@@ -122,7 +119,6 @@ export default function AIDescriptionGenerator({
                   style={styles.useButton}
                   onPress={handleUseDescription}
                 >
-                  <Feather name="check" size={20} color={COLORS.surface} />
                   <Text style={styles.useButtonText}>Use This Description</Text>
                 </TouchableOpacity>
 
@@ -241,14 +237,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
-    marginRight: 10,
     justifyContent: "center",
   },
   useButtonText: {
     color: COLORS.surface,
     fontSize: 14,
     fontWeight: "bold",
-    marginLeft: 8,
+    textAlign: "center",
   },
   regenerateButton: {
     backgroundColor: COLORS.surface,

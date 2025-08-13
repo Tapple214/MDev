@@ -254,7 +254,7 @@ export default function CreateBubble() {
             onPress={() => setShowAIGenerator(true)}
             disabled={isLoading}
           >
-            <Feather name="zap" size={20} color={COLORS.surface} />
+            <Feather name="zap" size={15} color={COLORS.surface} />
           </TouchableOpacity>
         </View>
 
@@ -867,8 +867,8 @@ const styles = StyleSheet.create({
   },
   aiButton: {
     backgroundColor: COLORS.primary,
-    width: 44,
-    height: 44,
+    width: 30,
+    height: 30,
     borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
