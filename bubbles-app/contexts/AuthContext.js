@@ -9,9 +9,6 @@ import {
   EmailAuthProvider,
 } from "firebase/auth";
 
-// Components
-// (No component imports in this file)
-
 // Custom hooks and utility functions
 import { auth } from "../firebase";
 import {
