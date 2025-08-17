@@ -12,6 +12,7 @@ import CreateBubble from "./pages/CreateBubble";
 import EditBubble from "./pages/EditBubble";
 import GuestList from "./pages/GuestList";
 import Settings from "./pages/Settings";
+import ImageAnalysisDemo from "./pages/ImageAnalysisDemo";
 import NavBar from "./components/navbar";
 
 // Custom hooks and utility functions
@@ -98,6 +99,10 @@ function NavigationContent() {
             <Stack.Screen name="EditBubble" component={EditBubble} />
             <Stack.Screen name="GuestList" component={GuestList} />
             <Stack.Screen name="Settings" component={Settings} />
+            <Stack.Screen
+              name="ImageAnalysisDemo"
+              component={ImageAnalysisDemo}
+            />
           </>
         ) : (
           // User is not signed in

@@ -18,6 +18,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 // Components
 
 import GuestSelector from "../components/guest-selector";
+import ImageAnalyzer from "../components/image-analyzer";
 
 // Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
@@ -69,6 +70,7 @@ export default function EditBubble() {
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [selectedTags, setSelectedTags] = useState(bubbleData?.tags || []);
+  const [showImageAnalyzer, setShowImageAnalyzer] = useState(false);
 
   // Customization options
   const iconOptions = [
@@ -251,6 +253,23 @@ export default function EditBubble() {
           numberOfLines={3}
           editable={!isLoading}
         />
+
+        {/* Image Analysis Section */}
+        <Text style={styles.inputTitle}>
+          Or analyze an image to generate description
+        </Text>
+        <View style={styles.imageAnalysisContainer}>
+          <TouchableOpacity
+            style={styles.imageAnalysisButton}
+            onPress={() => setShowImageAnalyzer(true)}
+            disabled={isLoading}
+          >
+            <Feather name="camera" size={20} color="#fff" />
+            <Text style={styles.imageAnalysisButtonText}>
+              Analyze Image with AI
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         <Text style={styles.inputTitle}>
           Choose tags for your bubble (up to 3)
@@ -582,6 +601,36 @@ export default function EditBubble() {
           </View>
         </View>
       </Modal>
+
+      {/* Image Analyzer Modal */}
+      <Modal
+        visible={showImageAnalyzer}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowImageAnalyzer(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.imageAnalyzerModalContent}>
+            <View style={styles.modalContentWrapper}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Analyze Image with AI</Text>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setShowImageAnalyzer(false)}
+                >
+                  <Feather name="x" size={24} color="#666" />
+                </TouchableOpacity>
+              </View>
+              <ImageAnalyzer
+                onDescriptionGenerated={(description) => {
+                  setBubbleDescription(description);
+                  setShowImageAnalyzer(false);
+                }}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -863,5 +912,61 @@ const styles = StyleSheet.create({
   },
   pickerValueText: {
     color: COLORS.text.primary,
+  },
+  imageAnalysisContainer: {
+    marginBottom: 15,
+  },
+  imageAnalysisButton: {
+    backgroundColor: COLORS.confirm,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 15,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  imageAnalysisButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 10,
+  },
+  imageAnalyzerModalContent: {
+    backgroundColor: COLORS.background,
+    borderRadius: 10,
+    margin: 20,
+    width: "90%",
+    maxWidth: 400,
+    maxHeight: "80%",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalContentWrapper: {
+    padding: 20,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+    paddingBottom: 15,
+  },
+  closeButton: {
+    padding: 5,
   },
 });

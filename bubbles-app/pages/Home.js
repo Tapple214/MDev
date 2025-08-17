@@ -38,6 +38,12 @@ const quickActions = [
     goTo: "BubbleBuddies",
     image: require("../assets/add-buddy.png"),
   },
+  {
+    id: 3,
+    title: "AI Image Analysis",
+    goTo: "ImageAnalysisDemo",
+    image: require("../assets/create-bubble.png"), // Using existing image for now
+  },
 ];
 
 // To show the different bubbles related to the user
