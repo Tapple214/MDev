@@ -13,6 +13,7 @@ import {
 
 // Components
 import BubbleItem from "../components/bubble-item";
+import ConnectivityStatus from "../components/connectivity-status";
 
 // Custom hooks and utility functions
 import { useAuth } from "../contexts/AuthContext";
@@ -72,7 +73,17 @@ export default function Home({ navigation }) {
         // Fetch bubbles data
         const fetchedBubblesData = await getUserBubbles(user.uid, user.email);
 
-        setBubblesData(fetchedBubblesData);
+        // Handle offline data structure
+        if (fetchedBubblesData && fetchedBubblesData.isOffline) {
+          setBubblesData(fetchedBubblesData.data);
+          // Show offline indicator
+          console.log(
+            "Using cached bubbles data, last sync:",
+            fetchedBubblesData.lastSync
+          );
+        } else {
+          setBubblesData(fetchedBubblesData);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
         Alert.alert("Error", "Failed to load data. Please try again.");
@@ -160,6 +171,9 @@ export default function Home({ navigation }) {
         <View style={styles.headerContainer}>
           <Text style={styles.title}>Hi {userData?.name}!</Text>
         </View>
+
+        {/* Connectivity Status */}
+        <ConnectivityStatus />
 
         {/* Quick Actions */}
         <View style={styles.quickActionsWrapper}>

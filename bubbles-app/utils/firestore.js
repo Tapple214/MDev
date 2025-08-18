@@ -76,74 +76,140 @@ export const getUser = async (userId) => {
 // Create a new bubble
 export const createBubble = async (bubbleData) => {
   try {
-    const bubblesRef = collection(db, "bubbles");
-    const newBubbleRef = doc(bubblesRef);
+    // Try to create bubble online first
+    const result = await createBubbleOnline(bubbleData);
 
-    // Create a proper date object from the selected date and time
-    const scheduleDate = dateToTimestamp(
-      bubbleData.selectedDate,
-      bubbleData.selectedTime
-    );
+    // Cache the new bubble locally
+    const { cacheBubbleDetails } = await import("./local-storage");
+    await cacheBubbleDetails(result.id, result);
 
-    // Convert guest emails to lowercase
-    const guestList = bubbleData.guestList
-      ? bubbleData.guestList
-          .split(",")
-          .map((email) => email.trim().toLowerCase())
-          .filter((email) => email.length > 0)
-      : [];
+    return result;
+  } catch (error) {
+    // If it's a network error, queue for offline processing
+    if (isNetworkError(error)) {
+      const { queueOperation } = await import("./offline-manager");
+      const { cacheBubbleDetails } = await import("./local-storage");
 
-    // Generate QR code data and attendance PIN if needQR is true
-    let qrCodeData = null;
-    let attendancePin = null;
+      // Generate a temporary ID for offline storage
+      const tempId = `temp_${Date.now()}_${Math.random()
+        .toString(36)
+        .substr(2, 9)}`;
 
-    if (bubbleData.needQR) {
-      const bubbleDataQR = {
-        id: newBubbleRef.id,
-        name: bubbleData.name,
-        hostName: bubbleData.hostName,
-        schedule: scheduleDate,
+      // Cache the bubble locally with temp ID
+      const offlineBubble = {
+        ...bubbleData,
+        id: tempId,
+        isOffline: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
-      qrCodeData = generateEntryQRCode(bubbleDataQR);
-      attendancePin = generateAttendancePin(newBubbleRef.id);
+      await cacheBubbleDetails(tempId, offlineBubble);
+
+      // Queue for offline processing
+      await queueOperation("create_bubble", { data: bubbleData });
+
+      return offlineBubble;
     }
 
-    const bubbleDoc = {
-      name: bubbleData.name,
-      description: bubbleData.description,
-      location: bubbleData.location,
-      schedule: scheduleDate,
-      guestList: guestList,
-      needQR: bubbleData.needQR,
-      qrCodeData: qrCodeData,
-      attendancePin: attendancePin,
-      icon: bubbleData.icon || "heart",
-      backgroundColor: bubbleData.backgroundColor || "#E89349",
-      tags: bubbleData.tags || [],
-      hostName: bubbleData.hostName,
-      hostUid: bubbleData.hostUid,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    };
-
-    await setDoc(newBubbleRef, bubbleDoc);
-
-    // Send notifications to all guests
-    if (guestList.length > 0) {
-      for (const guestEmail of guestList) {
-        await notifyGuestOfInvite(guestEmail, newBubbleRef.id);
-      }
-    }
-
-    // Schedule upcoming bubble notifications
-    await scheduleBubbleNotifications(newBubbleRef.id);
-
-    return { id: newBubbleRef.id, ...bubbleDoc };
-  } catch (error) {
-    console.error("Error creating bubble in Firestore:", error);
+    // Re-throw non-network errors
     throw error;
   }
+};
+
+// Online bubble creation
+const createBubbleOnline = async (bubbleData) => {
+  const bubblesRef = collection(db, "bubbles");
+  const newBubbleRef = doc(bubblesRef);
+
+  // Create a proper date object from the selected date and time
+  const scheduleDate = dateToTimestamp(
+    bubbleData.selectedDate,
+    bubbleData.selectedTime
+  );
+
+  // Convert guest emails to lowercase
+  const guestList = bubbleData.guestList
+    ? bubbleData.guestList
+        .split(",")
+        .map((email) => email.trim().toLowerCase())
+        .filter((email) => email.length > 0)
+    : [];
+
+  // Generate QR code data and attendance PIN if needQR is true
+  let qrCodeData = null;
+  let attendancePin = null;
+
+  if (bubbleData.needQR) {
+    const bubbleDataQR = {
+      id: newBubbleRef.id,
+      name: bubbleData.name,
+      hostName: bubbleData.hostName,
+      schedule: scheduleDate,
+    };
+
+    qrCodeData = generateEntryQRCode(bubbleDataQR);
+    attendancePin = generateAttendancePin(newBubbleRef.id);
+  }
+
+  const bubbleDoc = {
+    name: bubbleData.name,
+    description: bubbleData.description,
+    location: bubbleData.location,
+    schedule: scheduleDate,
+    guestList: guestList,
+    needQR: bubbleData.needQR,
+    qrCodeData: qrCodeData,
+    attendancePin: attendancePin,
+    icon: bubbleData.icon || "heart",
+    backgroundColor: bubbleData.backgroundColor || "#E89349",
+    tags: bubbleData.tags || [],
+    hostName: bubbleData.hostName,
+    hostUid: bubbleData.hostUid,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+
+  await setDoc(newBubbleRef, bubbleDoc);
+
+  // Send notifications to all guests
+  if (guestList.length > 0) {
+    for (const guestEmail of guestList) {
+      await notifyGuestOfInvite(guestEmail, newBubbleRef.id);
+    }
+  }
+
+  // Schedule upcoming bubble notifications
+  await scheduleBubbleNotifications(newBubbleRef.id);
+
+  return { id: newBubbleRef.id, ...bubbleDoc };
+};
+
+// Network error detection helper
+const isNetworkError = (error) => {
+  if (!error) return false;
+
+  const networkErrorCodes = [
+    "unavailable",
+    "deadline-exceeded",
+    "unauthenticated",
+    "permission-denied",
+  ];
+
+  const networkErrorMessages = [
+    "network",
+    "connection",
+    "timeout",
+    "offline",
+    "unreachable",
+  ];
+
+  return (
+    networkErrorCodes.includes(error.code) ||
+    networkErrorMessages.some((msg) =>
+      error.message?.toLowerCase().includes(msg)
+    )
+  );
 };
 
 // Update an existing bubble
@@ -229,57 +295,89 @@ export const updateBubble = async (bubbleData) => {
 // Get all bubbles that a user is involved with (as host or guest)
 export const getUserBubbles = async (userId, userEmail) => {
   try {
-    const bubblesRef = collection(db, "bubbles");
-    const querySnapshot = await getDocs(bubblesRef);
-    const bubbles = [];
+    // Try to fetch from Firestore
+    const bubbles = await getUserBubblesOnline(userId, userEmail);
 
-    // Emails are already stored as lowercase, so no need to normalize
-    const userEmailToCheck = userEmail;
-
-    querySnapshot.forEach((doc) => {
-      const bubbleData = doc.data();
-
-      // Check if user is the host
-      if (bubbleData.hostUid === userId) {
-        bubbles.push({
-          id: doc.id,
-          ...bubbleData,
-          userRole: "host",
-        });
-      }
-      // Check if user is in the guest list (guestList contains email addresses)
-      else if (bubbleData.guestList) {
-        // Handle both string and array formats for guestList
-        let guestEmails = [];
-
-        if (typeof bubbleData.guestList === "string") {
-          // If guestList is a string, split it into an array
-          guestEmails = bubbleData.guestList
-            .split(",")
-            .map((email) => email.trim())
-            .filter((email) => email.length > 0);
-        } else if (Array.isArray(bubbleData.guestList)) {
-          guestEmails = bubbleData.guestList
-            .map((email) => email.trim())
-            .filter((email) => email.length > 0);
-        }
-
-        // Check if user is in the guest list
-        if (guestEmails.includes(userEmailToCheck)) {
-          bubbles.push({
-            id: doc.id,
-            ...bubbleData,
-            userRole: "guest",
-          });
-        }
-      }
-    });
+    // Cache successful responses
+    const { cacheUserBubbles, updateLastSyncTime } = await import(
+      "./local-storage"
+    );
+    await cacheUserBubbles(userId, bubbles);
+    await updateLastSyncTime("user_bubbles");
 
     return bubbles;
   } catch (error) {
-    console.error("Error getting user bubbles from Firestore:", error);
+    // If it's a network error, try to return cached data
+    if (isNetworkError(error)) {
+      const { getCachedUserBubbles, getLastSyncTime } = await import(
+        "./local-storage"
+      );
+      const cachedBubbles = await getCachedUserBubbles(userId);
+
+      if (cachedBubbles && cachedBubbles.length > 0) {
+        console.log("Returning cached bubbles due to network error");
+        return {
+          data: cachedBubbles,
+          isOffline: true,
+          lastSync: await getLastSyncTime("user_bubbles"),
+        };
+      }
+    }
+
+    // Re-throw the error if no cached data available
     throw error;
   }
+};
+
+// Online bubble fetching
+const getUserBubblesOnline = async (userId, userEmail) => {
+  const bubblesRef = collection(db, "bubbles");
+  const querySnapshot = await getDocs(bubblesRef);
+  const bubbles = [];
+
+  // Emails are already stored as lowercase, so no need to normalize
+  const userEmailToCheck = userEmail;
+
+  querySnapshot.forEach((doc) => {
+    const bubbleData = doc.data();
+
+    // Check if user is the host
+    if (bubbleData.hostUid === userId) {
+      bubbles.push({
+        id: doc.id,
+        ...bubbleData,
+        userRole: "host",
+      });
+    }
+    // Check if user is in the guest list (guestList contains guestList contains email addresses)
+    else if (bubbleData.guestList) {
+      // Handle both string and array formats for guestList
+      let guestEmails = [];
+
+      if (typeof bubbleData.guestList === "string") {
+        // If guestList is a string, split it into an array
+        guestEmails = bubbleData.guestList
+          .split(",")
+          .map((email) => email.trim())
+          .filter((email) => email.length > 0);
+      } else if (Array.isArray(bubbleData.guestList)) {
+        guestEmails = bubbleData.guestList
+          .map((email) => email.trim())
+          .filter((email) => email.length > 0);
+      }
+
+      // Check if user is in the guest list
+      if (guestEmails.includes(userEmailToCheck)) {
+        bubbles.push({
+          id: doc.id,
+          ...bubbleData,
+          userRole: "guest",
+        });
+      }
+    }
+  });
+
+  return bubbles;
 };
 
 // =============================================== GUEST SEARCH ===============================================
