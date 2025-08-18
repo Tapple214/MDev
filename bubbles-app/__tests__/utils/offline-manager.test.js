@@ -27,8 +27,10 @@ describe("Offline Manager", () => {
     // Clear all mocks
     jest.clearAllMocks();
 
-    // Reset the singleton instance
+    // Reset the singleton instance and clear the queue
     offlineManager = getOfflineManager();
+    offlineManager.offlineQueue = [];
+    offlineManager.syncInProgress = false;
   });
 
   describe("getOfflineManager", () => {
@@ -123,15 +125,19 @@ describe("Offline Manager", () => {
       });
     });
 
-    it("should not detect non-network errors", () => {
+    it("should detect permission-denied as network error", () => {
+      const permissionDeniedError = { code: "permission-denied" };
+      expect(offlineManager.isNetworkError(permissionDeniedError)).toBe(true);
+    });
+
+    it("should not detect other non-network errors", () => {
       const nonNetworkErrors = [
-        { code: "permission-denied" },
         { message: "Validation failed" },
         { message: "Invalid input" },
       ];
 
       nonNetworkErrors.forEach((error) => {
-        expect(offlineManager.isNetworkError(error)).toBe(true); // permission-denied is considered network error
+        expect(offlineManager.isNetworkError(error)).toBe(false);
       });
     });
   });
