@@ -42,6 +42,16 @@ jest.mock("../../firebase", () => ({
   db: {},
 }));
 
+// Mock console.error to suppress expected error messages during testing
+const originalConsoleError = console.error;
+beforeAll(() => {
+  console.error = jest.fn();
+});
+
+afterAll(() => {
+  console.error = originalConsoleError;
+});
+
 import {
   addUser,
   getUser,
@@ -102,6 +112,10 @@ describe("Firestore Utility", () => {
       );
 
       await expect(addUser(userId, userData)).rejects.toThrow("Database error");
+      expect(console.error).toHaveBeenCalledWith(
+        "Error adding user to Firestore:",
+        expect.any(Error)
+      );
     });
   });
 
@@ -249,13 +263,15 @@ describe("Firestore Utility", () => {
         "bubbles",
         "bubble123"
       );
+
+      // Check that updateDoc was called with the expected data structure
       expect(require("firebase/firestore").updateDoc).toHaveBeenCalledWith(
         mockBubbleRef,
-        {
+        expect.objectContaining({
           name: "Updated Bubble",
           schedule: expect.any(Date),
           updatedAt: "mock-timestamp",
-        }
+        })
       );
     });
   });

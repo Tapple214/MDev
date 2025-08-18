@@ -9,6 +9,19 @@ jest.mock("../../config/ai-config", () => ({
   },
 }));
 
+// Mock console methods to clean up test output
+const originalConsoleError = console.error;
+const originalConsoleLog = console.log;
+beforeAll(() => {
+  console.error = jest.fn();
+  console.log = jest.fn();
+});
+
+afterAll(() => {
+  console.error = originalConsoleError;
+  console.log = originalConsoleLog;
+});
+
 import { generateEventDescription } from "../../utils/ai-service";
 
 describe("AI Service Utility", () => {

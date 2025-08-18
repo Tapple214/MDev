@@ -64,7 +64,7 @@ describe("Attendance Utility Functions", () => {
       };
 
       const result = generateAttendanceQR(bubbleDataMissingId);
-      
+
       expect(result).toBeNull();
       expect(console.error).toHaveBeenCalledWith(
         "Missing required fields for QR generation:",
