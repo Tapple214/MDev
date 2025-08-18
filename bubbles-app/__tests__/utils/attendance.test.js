@@ -1,4 +1,4 @@
-// Mock Firebase before importing the module
+// Mock Firebase before importing
 jest.mock("firebase/firestore", () => ({
   updateDoc: jest.fn(),
   doc: jest.fn(),
@@ -13,6 +13,16 @@ jest.mock("../../utils/notifications/hosts.js", () => ({
 jest.mock("../../firebase", () => ({
   db: {},
 }));
+
+// Mock console.error to suppress expected error messages during testing
+const originalConsoleError = console.error;
+beforeAll(() => {
+  console.error = jest.fn();
+});
+
+afterAll(() => {
+  console.error = originalConsoleError;
+});
 
 import {
   generateAttendanceQR,
@@ -53,7 +63,17 @@ describe("Attendance Utility Functions", () => {
         schedule: new Date("2024-01-15T14:30:00"),
       };
 
-      expect(generateAttendanceQR(bubbleDataMissingId)).toBeNull();
+      const result = generateAttendanceQR(bubbleDataMissingId);
+      
+      expect(result).toBeNull();
+      expect(console.error).toHaveBeenCalledWith(
+        "Missing required fields for QR generation:",
+        expect.objectContaining({
+          id: undefined,
+          name: "Test Bubble",
+          hostName: "John Doe",
+        })
+      );
     });
   });
 
