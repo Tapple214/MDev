@@ -99,41 +99,97 @@ export const validateAttendanceQR = (qrDataString, bubbleId) => {
 // Confirm attendance for a guest (for QR code)
 export const confirmAttendanceByQR = async (bubbleId, guestEmail, qrData) => {
   try {
-    const bubbleRef = doc(db, "bubbles", bubbleId);
+    // Try to confirm attendance online first
+    const result = await confirmAttendanceOnline(bubbleId, guestEmail, qrData);
+    return result;
+  } catch (error) {
+    // If it's a network error, queue for offline processing
+    if (isNetworkError(error)) {
+      const { queueOperation } = await import("./offline-manager");
+      const { storeOfflineAttendance } = await import("./local-storage");
 
-    // Update the guest response to confirmed and mark as attended
-    await updateDoc(bubbleRef, {
-      [`guestResponses.${guestEmail}`]: {
-        response: "confirmed",
-        confirmedAt: new Date().toISOString(),
-        qrScanned: true,
-        qrData: qrData,
-        attended: true, // Mark as attended when QR is scanned
-      },
-    });
+      // Store attendance locally
+      await storeOfflineAttendance(bubbleId, guestEmail, {
+        method: "qr",
+        qrData,
+        timestamp: new Date().toISOString(),
+      });
 
-    // Notify the host about the guest's attendance
-    try {
-      await notifyHostOfGuestAttendance(bubbleId, guestEmail, qrData);
-    } catch (notificationError) {
-      console.error(
-        "Error sending attendance notification:",
-        notificationError
-      );
-      // Don't fail the attendance confirmation if notification fails
+      // Queue for offline processing
+      await queueOperation("confirm_attendance", {
+        bubbleId,
+        guestEmail,
+        method: "qr",
+        qrData,
+      });
+
+      return {
+        success: true,
+        message:
+          "Attendance recorded offline. Will sync when connection returns.",
+        isOffline: true,
+      };
     }
 
-    return {
-      success: true,
-      message: "Attendance confirmed successfully!",
-    };
-  } catch (error) {
-    console.error("Error confirming attendance:", error);
-    return {
-      success: false,
-      message: "Failed to confirm attendance. Please try again.",
-    };
+    // Re-throw non-network errors
+    throw error;
   }
+};
+
+// Online attendance confirmation
+const confirmAttendanceOnline = async (bubbleId, guestEmail, qrData) => {
+  const bubbleRef = doc(db, "bubbles", bubbleId);
+
+  // Update the guest response to confirmed and mark as attended
+  await updateDoc(bubbleRef, {
+    [`guestResponses.${guestEmail}`]: {
+      response: "confirmed",
+      confirmedAt: new Date().toISOString(),
+      qrScanned: true,
+      qrData: qrData,
+      attended: true, // Mark as attended when QR is scanned
+    },
+  });
+
+  // Notify the host about the guest's attendance
+  try {
+    await notifyHostOfGuestAttendance(bubbleId, guestEmail, qrData);
+  } catch (notificationError) {
+    console.error("Error sending attendance notification:", notificationError);
+    // Don't fail the attendance confirmation if notification fails
+  }
+
+  return {
+    success: true,
+    message: "Attendance confirmed successfully!",
+  };
+};
+
+// Network error detection helper
+const isNetworkError = (error) => {
+  if (!error) return false;
+
+  const networkErrorCodes = [
+    "unavailable",
+    "deadline-exceeded",
+    "unauthenticated",
+    "permission-denied",
+  ];
+
+  const networkErrorMessages = [
+    "network",
+    "connection",
+    "timeout",
+    "offline",
+    "unreachable",
+  ];
+
+  return (
+    networkErrorCodes.includes(error.code) ||
+    networkErrorMessages.some((msg) =>
+      error.message?.toLowerCase().includes(msg)
+    )
+  );
 };
 
 // =============================================== UNIQUE PIN GENERATION ===============================================
@@ -212,39 +268,72 @@ export const validateAttendancePin = (pinData, bubbleId, storedPin) => {
 // Confirm attendance for a guest (via unique PIN)
 export const confirmAttendanceByPin = async (bubbleId, guestEmail, pinData) => {
   try {
-    const bubbleRef = doc(db, "bubbles", bubbleId);
+    // Try to confirm attendance online first
+    const result = await confirmAttendanceByPinOnline(
+      bubbleId,
+      guestEmail,
+      pinData
+    );
+    return result;
+  } catch (error) {
+    // If it's a network error, queue for offline processing
+    if (isNetworkError(error)) {
+      const { queueOperation } = await import("./offline-manager");
+      const { storeOfflineAttendance } = await import("./local-storage");
 
-    // Update the guest response to confirmed and mark as attended
-    await updateDoc(bubbleRef, {
-      [`guestResponses.${guestEmail}`]: {
-        response: "confirmed",
-        confirmedAt: new Date().toISOString(),
-        pinEntered: true,
-        pinData: pinData,
-        attended: true, // Mark as attended when PIN is entered
-      },
-    });
+      // Store attendance locally
+      await storeOfflineAttendance(bubbleId, guestEmail, {
+        method: "pin",
+        pinData,
+        timestamp: new Date().toISOString(),
+      });
 
-    // Notify the host about the guest's attendance
-    try {
-      await notifyHostOfGuestAttendance(bubbleId, guestEmail, pinData);
-    } catch (notificationError) {
-      console.error(
-        "Error sending attendance notification:",
-        notificationError
-      );
-      // Don't fail the attendance confirmation if notification fails
+      // Queue for offline processing
+      await queueOperation("confirm_attendance", {
+        bubbleId,
+        guestEmail,
+        method: "pin",
+        pinData,
+      });
+
+      return {
+        success: true,
+        message:
+          "Attendance recorded offline. Will sync when connection returns.",
+        isOffline: true,
+      };
     }
 
-    return {
-      success: true,
-      message: "Attendance confirmed successfully!",
-    };
-  } catch (error) {
-    console.error("Error confirming attendance:", error);
-    return {
-      success: false,
-      message: "Failed to confirm attendance. Please try again.",
-    };
+    // Re-throw non-network errors
+    throw error;
   }
+};
+
+// Online PIN attendance confirmation
+const confirmAttendanceByPinOnline = async (bubbleId, guestEmail, pinData) => {
+  const bubbleRef = doc(db, "bubbles", bubbleId);
+
+  // Update the guest response to confirmed and mark as attended
+  await updateDoc(bubbleRef, {
+    [`guestResponses.${guestEmail}`]: {
+      response: "confirmed",
+      confirmedAt: new Date().toISOString(),
+      pinEntered: true,
+      pinData: pinData,
+      attended: true, // Mark as attended when PIN is entered
+    },
+  });
+
+  // Notify the host about the guest's attendance
+  try {
+    await notifyHostOfGuestAttendance(bubbleId, guestEmail, pinData);
+  } catch (notificationError) {
+    console.error("Error sending attendance notification:", notificationError);
+    // Don't fail the attendance confirmation if notification fails
+  }
+
+  return {
+    success: true,
+    message: "Attendance confirmed successfully!",
+  };
 };
