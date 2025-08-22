@@ -365,7 +365,7 @@ export default function CreateBubble() {
         </Text>
 
         <View style={styles.pickerContainer}>
-          <View style={[styles.input, { marginRight: 10 }]}>
+          <View style={[styles.input, { marginRight: 10, flex: 1 }]}>
             <TouchableOpacity
               onPress={() => setShowIconPicker(true)}
               disabled={isLoading}
@@ -387,7 +387,7 @@ export default function CreateBubble() {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.input}>
+          <View style={[styles.input, { flex: 1 }]}>
             <TouchableOpacity
               onPress={() => setShowColorPicker(true)}
               disabled={isLoading}
@@ -505,34 +505,33 @@ export default function CreateBubble() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.iconModalContent}>
-            <View style={styles.modalContentWrapper}>
-              <Text style={styles.modalTitle}>Select Icon</Text>
-              <View style={styles.iconGrid}>
-                {iconOptions.map((option) => (
-                  <TouchableOpacity
-                    key={option.icon}
+            <Text style={styles.modalTitle}>Select Icon</Text>
+            <View style={styles.iconGrid}>
+              {iconOptions.map((option) => (
+                <TouchableOpacity
+                  key={option.icon}
+                  style={[
+                    styles.iconOption,
+                    selectedIcon === option.icon && styles.selectedIconOption,
+                  ]}
+                  onPress={() => {
+                    setSelectedIcon(option.icon);
+                    setShowIconPicker(false);
+                  }}
+                >
+                  <View
                     style={[
-                      styles.iconOption,
-                      selectedIcon === option.icon && styles.selectedIconOption,
+                      styles.iconOptionBackground,
+                      { backgroundColor: selectedBackgroundColor },
                     ]}
-                    onPress={() => {
-                      setSelectedIcon(option.icon);
-                      setShowIconPicker(false);
-                    }}
                   >
-                    <View
-                      style={[
-                        styles.iconOptionBackground,
-                        { backgroundColor: selectedBackgroundColor },
-                      ]}
-                    >
-                      <Feather name={option.icon} size={24} color="#EEDCAD" />
-                    </View>
-                    <Text style={styles.iconOptionText}>{option.name}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+                    <Feather name={option.icon} size={24} color="#EEDCAD" />
+                  </View>
+                  <Text style={styles.iconOptionText}>{option.name}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
+
             <TouchableOpacity
               style={styles.modalButton}
               onPress={() => setShowIconPicker(false)}
@@ -552,33 +551,32 @@ export default function CreateBubble() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.colorModalContent}>
-            <View style={styles.modalContentWrapper}>
-              <Text style={styles.modalTitle}>Select Background Color</Text>
-              <View style={styles.colorGrid}>
-                {colorOptions.map((option) => (
-                  <TouchableOpacity
-                    key={option.value}
+            <Text style={styles.modalTitle}>Select Background Color</Text>
+            <View style={styles.colorGrid}>
+              {colorOptions.map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.colorOption,
+                    selectedBackgroundColor === option.value &&
+                      styles.selectedColorOption,
+                  ]}
+                  onPress={() => {
+                    setSelectedBackgroundColor(option.value);
+                    setShowColorPicker(false);
+                  }}
+                >
+                  <View
                     style={[
-                      styles.colorOption,
-                      selectedBackgroundColor === option.value &&
-                        styles.selectedColorOption,
+                      styles.colorPreview,
+                      { backgroundColor: option.value },
                     ]}
-                    onPress={() => {
-                      setSelectedBackgroundColor(option.value);
-                      setShowColorPicker(false);
-                    }}
-                  >
-                    <View
-                      style={[
-                        styles.colorPreview,
-                        { backgroundColor: option.value },
-                      ]}
-                    />
-                    <Text style={styles.colorOptionText}>{option.name}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+                  />
+                  <Text style={styles.colorOptionText}>{option.name}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
+
             <TouchableOpacity
               style={styles.modalButton}
               onPress={() => setShowColorPicker(false)}
@@ -710,12 +708,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  modalContentWrapper: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-  },
   modalTitle: {
     fontSize: 18,
     fontWeight: "bold",
@@ -790,11 +782,11 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 10,
     borderRadius: 10,
-    backgroundColor: "#FEFADF",
+    backgroundColor: COLORS.background,
     minWidth: 80,
   },
   selectedIconOption: {
-    backgroundColor: "#606B38",
+    backgroundColor: COLORS.surface,
   },
   iconOptionBackground: {
     width: 50,
@@ -821,11 +813,11 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 10,
     borderRadius: 10,
-    backgroundColor: "#FEFADF",
+    backgroundColor: COLORS.background,
     minWidth: 80,
   },
   selectedColorOption: {
-    backgroundColor: "#606B38",
+    backgroundColor: COLORS.surface,
   },
   colorOptionText: {
     fontSize: 12,
