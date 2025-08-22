@@ -38,7 +38,7 @@
     "jest-expo": "^53.0.0",
     "@testing-library/react-native": "^12.4.0",
     "@testing-library/jest-native": "^5.4.0",
-    "react-test-renderer": "^19.0.0"
+    "react-test-renderer": "19.0.0"
   },
   "jest": {
     "preset": "jest-expo",

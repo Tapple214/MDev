@@ -611,6 +611,7 @@ const styles = StyleSheet.create({
     height: "100%",
     paddingVertical: 15,
     paddingHorizontal: 15,
+    paddingBottom: 100,
   },
   title: {
     fontSize: 20,
