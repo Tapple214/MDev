@@ -1,10 +1,10 @@
-# Bubbles App 🫧
+# Bubbles App
 
 A React Native mobile application for creating, managing, and attending social events called "Bubbles". Built with Expo and Firebase, this app helps users organize gatherings, invite friends, and track attendance through QR codes and unique codes.
 
-## ✨ Features
+## Features
 
-### 🎯 Core Functionality
+### Core Functionality
 
 - **Create Bubbles**: Set up social events with custom names, descriptions, locations, dates, and times
 - **Bubble Management**: Edit, view, and organize your created events
@@ -13,14 +13,14 @@ A React Native mobile application for creating, managing, and attending social e
 - **Unique Codes**: Alternative check-in method using unique codes
 - **Attendance Tracking**: Monitor who's attending your events
 
-### 🎨 Customization
+### Customization
 
 - **Visual Themes**: Choose from multiple color schemes (Orange, Sage, Beige, Rust)
 - **Icon Selection**: Pick from various icons (heart, star, gift, map-pin)
 - **Tag System**: Categorize events with tags like casual, formal, outdoor, indoor, etc.
 - **AI Description Generator**: Get AI-powered event descriptions
 
-### 🔧 Technical Features
+### Technical Features
 
 - **Offline Support**: Works without internet connection with data caching
 - **Push Notifications**: Stay updated on event changes and reminders
@@ -28,7 +28,7 @@ A React Native mobile application for creating, managing, and attending social e
 - **Cross-platform**: Works on both iOS and Android
 - **Responsive Design**: Optimized for various screen sizes
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -69,7 +69,7 @@ A React Native mobile application for creating, managing, and attending social e
    - Press `a` for Android emulator
    - Scan QR code with Expo Go app on your physical device
 
-## 📱 App Structure
+## App Structure
 
 ### Pages
 
@@ -88,7 +88,7 @@ A React Native mobile application for creating, managing, and attending social e
 - **ConnectivityStatus**: Network status indicator
 - **NavBar**: Custom navigation component
 
-## 🧪 Testing
+## Testing
 
 Run the test suite using Jest:
 
@@ -103,7 +103,7 @@ npm run test:watch
 npm run test:coverage
 ```
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Frontend**: React Native, Expo
 - **Backend**: Firebase (Authentication, Firestore)
@@ -113,7 +113,7 @@ npm run test:coverage
 - **Icons**: Expo Vector Icons
 - **QR Codes**: react-native-qrcode-svg, expo-barcode-scanner
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 bubbles-app/
@@ -127,7 +127,7 @@ bubbles-app/
 └── App.js            # Main app component
 ```
 
-## 🔐 Environment Setup
+## Environment Setup
 
 Create a `.env` file in the root directory with your Firebase configuration:
 
@@ -140,7 +140,7 @@ FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 FIREBASE_APP_ID=your_app_id
 ```
 
-## 📱 Building for Production
+## Building for Production
 
 ### Android
 
