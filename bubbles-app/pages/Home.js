@@ -76,11 +76,6 @@ export default function Home({ navigation }) {
         // Handle offline data structure
         if (fetchedBubblesData && fetchedBubblesData.isOffline) {
           setBubblesData(fetchedBubblesData.data);
-          // Show offline indicator
-          console.log(
-            "Using cached bubbles data, last sync:",
-            fetchedBubblesData.lastSync
-          );
         } else {
           setBubblesData(fetchedBubblesData);
         }

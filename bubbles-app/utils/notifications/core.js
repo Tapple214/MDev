@@ -37,13 +37,11 @@ export const requestNotificationPermissions = async () => {
     }
 
     if (finalStatus !== "granted") {
-      console.log("Failed to get notification permissions!");
       return false;
     }
 
     return true;
   } else {
-    console.log("Must use physical device for Notifications");
     return false;
   }
 };
@@ -140,7 +138,6 @@ export const sendPushNotification = async (
 ) => {
   try {
     if (!pushToken) {
-      console.log("No push token available, skipping push notification");
       return;
     }
 
@@ -187,26 +184,19 @@ export const sendLocalNotification = async (title, body, data = {}) => {
 // Initialize notifications when app starts (permissions + push token registration)
 export const initializeAppNotifications = async (user) => {
   try {
-    console.log("Initializing app notifications...");
-
     // Request notification permissions
     const hasPermission = await requestNotificationPermissions();
 
     if (hasPermission && user) {
-      console.log("User has permission, registering for push notifications...");
-
       // Try to register for push notifications
       const token = await registerForPushNotifications(user.uid);
 
       if (token) {
-        console.log("Push notification token registered successfully");
         return token;
       } else {
-        console.log("Failed to get push notification token");
         return null;
       }
     } else {
-      console.log("User doesn't have notification permissions");
       return null;
     }
   } catch (error) {

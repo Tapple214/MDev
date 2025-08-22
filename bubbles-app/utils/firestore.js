@@ -315,7 +315,6 @@ export const getUserBubbles = async (userId, userEmail) => {
       const cachedBubbles = await getCachedUserBubbles(userId);
 
       if (cachedBubbles && cachedBubbles.length > 0) {
-        console.log("Returning cached bubbles due to network error");
         return {
           data: cachedBubbles,
           isOffline: true,

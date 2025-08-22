@@ -74,7 +74,6 @@ export const notifyBubbleParticipantsOfNewItem = async (
     );
 
     if (participantsToNotify.size === 0) {
-      console.log("No participants to notify for bubble:", bubbleName);
       return;
     }
 
@@ -115,10 +114,6 @@ export const notifyBubbleParticipantsOfNewItem = async (
         // Continue with other participants even if one fails
       }
     }
-
-    console.log(
-      `Notifications sent to ${participantsToNotify.size} participants for bubble: ${bubbleName}`
-    );
   } catch (error) {
     console.error("Error notifying bubble participants of new item:", error);
   }

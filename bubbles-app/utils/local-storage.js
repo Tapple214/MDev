@@ -40,7 +40,6 @@ export const cacheUserData = async (userId, userData) => {
       JSON.stringify(cacheData)
     );
 
-    console.log("User data cached successfully");
     return true;
   } catch (error) {
     console.error("Failed to cache user data:", error);
@@ -85,7 +84,6 @@ export const cacheUserBubbles = async (userId, bubbles) => {
       JSON.stringify(cacheData)
     );
 
-    console.log("User bubbles cached successfully:", bubbles.length);
     return true;
   } catch (error) {
     console.error("Failed to cache user bubbles:", error);
@@ -129,7 +127,6 @@ export const cacheBubbleDetails = async (bubbleId, bubbleData) => {
       JSON.stringify(cacheData)
     );
 
-    console.log("Bubble details cached successfully:", bubbleId);
     return true;
   } catch (error) {
     console.error("Failed to cache bubble details:", error);
@@ -177,7 +174,6 @@ export const cacheGuestResponses = async (bubbleId, responses) => {
       JSON.stringify(cacheData)
     );
 
-    console.log("Guest responses cached successfully:", bubbleId);
     return true;
   } catch (error) {
     console.error("Failed to cache guest responses:", error);
@@ -228,10 +224,6 @@ export const cacheAttendanceRecord = async (
 
     await AsyncStorage.setItem(key, JSON.stringify(cacheData));
 
-    console.log("Attendance record cached successfully:", {
-      bubbleId,
-      guestEmail,
-    });
     return true;
   } catch (error) {
     console.error("Failed to cache attendance record:", error);
@@ -298,10 +290,6 @@ export const storeOfflineAttendance = async (
       JSON.stringify(attendanceList)
     );
 
-    console.log("Offline attendance stored successfully:", {
-      bubbleId,
-      guestEmail,
-    });
     return true;
   } catch (error) {
     console.error("Failed to store offline attendance:", error);
@@ -331,7 +319,6 @@ export const markAttendanceAsSynced = async (bubbleId, guestEmail) => {
       JSON.stringify(updatedList)
     );
 
-    console.log("Attendance marked as synced:", { bubbleId, guestEmail });
     return true;
   } catch (error) {
     console.error("Failed to mark attendance as synced:", error);
@@ -405,7 +392,6 @@ export const clearExpiredCache = async () => {
 
     if (expiredKeys.length > 0) {
       await AsyncStorage.multiRemove(expiredKeys);
-      console.log("Cleared expired cache entries:", expiredKeys.length);
     }
 
     return expiredKeys.length;
@@ -424,7 +410,6 @@ export const clearAllCache = async () => {
 
     if (cacheKeys.length > 0) {
       await AsyncStorage.multiRemove(cacheKeys);
-      console.log("Cleared all cache entries:", cacheKeys.length);
     }
 
     return cacheKeys.length;

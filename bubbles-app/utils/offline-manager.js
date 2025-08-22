@@ -19,13 +19,6 @@ class OfflineManager {
       const wasOffline = !this.isOnline;
       this.isOnline = state.isConnected && state.isInternetReachable;
 
-      console.log("Network state changed:", {
-        isConnected: state.isConnected,
-        isInternetReachable: state.isInternetReachable,
-        wasOffline,
-        isOnline: this.isOnline,
-      });
-
       if (wasOffline && this.isOnline) {
         this.processOfflineQueue();
       }
@@ -45,11 +38,6 @@ class OfflineManager {
 
     this.offlineQueue.push(queueItem);
     await this.saveOfflineQueue();
-
-    console.log("Added operation to offline queue:", {
-      operation: operation.type,
-      queueLength: this.offlineQueue.length,
-    });
 
     return queueItem.id;
   }
@@ -79,7 +67,6 @@ class OfflineManager {
     }
 
     this.syncInProgress = true;
-    console.log("Starting offline queue processing...");
 
     try {
       const queue = [...this.offlineQueue];
@@ -104,11 +91,6 @@ class OfflineManager {
           await this.executeOperation(operation);
           await this.removeFromOfflineQueue(operation.id);
           results.successful++;
-
-          console.log(
-            "Successfully processed offline operation:",
-            operation.type
-          );
         } catch (error) {
           operation.retryCount++;
           await this.updateQueueItemStatus(
@@ -125,8 +107,6 @@ class OfflineManager {
           });
         }
       }
-
-      console.log("Offline queue processing completed:", results);
     } catch (error) {
       console.error("Error processing offline queue:", error);
     } finally {
@@ -230,7 +210,6 @@ class OfflineManager {
       const stored = await AsyncStorage.getItem("offline_queue");
       if (stored) {
         this.offlineQueue = JSON.parse(stored);
-        console.log("Loaded offline queue:", this.offlineQueue.length, "items");
       }
     } catch (error) {
       console.error("Failed to load offline queue:", error);

@@ -39,11 +39,9 @@ export const generateEventDescription = async (eventData) => {
     }
 
     const data = await response.json();
-    console.log("✅ OpenAI description generated successfully");
     return data.choices[0].message.content;
   } catch (error) {
     console.error("❌ OpenAI API Error:", error);
-    console.log("❌ OpenAI API Error:", error);
     return generateFallbackDescription(eventData);
   }
 };
