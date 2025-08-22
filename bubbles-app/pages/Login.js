@@ -95,7 +95,7 @@ export default function Login() {
       }
     } catch (error) {
       const errorMessage =
-        errorMessages[error.code] || `Authentication error: ${error.message}`;
+        errorMessages[error.code] || `Authentication error: Your password or email is incorrect. Please try again!`;
       Alert.alert("Error", errorMessage);
     } finally {
       setLoading(false);
