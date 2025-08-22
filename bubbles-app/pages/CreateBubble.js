@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -27,7 +27,19 @@ import { COLORS } from "../utils/custom-styles";
 
 export default function CreateBubble() {
   // Hooks
-  const { user, userData } = useAuth();
+  let authContext;
+  try {
+    authContext = useAuth();
+  } catch (error) {
+    console.error("CreateBubble: useAuth error:", error);
+    return (
+      <View style={styles.generalContainer}>
+        <Text>Authentication Error</Text>
+      </View>
+    );
+  }
+
+  const { user, userData } = authContext;
 
   // States
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +48,7 @@ export default function CreateBubble() {
   const [bubbleLocation, setBubbleLocation] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(new Date());
+
   const [guestList, setGuestList] = useState("");
   const [needQR, setNeedQR] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -53,6 +66,34 @@ export default function CreateBubble() {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
   const [showAIGenerator, setShowAIGenerator] = useState(false);
+
+  // Ensure dates are always valid
+  useEffect(() => {
+    if (
+      !selectedDate ||
+      !(selectedDate instanceof Date) ||
+      isNaN(selectedDate.getTime())
+    ) {
+      setSelectedDate(new Date());
+    }
+    if (
+      !selectedTime ||
+      !(selectedTime instanceof Date) ||
+      isNaN(selectedTime.getTime())
+    ) {
+      setSelectedTime(new Date());
+    }
+  }, [selectedDate, selectedTime]);
+
+  // Early return if auth is not ready
+  if (!user || !authContext) {
+    console.log("CreateBubble: No user or auth context, showing loading");
+    return (
+      <View style={styles.generalContainer}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   // Customization Options
   const iconOptions = [
@@ -82,30 +123,54 @@ export default function CreateBubble() {
   ];
 
   const formatDate = (date) => {
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    try {
+      if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+        return "Select Date";
+      }
+      return date.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Select Date";
+    }
   };
 
   const formatTime = (date) => {
-    return date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
+    try {
+      if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+        return "Select Time";
+      }
+      return date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+    } catch (error) {
+      console.error("Error formatting time:", error);
+      return "Select Time";
+    }
   };
 
-  const onDateChange = (selectedDate) => {
-    if (selectedDate) {
+  const onDateChange = (event, selectedDate) => {
+    if (
+      selectedDate &&
+      selectedDate instanceof Date &&
+      !isNaN(selectedDate.getTime())
+    ) {
       setSelectedDate(selectedDate);
     }
   };
 
-  const onTimeChange = (selectedTime) => {
-    if (selectedTime) {
+  const onTimeChange = (event, selectedTime) => {
+    if (
+      selectedTime &&
+      selectedTime instanceof Date &&
+      !isNaN(selectedTime.getTime())
+    ) {
       setSelectedTime(selectedTime);
     }
   };
@@ -181,8 +246,18 @@ export default function CreateBubble() {
         name: bubbleName.trim(),
         description: bubbleDescription.trim(),
         location: bubbleLocation.trim(),
-        selectedDate: selectedDate,
-        selectedTime: selectedTime,
+        selectedDate:
+          selectedDate &&
+          selectedDate instanceof Date &&
+          !isNaN(selectedDate.getTime())
+            ? selectedDate
+            : new Date(),
+        selectedTime:
+          selectedTime &&
+          selectedTime instanceof Date &&
+          !isNaN(selectedTime.getTime())
+            ? selectedTime
+            : new Date(),
         guestList: guestList.trim(),
         needQR,
         icon: selectedIcon,
@@ -207,7 +282,7 @@ export default function CreateBubble() {
             setGuestList("");
             setNeedQR(false);
             setSelectedIcon("heart");
-            setSelectedBackgroundColor("#E89349");
+            setSelectedBackgroundColor(COLORS.elemental.orange);
             setSelectedTags([]);
             setEmailValidation({ valid: [], invalid: [], notFound: [] });
           },
@@ -305,7 +380,9 @@ export default function CreateBubble() {
               disabled={isLoading}
             >
               <Text style={styles.pickerValueText}>
-                {formatDate(selectedDate)}
+                {selectedDate && selectedDate instanceof Date
+                  ? formatDate(selectedDate)
+                  : "Select Date"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -317,7 +394,9 @@ export default function CreateBubble() {
             >
               <View style={styles.colorPreviewContainer}>
                 <Text style={styles.pickerValueText}>
-                  {formatTime(selectedTime)}
+                  {selectedTime && selectedTime instanceof Date
+                    ? formatTime(selectedTime)
+                    : "Select Time"}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -436,7 +515,11 @@ export default function CreateBubble() {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Select Date</Text>
             <DateTimePicker
-              value={selectedDate}
+              value={
+                selectedDate && selectedDate instanceof Date
+                  ? selectedDate
+                  : new Date()
+              }
               mode="date"
               display="spinner"
               onChange={onDateChange}
@@ -472,7 +555,11 @@ export default function CreateBubble() {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Select Time</Text>
             <DateTimePicker
-              value={selectedTime}
+              value={
+                selectedTime && selectedTime instanceof Date
+                  ? selectedTime
+                  : new Date()
+              }
               mode="time"
               display="spinner"
               onChange={onTimeChange}
@@ -592,8 +679,16 @@ export default function CreateBubble() {
         bubbleName={bubbleName}
         selectedTags={selectedTags}
         bubbleLocation={bubbleLocation}
-        selectedDate={selectedDate}
-        selectedTime={selectedTime}
+        selectedDate={
+          selectedDate && selectedDate instanceof Date
+            ? selectedDate
+            : new Date()
+        }
+        selectedTime={
+          selectedTime && selectedTime instanceof Date
+            ? selectedTime
+            : new Date()
+        }
         guestList={guestList}
         onDescriptionGenerated={setBubbleDescription}
         isVisible={showAIGenerator}

@@ -24,7 +24,11 @@ import { initializeAppNotifications } from "../utils/notifications/core";
 const AuthContext = createContext({});
 
 export const useAuth = () => {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 };
 
 export const AuthProvider = ({ children }) => {
@@ -128,8 +132,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const value = {
-    user,
-    userData,
+    user: user || null,
+    userData: userData || null,
     signup,
     login,
     logout,
