@@ -79,7 +79,13 @@ export default function BubbleView() {
     registerNavBarFunctions("BubbleView", {
       userRole: bubbleDetails.userRole,
       handleEditBubble: () => {
-        navigation.navigate("EditBubble", { bubbleDetails });
+        // Pass the full bubble data when navigating from navbar
+        if (bubbleData) {
+          navigation.navigate("EditBubble", { bubbleData: bubbleData });
+        } else {
+          // Fallback to bubbleDetails if bubbleData is not loaded yet
+          navigation.navigate("EditBubble", { bubbleDetails });
+        }
       },
     });
   }, [bubbleDetails.userRole, navigation]);

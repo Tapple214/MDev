@@ -14,6 +14,7 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { getDoc, doc } from "firebase/firestore";
 
 // Components
 
@@ -23,38 +24,29 @@ import GuestSelector from "../components/guest-selector";
 import { useAuth } from "../contexts/AuthContext";
 import { updateBubble, validateGuestEmails } from "../utils/firestore";
 import { COLORS } from "../utils/custom-styles";
+import { db } from "../firebase";
 
 export default function EditBubble() {
   const route = useRoute();
   const navigation = useNavigation();
   const { user, userData } = useAuth();
 
-  // Get bubble data from route params
-  const { bubbleData } = route.params;
+  // Get bubble data from route params - handle both navigation patterns
+  const { bubbleData, bubbleDetails } = route.params;
 
-  // Initialize state with existing bubble data
+  // State variables
   const [isLoading, setIsLoading] = useState(false);
-  const [bubbleName, setBubbleName] = useState(bubbleData?.name || "");
-  const [bubbleDescription, setBubbleDescription] = useState(
-    bubbleData?.description || ""
-  );
-  const [bubbleLocation, setBubbleLocation] = useState(
-    bubbleData?.location || ""
-  );
-  const [selectedDate, setSelectedDate] = useState(
-    bubbleData?.schedule ? new Date(bubbleData.schedule.toDate()) : new Date()
-  );
-  const [selectedTime, setSelectedTime] = useState(
-    bubbleData?.schedule ? new Date(bubbleData.schedule.toDate()) : new Date()
-  );
-  const [guestList, setGuestList] = useState(
-    bubbleData?.guestList
-      ? Array.isArray(bubbleData.guestList)
-        ? bubbleData.guestList.join(", ")
-        : bubbleData.guestList
-      : ""
-  );
-  const [needQR, setNeedQR] = useState(bubbleData?.needQR || false);
+  const [loadingBubble, setLoadingBubble] = useState(true);
+  const [currentBubbleData, setCurrentBubbleData] = useState(null);
+
+  // Form state variables
+  const [bubbleName, setBubbleName] = useState("");
+  const [bubbleDescription, setBubbleDescription] = useState("");
+  const [bubbleLocation, setBubbleLocation] = useState("");
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedTime, setSelectedTime] = useState(new Date());
+  const [guestList, setGuestList] = useState("");
+  const [needQR, setNeedQR] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [emailValidation, setEmailValidation] = useState({
@@ -62,13 +54,88 @@ export default function EditBubble() {
     invalid: [],
     notFound: [],
   });
-  const [selectedIcon, setSelectedIcon] = useState(bubbleData?.icon || "heart");
+  const [selectedIcon, setSelectedIcon] = useState("heart");
   const [selectedBackgroundColor, setSelectedBackgroundColor] = useState(
-    bubbleData?.backgroundColor || COLORS.elemental.orange
+    COLORS.elemental.orange
   );
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
-  const [selectedTags, setSelectedTags] = useState(bubbleData?.tags || []);
+  const [selectedTags, setSelectedTags] = useState([]);
+
+  // Load bubble data if not provided directly
+  useEffect(() => {
+    const loadBubbleData = async () => {
+      try {
+        setLoadingBubble(true);
+
+        let bubbleId;
+        let bubbleToLoad;
+
+        // Determine which navigation pattern was used
+        if (bubbleData) {
+          // Direct navigation with full bubble data
+          bubbleToLoad = bubbleData;
+          setCurrentBubbleData(bubbleData);
+        } else if (bubbleDetails?.bubbleId) {
+          // Navigation from navbar - need to fetch bubble data
+          bubbleId = bubbleDetails.bubbleId;
+          const bubbleRef = doc(db, "bubbles", bubbleId);
+          const bubbleSnap = await getDoc(bubbleRef);
+
+          if (bubbleSnap.exists()) {
+            bubbleToLoad = { id: bubbleSnap.id, ...bubbleSnap.data() };
+            setCurrentBubbleData(bubbleToLoad);
+          } else {
+            Alert.alert("Error", "Bubble not found");
+            navigation.goBack();
+            return;
+          }
+        } else {
+          Alert.alert("Error", "No bubble data provided");
+          navigation.goBack();
+          return;
+        }
+
+        // Populate form fields with bubble data
+        if (bubbleToLoad) {
+          setBubbleName(bubbleToLoad.name || "");
+          setBubbleDescription(bubbleToLoad.description || "");
+          setBubbleLocation(bubbleToLoad.location || "");
+
+          if (bubbleToLoad.schedule) {
+            const scheduleDate = bubbleToLoad.schedule.toDate
+              ? bubbleToLoad.schedule.toDate()
+              : new Date(bubbleToLoad.schedule);
+            setSelectedDate(scheduleDate);
+            setSelectedTime(scheduleDate);
+          }
+
+          if (bubbleToLoad.guestList) {
+            if (Array.isArray(bubbleToLoad.guestList)) {
+              setGuestList(bubbleToLoad.guestList.join(", "));
+            } else {
+              setGuestList(bubbleToLoad.guestList);
+            }
+          }
+
+          setNeedQR(bubbleToLoad.needQR || false);
+          setSelectedIcon(bubbleToLoad.icon || "heart");
+          setSelectedBackgroundColor(
+            bubbleToLoad.backgroundColor || COLORS.elemental.orange
+          );
+          setSelectedTags(bubbleToLoad.tags || []);
+        }
+      } catch (error) {
+        console.error("Error loading bubble data:", error);
+        Alert.alert("Error", "Failed to load bubble data");
+        navigation.goBack();
+      } finally {
+        setLoadingBubble(false);
+      }
+    };
+
+    loadBubbleData();
+  }, [bubbleData, bubbleDetails]);
 
   // Customization options
   const iconOptions = [
@@ -193,7 +260,7 @@ export default function EditBubble() {
 
     try {
       const updatedBubbleData = {
-        bubbleId: route.params.bubbleData.id,
+        bubbleId: currentBubbleData?.id, // Use currentBubbleData.id
         name: bubbleName.trim(),
         description: bubbleDescription.trim(),
         location: bubbleLocation.trim(),
@@ -223,6 +290,18 @@ export default function EditBubble() {
       setIsLoading(false);
     }
   };
+
+  // Show loading state while fetching bubble data
+  if (loadingBubble) {
+    return (
+      <View style={styles.generalContainer}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={styles.loadingText}>Loading bubble data...</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.generalContainer}>
@@ -592,6 +671,17 @@ const styles = StyleSheet.create({
     height: "100%",
     paddingVertical: 15,
     paddingHorizontal: 15,
+    paddingBottom: 100,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 15,
+    fontSize: 16,
+    color: COLORS.text.primary,
   },
   title: {
     fontSize: 20,
