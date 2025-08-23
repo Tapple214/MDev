@@ -87,17 +87,11 @@ export const notifyGuestsOfBubbleChanges = async (bubbleId, hostName) => {
 export const notifyGuestsOfBubbleDeletion = async (
   bubbleId,
   hostName,
-  bubbleName
+  bubbleName,
+  guestList = []
 ) => {
   try {
-    // Get bubble data to find all invitees
-    const bubbleRef = doc(db, "bubbles", bubbleId);
-    const bubbleSnap = await getDoc(bubbleRef);
-
-    if (!bubbleSnap.exists()) return;
-
-    const bubbleData = bubbleSnap.data();
-    const guestList = bubbleData.guestList || [];
+    // Use the provided guest list instead of trying to fetch from deleted bubble
 
     // Send notifications to all guests
     for (const guestEmail of guestList) {

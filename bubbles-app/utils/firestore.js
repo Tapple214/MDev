@@ -602,8 +602,32 @@ export const deleteBubble = async (bubbleId, hostName) => {
     // Delete the bubble document
     await deleteDoc(bubbleRef);
 
+    // Clean up bubbleBook items associated with this bubble
+    try {
+      const bubbleBookRef = collection(db, "bubbleBook");
+      const bubbleBookQuery = query(
+        bubbleBookRef,
+        where("bubbleId", "==", bubbleId)
+      );
+      const bubbleBookSnapshot = await getDocs(bubbleBookQuery);
+
+      // Delete all bubbleBook items for this bubble
+      const deletePromises = bubbleBookSnapshot.docs.map((doc) =>
+        deleteDoc(doc.ref)
+      );
+      await Promise.all(deletePromises);
+    } catch (cleanupError) {
+      console.error("Error cleaning up bubbleBook items:", cleanupError);
+      // Don't fail the main deletion if cleanup fails
+    }
+
     // Notify all invitees about the bubble deletion
-    await notifyGuestsOfBubbleDeletion(bubbleId, hostName, bubbleName);
+    await notifyGuestsOfBubbleDeletion(
+      bubbleId,
+      hostName,
+      bubbleName,
+      bubbleData.guestList || []
+    );
 
     return true;
   } catch (error) {
