@@ -7,6 +7,7 @@ import GuestRespondBtns from "./guest-respond-btns";
 
 // Custom hooks and utility functions
 import { COLORS } from "../utils/custom-styles";
+import { deleteBubble } from "../utils/firestore";
 
 export default function BubbleItem({
   cardTitle,
@@ -18,10 +19,13 @@ export default function BubbleItem({
   onAccept,
   onDecline,
   onRetract,
+  onDelete,
   icon = "heart",
   backgroundColor = "#E89349",
   tags = [],
   response = "pending",
+  bubbleId,
+  hostName,
   ...props
 }) {
   // Different tags will be represented by different icons (shown on top right of bubble item)
@@ -36,7 +40,7 @@ export default function BubbleItem({
       case "indoor":
         return "home";
       case "creative":
-        return "palette";
+        return "headphones";
       case "social":
         return "users";
       case "cozy":
@@ -70,6 +74,51 @@ export default function BubbleItem({
       default:
         return "A bubble with this tag.";
     }
+  };
+
+  // Handle bubble deletion for hosts
+  const handleDeleteBubble = async () => {
+    if (userRole !== "host") {
+      Alert.alert("Error", "Only the host can delete this bubble");
+      return;
+    }
+
+    if (!bubbleId || !hostName) {
+      Alert.alert("Error", "Missing bubble information for deletion");
+      return;
+    }
+
+    // Show confirmation dialog
+    Alert.alert(
+      "Delete Bubble",
+      "Are you sure you want to delete this bubble? This action cannot be undone and all guest responses will be lost.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteBubble(bubbleId, hostName);
+              Alert.alert("Success", "Bubble deleted successfully");
+              // Call the onDelete callback if provided to refresh the parent component
+              if (onDelete) {
+                onDelete();
+              }
+            } catch (error) {
+              console.error("Error deleting bubble:", error);
+              Alert.alert(
+                "Error",
+                "Failed to delete bubble. Please try again."
+              );
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -120,6 +169,7 @@ export default function BubbleItem({
         onDecline={onDecline}
         onAccept={onAccept}
         onRetract={onRetract}
+        onDelete={handleDeleteBubble}
         response={response}
       />
     </View>

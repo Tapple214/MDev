@@ -10,6 +10,7 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { getDoc, doc } from "firebase/firestore";
+import { deleteBubble } from "../utils/firestore";
 
 // Components
 
@@ -239,6 +240,43 @@ export default function BubbleView() {
     });
   };
 
+  const handleDeleteBubble = async () => {
+    // Only allow host to delete the bubble
+    if (bubbleDetails.userRole !== "host") {
+      Alert.alert("Error", "Only the host can delete this bubble");
+      return;
+    }
+
+    // Show confirmation dialog
+    Alert.alert(
+      "Delete Bubble",
+      "Are you sure you want to delete this bubble? This action cannot be undone and all guest responses will be lost.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setLoading(true);
+              await deleteBubble(bubbleData.id, bubbleData.hostName);
+              Alert.alert("Success", "Bubble deleted successfully");
+              navigation.goBack();
+            } catch (error) {
+              console.error("Error deleting bubble:", error);
+              Alert.alert("Error", "Failed to delete bubble. Please try again.");
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.generalContainer}>
       <ScrollView vertical showsVerticalScrollIndicator={false}>
@@ -293,6 +331,7 @@ export default function BubbleView() {
               onAccept={bubbleDetails.onAccept}
               onDecline={bubbleDetails.onDecline}
               onRetract={bubbleDetails.onRetract}
+              onDelete={handleDeleteBubble}
               response={
                 user &&
                 bubbleData?.guestResponses?.[user.email?.toLowerCase()]

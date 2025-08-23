@@ -11,6 +11,7 @@ export default function GuestRespondBtns({
   onDecline,
   onAccept,
   onRetract,
+  onDelete,
   response = "pending",
 }) {
   // Hooks
@@ -47,6 +48,27 @@ export default function GuestRespondBtns({
 
   return (
     <View>
+      {/* If user is a host, show the delete button */}
+      {userRole === "host" && (
+        <View
+          style={[
+            styles.buttons,
+            currentRoute.name !== "BubbleView" && {
+              position: "absolute",
+              right: 10,
+              bottom: 10,
+            },
+          ]}
+        >
+          <TouchableOpacity
+            style={[styles.button, styles.deleteButton]}
+            onPress={onDelete}
+          >
+            <Feather name="trash-2" size={15} color={COLORS.surface} />
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* If user is a guest, then show the "I'm coming" or X buttons */}
       {userRole === "guest" && (
         <View
@@ -156,6 +178,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.confirm,
   },
   declineButton: {
+    backgroundColor: COLORS.reject,
+  },
+  deleteButton: {
     backgroundColor: COLORS.reject,
   },
   actionButtonText: {

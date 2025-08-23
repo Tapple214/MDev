@@ -292,6 +292,8 @@ export default function Home({ navigation }) {
                 onAccept={() => handleAcceptBubble(bubbleData.id)}
                 onDecline={() => handleDeclineBubble(bubbleData.id)}
                 onRetract={() => handleRetractBubble(bubbleData.id)}
+                bubbleId={bubbleData.id}
+                hostName={bubbleData.hostName}
                 // send as params
                 action={() =>
                   navigation.navigate("BubbleView", {
