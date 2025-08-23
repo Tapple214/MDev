@@ -62,13 +62,14 @@ describe("Notifications Guests Utility", () => {
 
       expect(sendPushNotification).toHaveBeenCalledWith(
         "token123",
-        "New Bubble Invite!",
-        'You have been invited by John Doe to "Test Bubble"',
-        expect.objectContaining({
-          type: "bubble_invite",
+        "New Bubble Invite! 🎯",
+        'You have been invited by John Doe to "Test Bubble" - tap to respond!',
+        {
           bubbleId: "bubble123",
           hostName: "John Doe",
-        })
+          type: "bubble_invite",
+          bubbleName: "Test Bubble",
+        }
       );
     });
 
@@ -95,13 +96,14 @@ describe("Notifications Guests Utility", () => {
       await notifyGuestOfInvite("guest@example.com", "bubble123");
 
       expect(sendLocalNotification).toHaveBeenCalledWith(
-        "New Bubble Invite!",
-        'You have been invited by John Doe to "Test Bubble"',
-        expect.objectContaining({
-          type: "bubble_invite",
+        "New Bubble Invite! 🎯",
+        'You have been invited by John Doe to "Test Bubble" - tap to respond!',
+        {
           bubbleId: "bubble123",
           hostName: "John Doe",
-        })
+          type: "bubble_invite",
+          bubbleName: "Test Bubble",
+        }
       );
     });
   });
@@ -132,56 +134,56 @@ describe("Notifications Guests Utility", () => {
       expect(sendPushNotification).toHaveBeenCalledTimes(2);
       expect(sendPushNotification).toHaveBeenCalledWith(
         "token123",
-        "Bubble Updated!",
+        "Bubble Updated! 🔄",
         'John Doe made changes to "Test Bubble". Check it out to stay in the loop!',
-        expect.objectContaining({
-          type: "bubble_updated",
+        {
           bubbleId: "bubble123",
           hostName: "John Doe",
+          type: "bubble_updated",
           bubbleName: "Test Bubble",
-        })
+        }
       );
     });
   });
 
   describe("notifyGuestsOfBubbleDeletion", () => {
     it("should notify all guests of bubble deletion", async () => {
-      const { doc, getDoc } = require("firebase/firestore");
-      const {
-        getUserPushTokenByEmail,
-        sendPushNotification,
-      } = require("../../../utils/notifications/core");
+      // Mock getUserPushTokenByEmail to return tokens
+      jest
+        .spyOn(
+          require("../../../utils/notifications/core"),
+          "getUserPushTokenByEmail"
+        )
+        .mockResolvedValue("token123");
 
-      const mockBubbleData = {
-        name: "Test Bubble",
-        guestList: ["guest1@example.com", "guest2@example.com"],
-      };
+      // Mock sendPushNotification
+      const sendPushNotification = jest
+        .spyOn(
+          require("../../../utils/notifications/core"),
+          "sendPushNotification"
+        )
+        .mockResolvedValue();
 
-      doc.mockReturnValue("bubbleRef");
-      getDoc.mockResolvedValue({
-        exists: () => true,
-        data: () => mockBubbleData,
-      });
-
-      getUserPushTokenByEmail.mockResolvedValue("token123");
+      const guestList = ["guest1@example.com", "guest2@example.com"];
 
       await notifyGuestsOfBubbleDeletion(
         "bubble123",
         "John Doe",
-        "Test Bubble"
+        "Test Bubble",
+        guestList
       );
 
       expect(sendPushNotification).toHaveBeenCalledTimes(2);
       expect(sendPushNotification).toHaveBeenCalledWith(
         "token123",
-        "Bubble Deleted",
-        'John Doe cancelled "Test Bubble"',
-        expect.objectContaining({
+        "Bubble Cancelled ⚠️",
+        'John Doe cancelled "Test Bubble". Check your other bubbles for updates!',
+        {
           type: "bubble_deleted",
           bubbleId: "bubble123",
           hostName: "John Doe",
           bubbleName: "Test Bubble",
-        })
+        }
       );
     });
   });

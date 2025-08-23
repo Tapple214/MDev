@@ -23,12 +23,13 @@ export const notifyGuestOfInvite = async (guestEmail, bubbleId) => {
     // Get guest's push token
     const guestToken = await getUserPushTokenByEmail(guestEmail);
 
-    const title = "New Bubble Invite!";
-    const body = `You have been invited by ${bubbleData.hostName} to "${bubbleData.name}"`;
+    const title = "New Bubble Invite! 🎯";
+    const body = `You have been invited by ${bubbleData.hostName} to "${bubbleData.name}" - tap to respond!`;
     const data = {
       type: "bubble_invite",
       bubbleId,
       hostName: bubbleData.hostName,
+      bubbleName: bubbleData.name,
     };
 
     // Send push notification if token is available
@@ -60,7 +61,7 @@ export const notifyGuestsOfBubbleChanges = async (bubbleId, hostName) => {
       // Get guest's push token
       const guestToken = await getUserPushTokenByEmail(guestEmail);
 
-      const title = "Bubble Updated!";
+      const title = "Bubble Updated! 🔄";
       const body = `${hostName} made changes to "${bubbleData.name}". Check it out to stay in the loop!`;
       const data = {
         type: "bubble_updated",
@@ -98,8 +99,8 @@ export const notifyGuestsOfBubbleDeletion = async (
       // Get guest's push token
       const guestToken = await getUserPushTokenByEmail(guestEmail);
 
-      const title = "Bubble Deleted";
-      const body = `${hostName} cancelled "${bubbleName}"`;
+      const title = "Bubble Cancelled ⚠️";
+      const body = `${hostName} cancelled "${bubbleName}". Check your other bubbles for updates!`;
       const data = {
         type: "bubble_deleted",
         bubbleId,

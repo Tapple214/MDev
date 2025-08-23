@@ -32,7 +32,10 @@ export const notifyHostOfGuestResponse = async (
     // Get guest's name
     const guestName = await getUserNameByEmail(guestEmail);
 
-    const title = "Bubble Response";
+    const responseEmoji = response === "accepted" ? "✅" : "❌";
+    const title = `Guest ${
+      response === "accepted" ? "Accepted" : "Declined"
+    }! ${responseEmoji}`;
     const body = `${guestName || guestEmail} ${response} your invite to "${
       bubbleData.name
     }"`;
@@ -41,6 +44,7 @@ export const notifyHostOfGuestResponse = async (
       bubbleId,
       guestEmail,
       response,
+      bubbleName: bubbleData.name,
     };
 
     // Send push notification if token is available
@@ -77,7 +81,7 @@ export const notifyHostOfGuestAttendance = async (
     // Get guest's name
     const guestName = await getUserNameByEmail(guestEmail);
 
-    const title = "Guest Attendance Confirmed!";
+    const title = "Guest Attendance Confirmed! 🎉";
     const body = `${
       guestName || guestEmail
     } has successfully clocked attendance for "${bubbleData.name}"!`;

@@ -91,13 +91,14 @@ describe("Host Notifications Utility", () => {
         require("../../../utils/notifications/core").sendPushNotification
       ).toHaveBeenCalledWith(
         mockHostToken,
-        "Bubble Response",
+        "Guest Accepted! ✅",
         'John Doe accepted your invite to "Test Bubble"',
         {
+          bubbleId: "bubble123",
+          guestEmail: "guest@example.com",
+          response: "accepted",
           type: "guest_response",
-          bubbleId,
-          guestEmail,
-          response,
+          bubbleName: "Test Bubble",
         }
       );
     });
@@ -133,13 +134,14 @@ describe("Host Notifications Utility", () => {
       expect(
         require("../../../utils/notifications/core").sendLocalNotification
       ).toHaveBeenCalledWith(
-        "Bubble Response",
+        "Guest Declined! ❌",
         'Jane Smith declined your invite to "Test Bubble"',
         {
+          bubbleId: "bubble123",
+          guestEmail: "guest@example.com",
+          response: "declined",
           type: "guest_response",
-          bubbleId,
-          guestEmail,
-          response,
+          bubbleName: "Test Bubble",
         }
       );
     });
@@ -204,15 +206,15 @@ describe("Host Notifications Utility", () => {
         require("../../../utils/notifications/core").sendPushNotification
       ).toHaveBeenCalledWith(
         mockHostToken,
-        "Guest Attendance Confirmed!",
+        "Guest Attendance Confirmed! 🎉",
         'John Doe has successfully clocked attendance for "Test Bubble"!',
         {
-          type: "guest_attendance_confirmed",
-          bubbleId,
-          guestEmail,
+          bubbleId: "bubble123",
+          guestEmail: "guest@example.com",
           guestName: "John Doe",
           bubbleName: "Test Bubble",
-          qrData,
+          qrData: qrData,
+          type: "guest_attendance_confirmed",
           timestamp: expect.any(String),
         }
       );
@@ -249,15 +251,15 @@ describe("Host Notifications Utility", () => {
       expect(
         require("../../../utils/notifications/core").sendLocalNotification
       ).toHaveBeenCalledWith(
-        "Guest Attendance Confirmed!",
+        "Guest Attendance Confirmed! 🎉",
         'guest@example.com has successfully clocked attendance for "Test Bubble"!',
         {
-          type: "guest_attendance_confirmed",
-          bubbleId,
-          guestEmail,
+          bubbleId: "bubble123",
+          guestEmail: "guest@example.com",
           guestName: "guest@example.com",
           bubbleName: "Test Bubble",
-          qrData,
+          qrData: qrData,
+          type: "guest_attendance_confirmed",
           timestamp: expect.any(String),
         }
       );

@@ -81,10 +81,10 @@ export const notifyBubbleParticipantsOfNewItem = async (
     const addedByName = await getUserNameByEmail(addedByEmail);
 
     // Prepare notification content
-    const title = "New Item Added to BubbleBook!";
+    const title = "New Item Added to BubbleBook! 📚";
     const body = `${
       addedByName || addedByEmail
-    } added an item to ${bubbleName}, check bubble book out!`;
+    } added an item to "${bubbleName}" - check it out!`;
     const data = {
       type: "item_added_to_bubble_book",
       bubbleId,
@@ -132,10 +132,10 @@ export const notifyUserAddedAsBubbleBuddy = async (
     // Get the name of the user who added them (logged in user)
     const addedByName = await getUserNameByEmail(addedByEmail);
 
-    const title = "New Bubble Buddy!";
+    const title = "New Bubble Buddy! 🤝";
     const body = `${
       addedByName || addedByEmail
-    } added you as a bubble buddy! Add them back!`;
+    } added you as a bubble buddy! Add them back to stay connected!`;
     const data = {
       type: "bubble_buddy_added",
       addedByEmail,
@@ -172,27 +172,57 @@ export const notifyUpcomingBubble = async (bubbleId, hoursBefore = 24) => {
       schedule.getTime() - hoursBefore * 60 * 60 * 1000
     );
 
-    // Only send if the notification time is in the future
+    // Only proceed if the notification time is in the future
     if (notificationTime > now) {
       const timeUntilNotification = notificationTime.getTime() - now.getTime();
 
-      // Schedule the notification
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: "Upcoming Bubble Reminder!",
-          body: `"${bubbleData.name}" is starting ${
-            hoursBefore === 24 ? "tomorrow" : "in 6 hours"
-          }! Don't forget to attend!`,
-          data: {
-            type: "upcoming_bubble",
-            bubbleId,
-            hoursBefore,
-          },
-        },
-        trigger: {
-          seconds: Math.floor(timeUntilNotification / 1000),
-        },
-      });
+      // Get all participants to notify (host + guests)
+      const participantsToNotify = await getBubbleParticipants(bubbleId);
+
+      if (participantsToNotify.size === 0) {
+        return;
+      }
+
+      // Prepare notification content
+      const timeText = hoursBefore === 24 ? "tomorrow" : "in 6 hours";
+      const title = "Upcoming Bubble Reminder! 🎉";
+      const body = `"${bubbleData.name}" is starting ${timeText}! Don't forget to attend!`;
+      const data = {
+        type: "upcoming_bubble",
+        bubbleId,
+        bubbleName: bubbleData.name,
+        hoursBefore,
+        schedule: schedule.toISOString(),
+      };
+
+      // Schedule push notifications for all participants
+      for (const participantEmail of participantsToNotify) {
+        try {
+          const participantToken = await getUserPushTokenByEmail(
+            participantEmail
+          );
+
+          if (participantToken) {
+            // Schedule the push notification
+            await Notifications.scheduleNotificationAsync({
+              content: {
+                title,
+                body,
+                data,
+              },
+              trigger: {
+                seconds: Math.floor(timeUntilNotification / 1000),
+              },
+            });
+          }
+        } catch (error) {
+          console.error(
+            `Error scheduling notification for ${participantEmail}:`,
+            error
+          );
+          // Continue with other participants even if one fails
+        }
+      }
     }
   } catch (error) {
     console.error("Error scheduling upcoming bubble notification:", error);
