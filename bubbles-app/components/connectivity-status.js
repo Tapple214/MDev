@@ -59,19 +59,19 @@ export default function ConnectivityStatus() {
     if (!queueStatus) return "Checking connection...";
 
     if (!queueStatus.isOnline) {
-      return "📶 You're offline. Some features may be limited.";
+      return "You're offline. Some features may be limited.";
     }
 
     if (queueStatus.queueLength > 0) {
       if (queueStatus.syncInProgress) {
-        return "🔄 Syncing offline data...";
+        return "Syncing offline data...";
       }
 
       if (queueStatus.failedOperations > 0) {
-        return `⚠️ ${queueStatus.failedOperations} operation(s) failed to sync`;
+        return `${queueStatus.failedOperations} operation(s) failed to sync`;
       }
 
-      return `📱 ${queueStatus.queueLength} operation(s) pending sync`;
+      return `${queueStatus.queueLength} operation(s) pending sync`;
     }
 
     return null;
