@@ -15,6 +15,7 @@ import { generateAttendanceQR, generateAttendancePin } from "./attendance";
 import {
   notifyGuestOfInvite,
   notifyGuestsOfBubbleChanges,
+  notifyGuestsOfBubbleDeletion,
 } from "./notifications/guests";
 import { scheduleBubbleNotifications } from "./notifications/all";
 import { notifyHostOfGuestResponse } from "./notifications/hosts";
@@ -557,14 +558,56 @@ export const addBubbleBuddies = async (userId, emails) => {
       ...new Set([...currentBubbleBuddies, ...normalizedEmails]),
     ];
 
+    // Get the current user's email for notification
+    const currentUserEmail = userData.email;
+
     await updateDoc(userRef, {
       bubbleBuddies: updatedBubbleBuddies,
       updatedAt: serverTimestamp(),
     });
 
+    // Send notifications to newly added bubble buddies
+    const { notifyUserAddedAsBubbleBuddy } = await import(
+      "./notifications/all"
+    );
+    for (const email of normalizedEmails) {
+      if (!currentBubbleBuddies.includes(email)) {
+        // Only notify if this is a new addition
+        await notifyUserAddedAsBubbleBuddy(currentUserEmail, email);
+      }
+    }
+
     return true;
   } catch (error) {
     console.error("Error adding bubble buddies:", error);
+    throw error;
+  }
+};
+
+// =============================================== BUBBLE DELETION ===============================================
+
+// Delete a bubble and notify all invitees
+export const deleteBubble = async (bubbleId, hostName) => {
+  try {
+    const bubbleRef = doc(db, "bubbles", bubbleId);
+    const bubbleSnap = await getDoc(bubbleRef);
+
+    if (!bubbleSnap.exists()) {
+      throw new Error("Bubble not found");
+    }
+
+    const bubbleData = bubbleSnap.data();
+    const bubbleName = bubbleData.name;
+
+    // Delete the bubble document
+    await deleteDoc(bubbleRef);
+
+    // Notify all invitees about the bubble deletion
+    await notifyGuestsOfBubbleDeletion(bubbleId, hostName, bubbleName);
+
+    return true;
+  } catch (error) {
+    console.error("Error deleting bubble:", error);
     throw error;
   }
 };
