@@ -11,7 +11,7 @@ import {
   deleteDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { generateEntryQRCode, generateAttendancePin } from "./attendance";
+import { generateAttendanceQR, generateAttendancePin } from "./attendance";
 import {
   notifyGuestOfInvite,
   notifyGuestsOfBubbleChanges,
@@ -148,7 +148,7 @@ const createBubbleOnline = async (bubbleData) => {
       schedule: scheduleDate,
     };
 
-    qrCodeData = generateEntryQRCode(bubbleDataQR);
+    qrCodeData = generateAttendanceQR(bubbleDataQR);
     attendancePin = generateAttendancePin(newBubbleRef.id);
   }
 
@@ -242,7 +242,7 @@ export const updateBubble = async (bubbleData) => {
         hostName: bubbleData.hostName,
         schedule: scheduleDate,
       };
-      qrCodeData = generateEntryQRCode(bubbleDataQR);
+      qrCodeData = generateAttendanceQR(bubbleDataQR);
 
       // Generate new attendance PIN if it doesn't exist or if needQR was changed from false to true
       const existingBubble = await getDoc(bubbleRef);

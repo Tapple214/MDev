@@ -25,7 +25,7 @@ import {
   confirmAttendanceByQR,
   validateAttendanceQR,
 } from "../utils/attendance";
-import { generateEntryQRCode } from "../utils/attendance";
+import { generateAttendanceQR } from "../utils/attendance";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavBar } from "../contexts/NavBarContext";
 import { db } from "../firebase";
@@ -158,7 +158,7 @@ export default function BubbleView() {
           hostName: bubbleData.hostName,
           schedule: bubbleData.schedule,
         };
-        const generatedQR = generateEntryQRCode(tempBubbleData);
+        const generatedQR = generateAttendanceQR(tempBubbleData);
 
         if (generatedQR) {
           setBubbleData((prev) => ({ ...prev, qrCodeData: generatedQR }));
@@ -470,6 +470,7 @@ const styles = StyleSheet.create({
     height: "100%",
     paddingTop: 15,
     paddingHorizontal: 15,
+    paddingBottom: 100,
   },
   title: {
     ...TEXT_STYLES.heading.medium,

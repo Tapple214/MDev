@@ -19,7 +19,7 @@ jest.mock("../../utils/helper", () => ({
 
 // Mock the attendance functions
 jest.mock("../../utils/attendance", () => ({
-  generateEntryQRCode: jest.fn(() => "mock-qr-code"),
+  generateAttendanceQR: jest.fn(() => "mock-qr-code"),
   generateAttendancePin: jest.fn(() => "12345"),
 }));
 
