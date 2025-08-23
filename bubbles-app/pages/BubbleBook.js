@@ -144,7 +144,7 @@ export default function BubbleBook() {
 
     try {
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaType.Images,
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.8,
@@ -166,7 +166,7 @@ export default function BubbleBook() {
 
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaType.Images,
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.8,
@@ -550,13 +550,6 @@ export default function BubbleBook() {
 
             {selectedPhoto && (
               <>
-                <Image
-                  source={{
-                    // Use base64 if available, otherwise fall back to imageUri for backward compatibility
-                    uri: selectedPhoto.imageBase64 || selectedPhoto.imageUri,
-                  }}
-                  style={styles.modalPhoto}
-                />
                 <View style={styles.modalInfo}>
                   <Text style={styles.modalInfoText}>
                     Added by: {selectedPhoto.addedByName}
@@ -774,6 +767,7 @@ const styles = StyleSheet.create({
     margin: 20,
     maxWidth: screenWidth - 40,
     maxHeight: "80%",
+    width: "100%",
   },
   modalHeader: {
     flexDirection: "row",
