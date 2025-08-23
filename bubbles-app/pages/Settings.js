@@ -285,6 +285,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
     padding: 20,
+    paddingBottom: 100
   },
   title: {
     ...TEXT_STYLES.heading.large,

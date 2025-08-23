@@ -102,7 +102,6 @@ export default function BubbleBuddies() {
       setShowAddModal(false);
       setSearchQuery("");
       setEmailValidation({ valid: [], invalid: [], notFound: [] });
-      setSearchResults([]);
 
       // Refresh user data
       const fetchedUserData = await getUser(user.uid);
