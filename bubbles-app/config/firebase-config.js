@@ -1,9 +1,19 @@
+import {
+  FIREBASE_API_KEY,
+  FIREBASE_AUTH_DOMAIN,
+  FIREBASE_PROJECT_ID,
+  FIREBASE_STORAGE_BUCKET,
+  FIREBASE_MESSAGING_SENDER_ID,
+  FIREBASE_APP_ID,
+  FIREBASE_MEASUREMENT_ID,
+} from "@env";
+
 export const firebaseConfig = {
-  apiKey: "AIzaSyBWr89kHTDaKqTHMkwJUvZ7tWuf6RB4gzE",
-  authDomain: "bubbles-3164d.firebaseapp.com",
-  projectId: "bubbles-3164d",
-  storageBucket: "bubbles-3164d.firebasestorage.app",
-  messagingSenderId: "211384634852",
-  appId: "1:211384634852:web:d1addccfc396ac064d0bf1",
-  measurementId: "G-KCYJXR1QH5",
+  apiKey: FIREBASE_API_KEY,
+  authDomain: FIREBASE_AUTH_DOMAIN,
+  projectId: FIREBASE_PROJECT_ID,
+  storageBucket: FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
+  appId: FIREBASE_APP_ID,
+  measurementId: FIREBASE_MEASUREMENT_ID,
 };
