@@ -1,38 +1,35 @@
 // AI Helper for Bubbles
 
-import { AI_CONFIG } from "../config/ai-config";
+import { OPENAI_API_KEY, OPENAI_BASE_URL } from "@env";
 
 // Generate event description based on event data
 export const generateEventDescription = async (eventData) => {
   try {
-    const response = await fetch(
-      `${AI_CONFIG.OPENAI_BASE_URL}/chat/completions`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${AI_CONFIG.OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-3.5-turbo",
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are an expert event planner. Create engaging, concise event descriptions that capture the essence and excitement of the event. Keep descriptions under 200 words and make them inviting and appealing.",
-            },
-            {
-              role: "user",
-              content: `Create an engaging event description for: ${JSON.stringify(
-                eventData
-              )}. Add fun reminders to the description such as 'Don't forget to dress up!', etc. where appropriate.`,
-            },
-          ],
-          max_tokens: 300,
-          temperature: 0.7,
-        }),
-      }
-    );
+    const response = await fetch(`${OPENAI_BASE_URL}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an expert event planner. Create engaging, concise event descriptions that capture the essence and excitement of the event. Keep descriptions under 200 words and make them inviting and appealing.",
+          },
+          {
+            role: "user",
+            content: `Create an engaging event description for: ${JSON.stringify(
+              eventData
+            )}. Add fun reminders to the description such as 'Don't forget to dress up!', etc. where appropriate.`,
+          },
+        ],
+        max_tokens: 300,
+        temperature: 0.7,
+      }),
+    });
 
     if (!response.ok) {
       throw new Error(`OpenAI API error: ${response.status}`);
