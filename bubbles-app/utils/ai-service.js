@@ -2,14 +2,19 @@
 
 import { OPENAI_API_KEY, OPENAI_BASE_URL } from "@env";
 
+const AI_CONFIG = {
+  apiKey: OPENAI_API_KEY,
+  apiURL: OPENAI_BASE_URL,
+};
+
 // Generate event description based on event data
 export const generateEventDescription = async (eventData) => {
   try {
-    const response = await fetch(`${OPENAI_BASE_URL}/chat/completions`, {
+    const response = await fetch(`${AI_CONFIG.apiURL}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${AI_CONFIG.apiKey}`,
       },
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
